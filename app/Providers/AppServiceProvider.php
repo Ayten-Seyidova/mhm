@@ -7,6 +7,7 @@ use Illuminate\Pagination\Paginator as PaginationPaginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         PaginationPaginator::useBootstrap();
         Schema::defaultStringLength(191);
         date_default_timezone_set('Asia/Baku');
+
+	if($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
 
 //        $lang = Language::all();
 //        $setting = Setting::find(1);
