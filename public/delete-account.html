@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #ff4b4b;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #ff1f1f;
+        }
+        .message {
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Delete Your Account on MHM Tədris Mərkəzi</h2>
+    <form id="deleteAccountForm">
+        <input type="text" id="username" name="username" placeholder="Username" required><br>
+        <input type="email" id="email" name="email" placeholder="Email Address" required><br>
+        <input type="submit" value="Delete Account">
+    </form>
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+    document.getElementById('deleteAccountForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Sayfanın yenilenmesini engeller
+
+        // İstek gönderildiğinde gösterilecek mesaj
+        document.getElementById('message').innerHTML = 'Your request to delete the account has been successfully sent.';
+    });
+</script>
+
+</body>
+</html>
