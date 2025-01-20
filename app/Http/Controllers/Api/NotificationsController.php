@@ -109,7 +109,7 @@ class NotificationsController extends Controller
         ]);
 
         $validated['user_id'] = $request->user()->id;
-
+dd($validated);
 //        try {
             $saveOtp = NotificationParameters::updateOrCreate(['deviceId' => $validated['deviceId'] ], $validated);
             dd($saveOtp);
