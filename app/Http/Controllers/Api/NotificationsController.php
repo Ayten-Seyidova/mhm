@@ -112,6 +112,7 @@ class NotificationsController extends Controller
 
 //        try {
             $saveOtp = NotificationParameters::updateOrCreate(['deviceId' => $validated['deviceId'] ], $validated);
+            dd($saveOtp);
 //            return response(['status'=>'success']);
 //        }catch (\Exception $exception){
 //            return response(['status'=>'error','desc'=>$exception]);
