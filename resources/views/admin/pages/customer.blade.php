@@ -137,8 +137,6 @@
                                         <th>Şifrə</th>
                                         <th>Ad və soyad</th>
                                         <th>Qruplar</th>
-                                        <th>Tarix</th>
-                                        <th>Son tarix</th>
                                         <th>Status</th>
                                         <th>Cihaz sıfırlama</th>
                                         <th>Əməliyyatlar</th>
@@ -165,7 +163,6 @@
                                             <td onclick="copyText(this)" style="cursor: pointer"
                                                 title="Kopyalamaq üçün klikləyin">{{$postItem->password_text}}</td>
                                             <td>{{$postItem->name}}</td>
-                                            {{--                                            <td>{{$postItem->email}}</td>--}}
                                             <td style="white-space: nowrap">
                                                 @if($postItem->group_ids != null && $postItem->group_ids != '' && $postItem->group_ids != 'null')
                                                     @php
@@ -173,7 +170,20 @@
                                                         $thisCategories = \App\Models\Group::whereIn('id', $categoryIds)->get();
                                                     @endphp
                                                     @foreach($thisCategories as $thisCategory)
-                                                        <a href="{{route('group.index', ['group_id'=>$thisCategory->id])}}">{{$thisCategory->name}}</a>
+                                                        <?php
+                                                        $date = \App\Models\CustomerGroupDate::where('customer_id', $postItem->id)
+                                                            ->where('group_id', $thisCategory->id)
+                                                            ->first();
+
+                                                        if (!empty($date)) {
+                                                            $formattedDate = $date->date ? \Carbon\Carbon::parse($date->date)->translatedFormat('d.m.Y') : '';
+                                                            $formattedEndDate = $date->end_date ? ' - ' . \Carbon\Carbon::parse($date->end_date)->translatedFormat('d.m.Y') : '';
+                                                        } else {
+                                                            $formattedDate = '';
+                                                            $formattedEndDate = '';
+                                                        }
+                                                        ?>
+                                                        <a href="{{route('group.index', ['group_id'=>$thisCategory->id])}}">{{$thisCategory->name}} {{ !empty($date) ? '('.$formattedDate . $formattedEndDate.')' : '' }}</a>
                                                         <br>
                                                     @endforeach
                                                 @endif
@@ -191,8 +201,6 @@
                                             {{--                                                @endif--}}
                                             {{--                                            </td>--}}
                                             {{--                                            <td>{{$postItem->class}}</td>--}}
-                                            <td>{{$postItem->date ? \Carbon\Carbon::parse($postItem->date)->translatedFormat('d.m.Y') : ''}}</td>
-                                            <td>{{$postItem->end_date ? \Carbon\Carbon::parse($postItem->end_date)->translatedFormat('d.m.Y') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
                                                     <div class="form-check form-switch">
@@ -290,11 +298,6 @@
                                     <input class="form-control" required value="{{old('count')}}"
                                            type="number" min="1" name="count" id="count"/>
                                 </div>
-                                <div class="form-group">
-                                    <label for="date">Tarix</label>
-                                    <input class="form-control" value="{{old('date')}}"
-                                           type="date" name="date" id="date"/>
-                                </div>
                                 <div class="form-group d-flex mt-4">
                                     <label for="status">Status</label>
                                     <div class="form-check form-switch ml-4">
@@ -316,6 +319,7 @@
                                         @endif
                                     </select>
                                 </div>
+                                <div class="date-div d-none"></div>
                                 <div class="form-group">
                                     <label for="subjectIds">Bloklanan mövzular</label>
                                     <select name="blocked_subject_ids[]" multiple class="form-control search-select"
@@ -330,11 +334,6 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="endDate">Son tarix</label>
-                                    <input class="form-control" value="{{old('end_date')}}"
-                                           type="date" name="end_date" id="endDate"/>
                                 </div>
                             </div>
                         </div>
@@ -405,11 +404,6 @@
                             </div>
                             <div class="col-8">
                                 <div class="form-group">
-                                    <label for="dateEdit">Tarix</label>
-                                    <input class="form-control"
-                                           type="date" name="date" id="dateEdit"/>
-                                </div>
-                                <div class="form-group">
                                     <label for="groupIdsEdit">Qrup</label>
                                     <select name="group_ids[]" multiple required class="form-control search-select"
                                             id="groupIdsEdit">
@@ -421,6 +415,7 @@
                                         @endif
                                     </select>
                                 </div>
+                                <div class="date-divEdit d-none"></div>
                                 <div class="form-group">
                                     <label for="subjectIdsEdit">Bloklanan mövzular</label>
                                     <select name="blocked_subject_ids[]" multiple class="form-control search-select"
@@ -436,11 +431,6 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="endDateEdit">Son tarix</label>
-                                    <input class="form-control"
-                                           type="date" name="end_date" id="endDateEdit"/>
                                 </div>
                                 <div class="form-group" id="password_fieldEdit">
                                     <label for="password" class="control-label">
@@ -488,6 +478,99 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
     <script>
+        $(document).ready(function () {
+            const groupSelect = $('#groupIds');
+            const dateDiv = $('.date-div');
+
+            groupSelect.on('change', function () {
+                dateDiv.empty();
+                const selectedGroups = $(this).find(':selected');
+
+                if (selectedGroups.length > 0) {
+                    dateDiv.removeClass('d-none').addClass('d-block');
+                    selectedGroups.each(function () {
+                        const groupName = $(this).text();
+                        const dateItem = `
+                    <div class="date-item">
+                        <h6>${groupName}</h6>
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <input class="form-control" type="date" name="date[]" />
+                            </div>
+                            <div class="form-group col-6">
+                                <input class="form-control" type="date" name="end_date[]" />
+                            </div>
+                        </div>
+                    </div>
+                `;
+                        dateDiv.append(dateItem);
+                    });
+                } else {
+                    dateDiv.removeClass('d-block').addClass('d-none');
+                }
+            });
+
+            groupSelect.trigger('change');
+
+            const groupSelectEdit = $('#groupIdsEdit');
+            const dateDivEdit = $('.date-divEdit');
+
+            let existingGroupDates = {};
+
+            groupSelectEdit.on('change', function () {
+                const selectedGroupsEdit = $(this).find(':selected');
+                // const selectedGroupIds = selectedGroupsEdit.map(function () {
+                //     return $(this).val();
+                // }).get();
+
+                dateDivEdit.find('.date-item').each(function () {
+                    const groupName = $(this).find('h6').text();
+                    const date = $(this).find('input[name="date[]"]').val();
+                    const endDate = $(this).find('input[name="end_date[]"]').val();
+                    existingGroupDates[groupName] = {date, endDate};
+                });
+
+                dateDivEdit.empty();
+
+                if (selectedGroupsEdit.length > 0) {
+                    dateDivEdit.removeClass('d-none').addClass('d-block');
+
+                    selectedGroupsEdit.each(function () {
+                        const groupNameEdit = $(this).text();
+                        // const groupId = $(this).val();
+
+                        const savedDates = existingGroupDates[groupNameEdit] || {};
+
+                        const dateItemEdit = `
+                <div class="date-item">
+                    <h6>${groupNameEdit}</h6>
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <input class="form-control" type="date" name="date[]" value="${savedDates.date || ''}" />
+                        </div>
+                        <div class="form-group col-6">
+                            <input class="form-control" type="date" name="end_date[]" value="${savedDates.endDate || ''}" />
+                        </div>
+                    </div>
+                </div>
+            `;
+                        dateDivEdit.append(dateItemEdit);
+                    });
+                } else {
+                    dateDivEdit.removeClass('d-block').addClass('d-none');
+                }
+
+                Object.keys(existingGroupDates).forEach(groupName => {
+                    if (!selectedGroupsEdit.map(function () {
+                        return $(this).text();
+                    }).get().includes(groupName)) {
+                        delete existingGroupDates[groupName];
+                    }
+                });
+            });
+            groupSelectEdit.trigger('change');
+        });
+
         const togglePasswordEdit = document.querySelector("#togglePasswordEdit");
         const passwordEdit = document.querySelector("#newPasswordEdit");
 
@@ -572,34 +655,6 @@
 
             groupSelect.trigger('change');
 
-            // const groupSelect1 = $('#groupIdsEdit');
-            // const subjectSelect1 = $('#subjectIdsEdit');
-            // const allSubjects1 = $('#subjectIdsEdit option').clone();
-            //
-            // groupSelect1.on('change', function () {
-            //     const selectedGroups1 = groupSelect1.val();
-            //
-            //     subjectSelect1.empty();
-            //
-            //     allSubjects1.each(function () {
-            //         const option1 = $(this);
-            //         const categoryIds1 = option1.data('category-id') ? option1.data('category-id').toString().split(',') : [];
-            //
-            //         const isVisible1 = selectedGroups1.some(groupId1 => categoryIds1.includes(groupId1));
-            //
-            //         if (isVisible1) {
-            //             subjectSelect1.append(option1.clone());
-            //         }
-            //     });
-            //
-            //     if (subjectSelect1.find('option').length === 0) {
-            //         subjectSelect1.append('<option disabled>No matching subjects</option>');
-            //     }
-            //
-            //     subjectSelect1.trigger('change.select2');
-            // });
-            //
-            // groupSelect1.trigger('change');
             const groupSelect1 = $('#groupIdsEdit');
             const subjectSelect1 = $('#subjectIdsEdit');
             const allSubjects1 = $('#subjectIdsEdit option').clone();
@@ -852,8 +907,6 @@
                 let statusEdit = $('#statusEdit');
                 let usernameEdit = $('#usernameEdit');
                 let classEdit = $('#classEdit');
-                let dateEdit = $('#dateEdit');
-                let endDateEdit = $('#endDateEdit');
 
                 let groupSelect1 = document.getElementById('groupIdsEdit');
 
@@ -874,13 +927,12 @@
                     success: function (response) {
 
                         var post = response.post;
+                        var dates = response.dates;
 
                         nameEdit.val(post.name);
                         emailEdit.val(post.email);
                         usernameEdit.val(post.username);
                         classEdit.val(post.class);
-                        dateEdit.val(post.date);
-                        endDateEdit.val(post.end_date);
 
                         if (post.group_ids != 'null' && post.group_ids != '' && post.group_ids != null) {
                             let companyIds = JSON.parse(post.group_ids).map(id => id.toString());
@@ -915,27 +967,54 @@
                         } else {
                             statusEdit.attr('checked', false);
                         }
-                    }
-                });
-            }
 
-            let searchParams = new URLSearchParams(window.location.search)
-            if (searchParams.has('customer_id')) {
-                let dataId = searchParams.get('customer_id');
-                $('#editModal').modal('show');
-                editUser(dataId);
-            }
+                        var dateDivEdit = $('.date-divEdit');
+                        dateDivEdit.empty(); // Önceki içerikleri temizle
 
-            $('.editModal').click(function () {
-                let dataID = $(this).data('id');
-                editUser(dataID);
-            });
+                        if (dates.length > 0) {
+                            dateDivEdit.removeClass('d-none').addClass('d-block'); // Görünür yap
 
-            $('.clear-btn').click(function () {
-                $('#searchForm input').val('');
-                $('#searchForm select').val('');
-            })
-        })
-        ;
-    </script>
+                            dates.forEach(function (dateItem) {
+                                let dateHtml = `
+            <div class="date-item">
+                <h6>${dateItem.group_name || 'Grup'}</h6> <!-- Eğer group_name yoksa 'Grup' yaz -->
+                                <div class="row">
+                                <div class="form-group col-6">
+                                <input class="form-control" type="date" name="date[]" value="${dateItem.date || ''}" />
+                                </div>
+                                <div class="form-group col-6">
+                                <input class="form-control" type="date" name="end_date[]" value="${dateItem.end_date || ''}" />
+                                </div>
+                                </div>
+                                </div>
+                                `
+                            ;
+                                    dateDivEdit.append(dateHtml);
+                                });
+                            } else {
+                                dateDivEdit.addClass('d-none').removeClass('d-block'); // Boşsa gizle
+                            }
+                                                }
+                                            });
+                                        }
+
+                                        let searchParams = new URLSearchParams(window.location.search)
+                                        if (searchParams.has('customer_id')) {
+                                            let dataId = searchParams.get('customer_id');
+                                            $('#editModal').modal('show');
+                                            editUser(dataId);
+                                        }
+
+                                        $('.editModal').click(function () {
+                                            let dataID = $(this).data('id');
+                                            editUser(dataID);
+                                        });
+
+                                        $('.clear-btn').click(function () {
+                                            $('#searchForm input').val('');
+                                            $('#searchForm select').val('');
+                                        })
+                                    })
+                                    ;
+</script>
 @endsection

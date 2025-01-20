@@ -7,6 +7,7 @@ use App\Http\Helpers\SmsHelper;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Action;
 use App\Models\Customer;
+use App\Models\CustomerGroupDate;
 use App\Models\Group;
 use App\Models\Subject;
 use Carbon\Carbon;
@@ -28,7 +29,7 @@ class CustomerController extends Controller
         if (!isset($isDeleted)) {
             $isDeleted = 0;
         }
-        
+
         if (isset($isDeleted) && $isDeleted == 1) {
             $order = 'updated_at';
         }
@@ -73,13 +74,25 @@ class CustomerController extends Controller
     public function store(CustomerRequest $request)
     {
         for ($i = 0; $i < $request->count; $i++) {
-            Customer::create([
+            $customer = Customer::create([
                 'status' => isset($request->status) ? 1 : 0,
-                'date' => $request->date ? $request->date : Carbon::now(),
-                'end_date' => $request->end_date,
                 'group_ids' => json_encode($request->group_ids),
                 'blocked_subject_ids' => json_encode($request->blocked_subject_ids),
             ]);
+
+            $groupIds = $request->group_ids;
+            $dates = $request->date;
+            $endDates = $request->end_date;
+            if (!empty($groupIds)) {
+                foreach ($groupIds as $index => $groupId) {
+                    CustomerGroupDate::create([
+                        'group_id' => $groupId,
+                        'customer_id' => $customer->id,
+                        'date' => $dates[$index] ? $dates[$index] : Carbon::now(),
+                        'end_date' => $endDates[$index] ? $endDates[$index] : null,
+                    ]);
+                }
+            }
         }
 
         if (Auth::guard('admin')->check()) {
@@ -109,7 +122,17 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $post = Customer::find($id);
-        return response()->json(['post' => $post], 200);
+        $dates = CustomerGroupDate::where('customer_id', $id)
+            ->with('group')
+            ->get()
+            ->map(function ($date) {
+                return [
+                    'group_name' => $date->group->name ?? null,
+                    'date' => $date->date,
+                    'end_date' => $date->end_date,
+                ];
+            });
+        return response()->json(['post' => $post, 'dates' => $dates], 200);
     }
 
     /**
@@ -124,8 +147,6 @@ class CustomerController extends Controller
         $postUpdate->blocked_subject_ids = json_encode($request->blocked_subject_ids);
         $postUpdate->email = $request->email;
         $postUpdate->class = $request->class;
-        $postUpdate->date = $request->date;
-        $postUpdate->end_date = $request->end_date;
         $postUpdate->status = isset($request->status) ? 1 : 0;
 
         if ($request->password) {
@@ -144,6 +165,22 @@ class CustomerController extends Controller
         }
 
         $postUpdate->save();
+
+        CustomerGroupDate::where('customer_id', $id)->delete();
+
+        $groupIds = $request->group_ids;
+        $dates = $request->date;
+        $endDates = $request->end_date;
+        if (!empty($groupIds)) {
+            foreach ($groupIds as $index => $groupId) {
+                CustomerGroupDate::create([
+                    'group_id' => $groupId,
+                    'customer_id' => $id,
+                    'date' => $dates[$index] ? $dates[$index] : Carbon::now(),
+                    'end_date' => $endDates[$index] ? $endDates[$index] : null,
+                ]);
+            }
+        }
 
         alert()->success('Uğurlu', 'Redaktə olundu')
             ->showConfirmButton('Tamam', '#163A76');

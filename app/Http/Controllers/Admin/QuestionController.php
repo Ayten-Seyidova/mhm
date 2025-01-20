@@ -19,7 +19,7 @@ class QuestionController extends Controller
     {
         $user = null;
 
-        $exams = Exam::where('status', 1)->where('is_deleted', 0)->get();
+        $exams = Exam::where('status', 1)->where('is_deleted', 0)->orderBy('id', 'desc')->get();
 
         if (Auth::guard('teacher')->check()) {
             $user = Auth::guard('teacher')->user();
