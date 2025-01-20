@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\FirebaseHelper;
 use App\Http\Helpers\SmsHelper;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Action;
@@ -340,6 +341,7 @@ class CustomerController extends Controller
             } else {
                 continue;
             }
+            FirebaseHelper::sendUser("Ödəmə bildirişi", $message, $customer->id);
             //bura sms göndərmək üçün funksiya çağırılmalıdır. Parametr ($customer->id, $message)
         }
         return 'Successfully sended';
