@@ -9,5 +9,8 @@ class NotificationParameters extends Model
 {
     use HasFactory;
         protected $fillable = ["deviceId"];
+        protected $attributes = [
+            'notificationType' => '1',
+        ];
 //    protected $table = 'notification_parameters';
 }
