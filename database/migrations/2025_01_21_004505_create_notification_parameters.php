@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notfication_parameters', function (Blueprint $table) {
+        Schema::create('notification_parameters', function (Blueprint $table) {
             $table->id();
             $table->integer('notificationType');
             $table->string('token',255)->default(null);

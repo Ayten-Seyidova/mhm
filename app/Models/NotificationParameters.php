@@ -9,5 +9,5 @@ class NotificationParameters extends Model
 {
     use HasFactory;
 
-    protected $table = 'notfication_parameters';
+//    protected $table = 'notification_parameters';
 }
