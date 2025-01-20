@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class NotificationParameters extends Model
 {
     use HasFactory;
+
+    protected $table = 'notfication_parameters';
 }
