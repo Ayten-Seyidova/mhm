@@ -23,19 +23,19 @@ class NotificationsController extends Controller
      *   )
      */
     public function index(Request $request){
-        
-        
+
+
         $paginate = $_GET['limit'] ?? null;
         $orderBy = $_GET['orderBy'] ?? null;
         $user_id = $request->user()->id;
         $list = Notification::where("customer_id", $user_id);
         $count = count($list->get());
-        
+
         if($orderBy!=null){
             $orderBy = explode("_",$orderBy);
             $list = $list->orderBy($orderBy[0],$orderBy[1]);
         }
-          
+
         if($paginate!=null){
             $list = $list->paginate($paginate);
         }else{
@@ -107,17 +107,17 @@ class NotificationsController extends Controller
             'token' => 'required|string',
             'deviceId' => 'required|string',
         ]);
-        
+
         $validated['user_id'] = $request->user()->id;
-        
-        try {
+
+//        try {
             $saveOtp = NotificationParameters::updateOrCreate(['deviceId' => $validated['deviceId'] ], $validated);
-            return response(['status'=>'success']);
-        }catch (\Exception $exception){
-            return response(['status'=>'error','desc'=>$exception]);
-        }
+//            return response(['status'=>'success']);
+//        }catch (\Exception $exception){
+//            return response(['status'=>'error','desc'=>$exception]);
+//        }
     }
-    
+
     /**
      * @OA\Delete(
      *      path="/api/deleteParam",
