@@ -51,7 +51,8 @@
                         </div>
                         <div class="card-body">
                             <form method="get" id="searchForm" class="row justify-content-center" action="">
-                                <input type="hidden" name="is_deleted" value="{{isset($_GET['is_deleted']) ? $_GET['is_deleted'] : ''}}">
+                                <input type="hidden" name="is_deleted"
+                                       value="{{isset($_GET['is_deleted']) ? $_GET['is_deleted'] : ''}}">
                                 <div class="col-2">
                                     <select class="form-control default-select" onchange="form.submit()" name="status"
                                             id="searchOption">
@@ -543,62 +544,92 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-    const groupSelect = $('#groupIds');
-    const subjectSelect = $('#subjectIds');
-    const allSubjects = $('#subjectIds option').clone();
+            const groupSelect = $('#groupIds');
+            const subjectSelect = $('#subjectIds');
+            const allSubjects = $('#subjectIds option').clone();
 
-    groupSelect.on('change', function () {
-        const selectedGroups = groupSelect.val();
-        subjectSelect.empty();
+            groupSelect.on('change', function () {
+                const selectedGroups = groupSelect.val();
+                subjectSelect.empty();
 
-        allSubjects.each(function () {
-            const option = $(this);
-            const categoryIds = option.data('category-id') ? option.data('category-id').toString().split(',') : [];
+                allSubjects.each(function () {
+                    const option = $(this);
+                    const categoryIds = option.data('category-id') ? option.data('category-id').toString().split(',') : [];
 
-            const isVisible = selectedGroups.some(groupId => categoryIds.includes(groupId));
+                    const isVisible = selectedGroups.some(groupId => categoryIds.includes(groupId));
 
-            if (isVisible) {
-                subjectSelect.append(option.clone());
-            }
-        });
+                    if (isVisible) {
+                        subjectSelect.append(option.clone());
+                    }
+                });
 
-        if (subjectSelect.find('option').length === 0) {
-            subjectSelect.append('<option disabled>No matching subjects</option>');
-        }
+                if (subjectSelect.find('option').length === 0) {
+                    subjectSelect.append('<option disabled>No matching subjects</option>');
+                }
 
-        subjectSelect.trigger('change.select2');
-    });
+                subjectSelect.trigger('change.select2');
+            });
 
-    groupSelect.trigger('change');
+            groupSelect.trigger('change');
 
-    const groupSelect1 = $('#groupIdsEdit');
-    const subjectSelect1 = $('#subjectIdsEdit');
-    const allSubjects1 = $('#subjectIdsEdit option').clone();
+            // const groupSelect1 = $('#groupIdsEdit');
+            // const subjectSelect1 = $('#subjectIdsEdit');
+            // const allSubjects1 = $('#subjectIdsEdit option').clone();
+            //
+            // groupSelect1.on('change', function () {
+            //     const selectedGroups1 = groupSelect1.val();
+            //
+            //     subjectSelect1.empty();
+            //
+            //     allSubjects1.each(function () {
+            //         const option1 = $(this);
+            //         const categoryIds1 = option1.data('category-id') ? option1.data('category-id').toString().split(',') : [];
+            //
+            //         const isVisible1 = selectedGroups1.some(groupId1 => categoryIds1.includes(groupId1));
+            //
+            //         if (isVisible1) {
+            //             subjectSelect1.append(option1.clone());
+            //         }
+            //     });
+            //
+            //     if (subjectSelect1.find('option').length === 0) {
+            //         subjectSelect1.append('<option disabled>No matching subjects</option>');
+            //     }
+            //
+            //     subjectSelect1.trigger('change.select2');
+            // });
+            //
+            // groupSelect1.trigger('change');
+            const groupSelect1 = $('#groupIdsEdit');
+            const subjectSelect1 = $('#subjectIdsEdit');
+            const allSubjects1 = $('#subjectIdsEdit option').clone();
 
-    groupSelect1.on('change', function () {
-        const selectedGroups1 = groupSelect1.val();
-        
-        subjectSelect1.empty();
+            groupSelect1.on('change', function () {
+                const previouslySelected = subjectSelect1.val() || [];
+                const selectedGroups1 = groupSelect1.val();
+                subjectSelect1.empty();
 
-        allSubjects1.each(function () {
-            const option1 = $(this);
-            const categoryIds1 = option1.data('category-id') ? option1.data('category-id').toString().split(',') : [];
+                allSubjects1.each(function () {
+                    const option1 = $(this);
+                    const categoryIds1 = option1.data('category-id') ? option1.data('category-id').toString().split(',') : [];
 
-            const isVisible1 = selectedGroups1.some(groupId1 => categoryIds1.includes(groupId1));
+                    const isVisible1 = selectedGroups1.some(groupId1 => categoryIds1.includes(groupId1));
+                    if (isVisible1) {
+                        if (previouslySelected.includes(option1.val())) {
+                            option1.prop('selected', true);
+                        }
+                        subjectSelect1.append(option1.clone());
+                    }
+                });
 
-            if (isVisible1) {
-                subjectSelect1.append(option1.clone());
-            }
-        });
+                if (subjectSelect1.find('option').length === 0) {
+                    subjectSelect1.append('<option disabled>No matching subjects</option>');
+                }
 
-        if (subjectSelect1.find('option').length === 0) {
-            subjectSelect1.append('<option disabled>No matching subjects</option>');
-        }
+                subjectSelect1.val(previouslySelected).trigger('change.select2');
+            });
 
-        subjectSelect1.trigger('change.select2');
-    });
-
-    groupSelect1.trigger('change');
+            groupSelect1.trigger('change');
         });
 
         $(function () {
