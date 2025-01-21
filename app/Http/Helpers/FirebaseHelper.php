@@ -63,7 +63,7 @@ class FirebaseHelper
         $message['customer_id'] = $userId;
         Notification::create($message);
 
-        if ($user->push_notif) {
+        // if ($user->push_notif) {
             $data = [
                 "message" => [
                     "token" => $to,
@@ -74,7 +74,7 @@ class FirebaseHelper
                 ]
             ];
             return self::sendFirebaseRequest($data);
-        }
+        // }
 
         return ['status' => 'success'];
     }
@@ -92,7 +92,10 @@ class FirebaseHelper
             'customer_id' => $userId
         ]);
 
-        if ($user->push_notif) {
+        CustomerNotification::create(['title' => $title, 'description' => $desc, 'customer_id' => $userId]);
+
+        // if ($user->push_notif) {
+
             $data = [
                 "message" => [
                     "token" => $to,
@@ -103,7 +106,7 @@ class FirebaseHelper
                 ]
             ];
             return self::sendFirebaseRequest($data);
-        }
+        // }
 
         return ['status' => 'success'];
     }
