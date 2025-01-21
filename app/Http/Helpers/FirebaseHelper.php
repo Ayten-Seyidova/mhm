@@ -2,7 +2,6 @@
 
 namespace App\Http\Helpers;
 use App\Models\Customer;
-use App\Models\CustomerNotification;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
 
@@ -89,13 +88,14 @@ class FirebaseHelper
 
         Notification::create([
             'title' => $title,
-            'text' => $desc,
+            'description' => $desc,
             'customer_id' => $userId
         ]);
 
         CustomerNotification::create(['title' => $title, 'description' => $desc, 'customer_id' => $userId]);
 
         // if ($user->push_notif) {
+
             $data = [
                 "message" => [
                     "token" => $to,
@@ -119,12 +119,6 @@ class FirebaseHelper
         foreach ($custDatas as $cData) {
 
             Notification::create([
-                'title' => $title,
-                'text' => $desc,
-                'customer_id' => $cData['user_id']
-            ]);
-
-            CustomerNotification::create([
                 'title' => $title,
                 'description' => $desc,
                 'customer_id' => $cData['user_id']

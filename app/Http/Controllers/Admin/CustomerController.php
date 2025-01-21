@@ -302,6 +302,8 @@ class CustomerController extends Controller
         } else if ($request->val == 3) {
             foreach ($arr as $id) {
                 $post = Customer::find($id);
+                $message = 'Ödənişinizin vaxtı bitir';
+                FirebaseHelper::sendUser("Ödəmə bildirişi", $message, $id);
                 // Firebase notification
             }
         }
