@@ -92,8 +92,6 @@ class FirebaseHelper
             'customer_id' => $userId
         ]);
 
-        CustomerNotification::create(['title' => $title, 'description' => $desc, 'customer_id' => $userId]);
-
         if ($user->push_notif) {
             $data = [
                 "message" => [
