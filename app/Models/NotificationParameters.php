@@ -11,15 +11,4 @@ class NotificationParameters extends Model
     protected $guarded = [];
 
 //    protected $table = 'notification_parameters';
-
-
-    public function user()
-    {
-        return $this->hasMany(Customer::class, 'id', 'user_id');
-    }
-
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'user_id', 'id');
-    }
 }

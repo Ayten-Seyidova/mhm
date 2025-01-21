@@ -27,8 +27,8 @@ class Customer extends Model
     ];
 
     protected $hidden = ["password"];
-    
-    
+
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
@@ -71,10 +71,15 @@ class Customer extends Model
             $customer->password_text = $password;
         });
     }
-    
+
       public function getImageAttribute($value){
 
         return config('app.url').'/'.$value;
 
+    }
+
+    public function parameters()
+    {
+        return $this->hasOne(NotificationParameters::class, 'user_id', 'id');
     }
 }
