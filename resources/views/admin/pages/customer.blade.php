@@ -260,7 +260,10 @@
                                             <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ SİL
                                             </button>
                                         @endif
-                                        <button class="checkedBtn btn-success btn" value="3">ÖDƏNİŞ BİLDİRİŞİ GÖNDƏR
+                                        <button class="checkedBtn btn-success btn mr-3" value="3">ÖDƏNİŞ BİLDİRİŞİ
+                                            GÖNDƏR
+                                        </button>
+                                        <button class="checkedBtn btn-success btn" value="4">BİLDİRİŞ GÖNDƏR
                                         </button>
                                     </div>
                                     <br>
@@ -466,6 +469,34 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="sendModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Bildiriş göndər</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pb-0 pt-2">
+                    <div class="form-group">
+                        <label for="title">Başlıq</label>
+                        <input class="form-control"
+                               type="text" name="title" id="title"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="text">Məzmun</label>
+                        <textarea class="form-control" name="text" id="text" cols="30" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="sendPost" class="btn btn-sm btn-primary">Göndər</button>
+                </div>
             </div>
         </div>
     </div>
@@ -718,67 +749,71 @@
                     let text = '';
                     let resultText = '';
 
-                    if (currentVal == '0') {
-                        text = 'Seçilənləri deaktiv etmək istədiyinizə əminsiniz?';
-                        resultText = 'Deaktiv edildi';
-                    } else if (currentVal == '1') {
-                        text = 'Seçilənləri aktiv etmək istədiyinizə əminsiniz?';
-                        resultText = 'Aktiv edildi';
-                    } else if (currentVal == '2') {
-                        text = 'Əminsinizmi?';
-                        resultText = 'Uğurlu';
+                    if (currentVal == 4) {
+                        $('#sendModal').modal('show');
                     } else {
-                        text = 'Ödəniş bildirişi göndərmək istədiyinizə əminsinizmi?';
-                        resultText = 'Uğurlu';
-                    }
-
-                    Swal.fire({
-                        title: 'Xəbərdarlıq',
-                        text: text,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#163A76',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Bəli',
-                        cancelButtonText: 'Xeyr'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: route,
-                                method: 'POST',
-                                data: {
-                                    arr: checkedArr,
-                                    val: currentVal,
-                                },
-                                async: false,
-                                success: function (response) {
-                                    if (currentVal == '0') {
-                                        for (let i of checkedArr) {
-                                            $('.checkStatus' + i).attr('checked', false);
-                                        }
-                                    } else if (currentVal == '1') {
-                                        for (let i of checkedArr) {
-                                            $('.checkStatus' + i).attr('checked', true);
-                                        }
-                                    } else if (currentVal == '2') {
-                                        for (let i of checkedArr) {
-                                            $('#row' + i).remove();
-                                        }
-                                    }
-
-                                    $('.checkedItem').prop('checked', false);
-                                    checkedArr = [];
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Xəbərdarlıq',
-                                        confirmButtonColor: '#163A76',
-                                        text: resultText,
-                                        confirmButtonText: 'Tamam'
-                                    })
-                                }
-                            })
+                        if (currentVal == '0') {
+                            text = 'Seçilənləri deaktiv etmək istədiyinizə əminsiniz?';
+                            resultText = 'Deaktiv edildi';
+                        } else if (currentVal == '1') {
+                            text = 'Seçilənləri aktiv etmək istədiyinizə əminsiniz?';
+                            resultText = 'Aktiv edildi';
+                        } else if (currentVal == '2') {
+                            text = 'Əminsinizmi?';
+                            resultText = 'Uğurlu';
+                        } else {
+                            text = 'Ödəniş bildirişi göndərmək istədiyinizə əminsinizmi?';
+                            resultText = 'Uğurlu';
                         }
-                    })
+
+                        Swal.fire({
+                            title: 'Xəbərdarlıq',
+                            text: text,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#163A76',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Bəli',
+                            cancelButtonText: 'Xeyr'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: route,
+                                    method: 'POST',
+                                    data: {
+                                        arr: checkedArr,
+                                        val: currentVal,
+                                    },
+                                    async: false,
+                                    success: function (response) {
+                                        if (currentVal == '0') {
+                                            for (let i of checkedArr) {
+                                                $('.checkStatus' + i).attr('checked', false);
+                                            }
+                                        } else if (currentVal == '1') {
+                                            for (let i of checkedArr) {
+                                                $('.checkStatus' + i).attr('checked', true);
+                                            }
+                                        } else if (currentVal == '2') {
+                                            for (let i of checkedArr) {
+                                                $('#row' + i).remove();
+                                            }
+                                        }
+
+                                        $('.checkedItem').prop('checked', false);
+                                        checkedArr = [];
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Xəbərdarlıq',
+                                            confirmButtonColor: '#163A76',
+                                            text: resultText,
+                                            confirmButtonText: 'Tamam'
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }
                 } else {
                     Swal.fire({
                         icon: 'warning',
@@ -788,8 +823,46 @@
                         confirmButtonText: 'Tamam'
                     })
                 }
-
             });
+
+            $('#sendPost').on('click', function () {
+                let route = '{{route('customer.checked')}}';
+                let title = $('#title').val();
+                let text = $('#text').val();
+                if (title.trim() != '' && text.trim() != '') {
+                    $.ajax({
+                        url: route,
+                        method: 'POST',
+                        data: {
+                            arr: checkedArr,
+                            val: 4,
+                            title: title,
+                            text: text
+                        },
+                        async: false,
+                        success: function (response) {
+                            $('.checkedItem').prop('checked', false);
+                            $('#sendModal').modal('hide');
+                            checkedArr = [];
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Xəbərdarlıq',
+                                confirmButtonColor: '#163A76',
+                                text: 'Uğurla göndərildi',
+                                confirmButtonText: 'Tamam'
+                            })
+                        }
+                    })
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Xəbərdarlıq',
+                        confirmButtonColor: '#163A76',
+                        text: "Xanalar doldurulmalıdır",
+                        confirmButtonText: 'Tamam'
+                    })
+                }
+            })
 
             $('.deleteItem').click(function () {
                 let dataID = $(this).data('id');
@@ -900,7 +973,6 @@
                 }
             })
 
-
             function editUser(dataID) {
                 let nameEdit = $('#nameEdit');
                 let emailEdit = $('#emailEdit');
@@ -988,33 +1060,45 @@
                                 </div>
                                 </div>
                                 `
-                            ;
-                                    dateDivEdit.append(dateHtml);
-                                });
-                            } else {
-                                dateDivEdit.addClass('d-none').removeClass('d-block'); // Boşsa gizle
-                            }
-                                                }
-                                            });
-                                        }
 
-                                        let searchParams = new URLSearchParams(window.location.search)
-                                        if (searchParams.has('customer_id')) {
-                                            let dataId = searchParams.get('customer_id');
-                                            $('#editModal').modal('show');
-                                            editUser(dataId);
-                                        }
 
-                                        $('.editModal').click(function () {
-                                            let dataID = $(this).data('id');
-                                            editUser(dataID);
-                                        });
 
-                                        $('.clear-btn').click(function () {
-                                            $('#searchForm input').val('');
-                                            $('#searchForm select').val('');
-                                        })
-                                    })
-                                    ;
+
+
+
+
+
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                            ;
+                                                                                                                                                                                                                                                                                                                                                                                    dateDivEdit.append(dateHtml);
+                                                                                                                                                                                                                                                                                                                                                                                });
+                                                                                                                                                                                                                                                                                                                                                                            } else {
+                                                                                                                                                                                                                                                                                                                                                                                dateDivEdit.addClass('d-none').removeClass('d-block'); // Boşsa gizle
+                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                            });
+                                                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                                                        let searchParams = new URLSearchParams(window.location.search)
+                                                                                                                                                                                                                                                                                                                                                                                        if (searchParams.has('customer_id')) {
+                                                                                                                                                                                                                                                                                                                                                                                            let dataId = searchParams.get('customer_id');
+                                                                                                                                                                                                                                                                                                                                                                                            $('#editModal').modal('show');
+                                                                                                                                                                                                                                                                                                                                                                                            editUser(dataId);
+                                                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                                                        $('.editModal').click(function () {
+                                                                                                                                                                                                                                                                                                                                                                                            let dataID = $(this).data('id');
+                                                                                                                                                                                                                                                                                                                                                                                            editUser(dataID);
+                                                                                                                                                                                                                                                                                                                                                                                        });
+
+                                                                                                                                                                                                                                                                                                                                                                                        $('.clear-btn').click(function () {
+                                                                                                                                                                                                                                                                                                                                                                                            $('#searchForm input').val('');
+                                                                                                                                                                                                                                                                                                                                                                                            $('#searchForm select').val('');
+                                                                                                                                                                                                                                                                                                                                                                                        })
+                                                                                                                                                                                                                                                                                                                                                                                    })
+                                                                                                                                                                                                                                                                                                                                                                                    ;
 </script>
 @endsection

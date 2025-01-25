@@ -306,6 +306,12 @@ class CustomerController extends Controller
                 FirebaseHelper::sendUser("Ödəmə bildirişi", $message, $id);
                 // Firebase notification
             }
+        } else if ($request->val == 4) {
+            foreach ($arr as $id) {
+                $title = $request->title;
+                $message = $request->text;
+                FirebaseHelper::sendUser($title, $message, $id);
+            }
         }
 
         return response()->json(['message' => 'Uğurlu']);
