@@ -82,4 +82,11 @@ class Customer extends Model
     {
         return $this->hasOne(NotificationParameters::class, 'user_id', 'id');
     }
+
+
+    public function groupAdded()
+    {
+        return $this->hasMany(CustomerGroupDate::class, 'customer_id', 'id');
+    }
+
 }

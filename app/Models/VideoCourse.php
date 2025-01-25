@@ -16,10 +16,10 @@ class VideoCourse extends Model
     {
         return $this->belongsToMany(Group::class, 'groups', 'id', 'id');
     }
-    
+
     public function subjects()
     {
- 
+
         $user = Auth::user();
         $arr = json_decode($user->blocked_subject_ids,1);
         $result = $this->hasMany(Subject::class, 'video_course_id', 'id');
@@ -27,13 +27,32 @@ class VideoCourse extends Model
         if($arr){
             $result = $result->whereNotIn('id', $arr);
         }
-        
+
         return $result;
-        
+
     }
-    
+
     public function comments()
     {
         return $this->hasMany(Comment::class, 'video_course_id', 'id');
+    }
+
+    public function groups()
+    {
+        $groupAdded = @Auth::user()->groupAdded->toArray();
+        $result = $this->hasMany(CourseGroup::class,'video_course_id', 'id');
+
+        $result = $result->where(function ($query) use ($groupAdded) {
+            foreach ($groupAdded as $group) {
+                if ($group['end_date']) {
+                    $query->where('created_at', '<=', $group['end_date']);
+                }
+                if ($group['date']) {
+                    $query->where('created_at', '>', $group['date']);
+                }
+            }
+        });
+
+        return $result;
     }
 }
