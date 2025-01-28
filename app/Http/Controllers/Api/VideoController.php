@@ -40,7 +40,7 @@ class VideoController extends Controller
             group by video_course_id),0) as subjects_count
        ')->where('type',$type)
          ->where('is_deleted',0)->where('status',1)
-         ->with(['comments.customer','subjects.videos', 'groups']);
+         ->with(['groups','comments.customer','subjects.videos']);
 
 
      /*    if($date!=null){
@@ -82,9 +82,9 @@ class VideoController extends Controller
                 foreach ($groups as $group) {
                     $query->orWhere('group_id', $group);
                 }
-            });
+            })->has('groups');
 
-
+          $videoCourses = $videoCourses->has('groups');
 
           if($orderBy!=null){
               $orderBy = explode("_",$orderBy);
@@ -97,7 +97,16 @@ class VideoController extends Controller
               $videoCourses = $videoCourses->get();
           }
 
-         return response(['status' => 'success', 'videoCourses' => $videoCourses]);
+         $newList = [];
+         foreach ($videoCourses->toArray() as $val){
+             if(!empty($val['groups'])){
+                 $newList[]=$val;
+             }
+         }
+
+
+
+         return response(['status' => 'success', 'videoCourses' => $newList]);
     }
 
      public function myVideoCourses($type,Request $request){
