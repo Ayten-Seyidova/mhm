@@ -98,15 +98,15 @@ class VideoController extends Controller
           }
 
          $newList = [];
-         foreach ($videoCourses->toArray() as $val){
+         foreach (($paginate!=null?$videoCourses->toArray()['data']:$videoCourses->toArray()) as $val){
              if(!empty($val['groups'])){
                  $newList[]=$val;
              }
          }
 
+        $result = $paginate!=null?['data'=>$newList]:$newList;
 
-
-         return response(['status' => 'success', 'videoCourses' => $newList]);
+         return response(['status' => 'success', 'videoCourses' => $result]);
     }
 
      public function myVideoCourses($type,Request $request){
