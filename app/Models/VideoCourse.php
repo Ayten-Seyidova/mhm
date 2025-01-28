@@ -41,18 +41,18 @@ class VideoCourse extends Model
     {
         $groupAdded = @Auth::user()->groupAdded->toArray();
         $result = $this->hasMany(CourseGroup::class,'video_course_id', 'id');
+        foreach ($groupAdded as $group) {
+            $result = $result->orWhere(function ($query) use ($group) {
+                $query->where('group_id', $group['group_id']);
 
-        $result = $result->where(function ($query) use ($groupAdded) {
-            foreach ($groupAdded as $group) {
-                if ($group['end_date']) {
-                    $query->where('created_at', '<=', $group['end_date']);
-                }
-                if ($group['date']) {
-                    $query->where('created_at', '>', $group['date']);
-                }
-            }
-        });
-
+                    if ($group['end_date']) {
+                        $query->where('created_at', '<=', $group['end_date']);
+                    }
+                    if ($group['date']) {
+                        $query->where('created_at', '>', $group['date']);
+                    }
+            });
+        }
         return $result;
     }
 }

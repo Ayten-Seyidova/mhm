@@ -22,9 +22,8 @@ class NotificationsController extends Controller
      *       )
      *   )
      */
-    public function index(Request $request){
-
-
+    public function index(Request $request)
+    {
         $paginate = $_GET['limit'] ?? null;
         $orderBy = $_GET['orderBy'] ?? null;
         $user_id = $request->user()->id;
