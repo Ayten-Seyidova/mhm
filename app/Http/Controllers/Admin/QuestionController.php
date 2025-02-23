@@ -36,7 +36,7 @@ class QuestionController extends Controller
                             $query->orWhereRaw("JSON_CONTAINS(group_ids, '\"$groupId\"')");
                         }
                     });
-                })->get();
+                })->orderBy('id', 'desc')->get();
         }
 
         $isDeleted = $request->is_deleted ?? 0;
