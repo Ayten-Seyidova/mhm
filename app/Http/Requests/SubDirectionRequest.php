@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class SubDirectionRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules()
+    {
+        return [
+            "title" => "required|max:190",
+            "direction_id" => "required",
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            "title.required" => "Başlıq qeyd olunmalıdır",
+            "title.max" => "Başlıq ən çox 190 simvoldan ibarət olmalıdır",
+            "direction_id.required" => "Hazırlıq istiqaməti seçilməlidir",
+        ];
+    }
+}

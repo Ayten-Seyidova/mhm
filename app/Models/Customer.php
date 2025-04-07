@@ -9,7 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Customer extends Model
 {
-    use HasFactory,HasApiTokens;
+    use HasFactory, HasApiTokens;
 
     protected $fillable = [
         'image',
@@ -72,10 +72,9 @@ class Customer extends Model
         });
     }
 
-      public function getImageAttribute($value){
-
-        return config('app.url').'/'.$value;
-
+    public function getImageAttribute($value)
+    {
+        return config('app.url') . '/' . $value;
     }
 
     public function parameters()
@@ -83,10 +82,8 @@ class Customer extends Model
         return $this->hasOne(NotificationParameters::class, 'user_id', 'id');
     }
 
-
     public function groupAdded()
     {
         return $this->hasMany(CustomerGroupDate::class, 'customer_id', 'id');
     }
-
 }

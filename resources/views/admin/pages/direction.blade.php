@@ -1,22 +1,18 @@
 @extends('admin.index')
-
 @section('title')
-    Slayder | Admin panel
+    Hazırlıq istiqamətləri | Admin panel
 @endsection
-
 @section('css')
     <link href="{{ asset('admin/vendor/datatables/css/jquery.dataTables.min.css') }}" rel="stylesheet">
 @endsection
-
 @section('content')
-
     <div class="content-body">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4 class="card-title">Slayder</h4>
+                            <h4 class="card-title">Hazırlıq İstiqamətləri</h4>
                             <button type="button" class="btn btn-primary btn-rounded mr-2" data-toggle="modal"
                                     data-target="#createModal"><span class="btn-icon-left text-primary"><i
                                         class="fa fa-plus color-info"></i></span>
@@ -25,6 +21,7 @@
                         </div>
                         <div class="card-body">
                             <form method="get" id="searchForm" class="row justify-content-center" action="">
+                                <input type="hidden" name="is_deleted" value="{{isset($_GET['is_deleted']) ? $_GET['is_deleted'] : ''}}">
                                 <div class="input-group col-4">
                                     <div class="form-item">
                                         <input id="search-input"
@@ -40,16 +37,28 @@
                                 <div class="col-1">
                                     <button class="filter-search-btn btn btn-secondary clear-btn">Sıfırla</button>
                                 </div>
+                                @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
+                                    <div class="col-1">
+                                        <a href="{{route('direction.index')}}"
+                                           class="btn btn-primary clear-btn">
+                                            <i class="fas fa-list"></i>
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="col-1">
+                                        <a href="{{route('direction.index', ['is_deleted'=>1])}}"
+                                           class="btn btn-success clear-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                @endif
                             </form>
                             <div class="table-responsive">
                                 <table id="example3" class="display min-w850">
                                     <thead>
                                     <tr class="text-center">
                                         <th>Seç</th>
-                                        <th>Şəkil</th>
                                         <th>Başlıq</th>
-                                        <th>Link</th>
-                                        <th>Yaranma tarixi</th>
                                         <th>Əməliyyatlar</th>
                                     </tr>
                                     </thead>
@@ -58,12 +67,7 @@
                                         <tr id="row{{$postItem->id}}" class="text-center">
                                             <td class="text-center"><input value="{{$postItem->id}}" class="checkedItem"
                                                                            name="checked" type="checkbox"></td>
-                                            <td>
-                                                <img class="d-block m-auto" style="width: 100px"
-                                                     src="{{asset($postItem->image)}}" alt=""></td>
                                             <td>{{$postItem->title}}</td>
-                                            <td>{{$postItem->link}}</td>
-                                            <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td>
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <a href="javascript:void(0)" data-id="{{$postItem->id}}"
@@ -83,7 +87,11 @@
                                 <br>
                                 @if(!empty($postItem))
                                     <div class="d-flex justify-content-start">
-                                        <button class="checkedBtn btn-primary btn">SEÇİLƏNLƏRİ SİL</button>
+                                        @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
+                                            <button class="checkedBtn btn-primary btn">SEÇİLƏNLƏRİ BƏRPA ET</button>
+                                        @else
+                                            <button class="checkedBtn btn-primary btn">SEÇİLƏNLƏRİ SİL</button>
+                                        @endif
                                     </div>
                                     <br>
                                 @endif
@@ -108,35 +116,15 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="formCreate" action="{{route('slider.store')}}" method="POST"
+                <form id="formCreate" action="{{route('direction.store')}}" method="POST"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body pb-0 pt-2">
-                        <div class="form-group img-section">
-                            <label for="uploadImage-create">Şəkil</label>
-                            <div class="img-input d-flex justify-content-between mb-2">
-                                <input id="uploadImage-create" type="file"
-                                       name="image" class="form-control-file"
-                                       onchange="PreviewImageCreate();">
-                                <div class="delete-img c-pointer" onclick="deleteImageCreate();">
-                                    <i class="fas fa-trash"></i></div>
-                            </div>
-
-                            <img class="preview-img" id='previewImage-create'
-                                 src="{{asset('admin/images/noPhoto.png')}}"
-                                 style="width: 100%;" alt="">
-                        </div>
                         <div class="form-group">
                             <label for="title">Başlıq</label>
                             <input class="form-control" value="{{old('title')}}"
-                                   type="text" maxlength="500"
+                                   type="text" required maxlength="190"
                                    name="title" id="title"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="link">Link</label>
-                            <input class="form-control" value="{{old('link')}}"
-                                   type="text" maxlength="190"
-                                   name="link" id="link"/>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -169,32 +157,11 @@
                     @csrf
                     @method('PUT')
                     <div class="modal-body pb-0 pt-2">
-                        <div class="form-group img-section">
-                            <label for="uploadImage">Şəkil</label>
-                            <div class="img-input d-flex justify-content-between mb-2">
-                                <input id="uploadImage" type="file"
-                                       name="image" value="" class="form-control-file"
-                                       onchange="PreviewImage();">
-                                <div class="delete-img c-pointer" onclick="deleteImage();">
-                                    <i class="fas fa-trash"></i></div>
-                                <input id="hiddenInput" type="hidden" name="hidden" value="1">
-                            </div>
-
-                            <img class="preview-img" id='previewImage'
-                                 src="{{asset('admin/images/noPhoto.png')}}"
-                                 style="width: 100%;" alt="">
-                        </div>
                         <div class="form-group">
                             <label for="titleEdit">Başlıq</label>
                             <input class="form-control"
-                                   type="text" maxlength="500"
+                                   type="text" required maxlength="190"
                                    name="title" id="titleEdit"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="linkEdit">Link</label>
-                            <input class="form-control"
-                                   type="text" maxlength="190"
-                                   name="link" id="linkEdit"/>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -209,45 +176,13 @@
             </div>
         </div>
     </div>
-
 @endsection
-
 @section('js')
-
     <script src="{{ asset('admin/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('admin/js/plugins-init/datatables.init.js') }}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script>
-        function PreviewImageCreate() {
-            var oFReader = new FileReader();
-            oFReader.readAsDataURL(document.getElementById("uploadImage-create").files[0]);
-
-            oFReader.onload = function (oFREvent) {
-                document.getElementById("previewImage-create").src = oFREvent.target.result;
-            };
-        };
-
-        function deleteImageCreate() {
-            document.getElementById("previewImage-create").src = '{{asset('admin/images/noPhoto.png')}}';
-            document.getElementById("uploadImage-create").value = '';
-        }
-
-        function PreviewImage() {
-            document.getElementById('hiddenInput').value = '1';
-            var oFReader = new FileReader();
-            oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
-            oFReader.onload = function (oFREvent) {
-                document.getElementById("previewImage").src = oFREvent.target.result;
-            };
-        };
-
-        function deleteImage() {
-            document.getElementById("previewImage").src = '{{asset('admin/images/noPhoto.png')}}';
-            document.getElementById('hiddenInput').value = '0';
-        }
-
         $(function () {
-
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -270,7 +205,7 @@
 
             $('.checkedBtn').click(function () {
                 if (checkedArr.length != 0) {
-                    let route = '{{route('slider.checked')}}';
+                    let route = '{{route('direction.checked')}}';
 
                     Swal.fire({
                         title: 'Xəbərdarlıq',
@@ -322,8 +257,8 @@
 
             $('.deleteItem').click(function () {
                 let dataID = $(this).data('id');
-                let route = '{{route('slider.destroy', ['slider'=>'delete'])}}';
-                route = route.replace('delete', dataID);
+                let route = '{{route('direction.destroy', ['direction'=>'id'])}}';
+                route = route.replace('id', dataID);
                 Swal.fire({
                     title: 'Xəbərdarlıq',
                     text: 'Əminsinizmi?',
@@ -360,12 +295,10 @@
 
             function editUser(dataID) {
                 let titleEdit = $('#titleEdit');
-                let linkEdit = $('#linkEdit');
-                let imageEdit = $('#previewImage');
 
-                let route = '{{route('slider.edit', ['slider'=>'edit'])}}';
+                let route = '{{route('direction.edit', ['direction'=>'edit'])}}';
                 route = route.replace('edit', dataID);
-                let routeUpdate = '{{route('slider.update', ['slider' => 'update'])}}';
+                let routeUpdate = '{{route('direction.update', ['direction' => 'update'])}}';
                 routeUpdate = routeUpdate.replace('update', dataID);
 
                 $('#formEdit').attr('action', routeUpdate);
@@ -382,15 +315,13 @@
                         var post = response.post;
 
                         titleEdit.val(post.title);
-                        linkEdit.val(post.link);
-                        imageEdit.attr("src", (post.image));
                     }
                 })
             }
 
             let searchParams = new URLSearchParams(window.location.search)
-            if (searchParams.has('slider_id')) {
-                let dataId = searchParams.get('slider_id');
+            if (searchParams.has('direction_id')) {
+                let dataId = searchParams.get('direction_id');
                 $('#editModal').modal('show');
                 editUser(dataId);
             }
@@ -402,7 +333,6 @@
 
             $('.clear-btn').click(function () {
                 $('#searchForm input').val('');
-                $('#searchForm select').val('');
             })
         });
     </script>

@@ -24,31 +24,12 @@
                             </button>
                         </div>
                         <div class="card-body">
-                            <form method="get" id="searchForm" class="row justify-content-center" action="">
-                                <div class="input-group col-4">
-                                    <div class="form-item">
-                                        <input id="search-input"
-                                               value="{{isset($_GET['search']) ? $_GET['search'] : ''}}" name="search"
-                                               type="search"
-                                               placeholder="Axtarış et" class="form-control"
-                                               style="border-top-right-radius: 0; border-bottom-right-radius: 0"/>
-                                    </div>
-                                    <button id="search-button" type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                                <div class="col-1">
-                                    <button class="filter-search-btn btn btn-secondary clear-btn">Sıfırla</button>
-                                </div>
-                            </form>
                             <div class="table-responsive">
                                 <table id="example3" class="display min-w850">
                                     <thead>
                                     <tr class="text-center">
                                         <th>Seç</th>
                                         <th>Şəkil</th>
-                                        <th>Başlıq</th>
-                                        <th>Link</th>
                                         <th>Yaranma tarixi</th>
                                         <th>Əməliyyatlar</th>
                                     </tr>
@@ -61,8 +42,6 @@
                                             <td>
                                                 <img class="d-block m-auto" style="width: 100px"
                                                      src="{{asset($postItem->image)}}" alt=""></td>
-                                            <td>{{$postItem->title}}</td>
-                                            <td>{{$postItem->link}}</td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td>
                                                 <div class="d-flex align-items-center justify-content-center">
@@ -108,7 +87,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="formCreate" action="{{route('slider.store')}}" method="POST"
+                <form id="formCreate" action="{{route('story.store')}}" method="POST"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body pb-0 pt-2">
@@ -125,18 +104,6 @@
                             <img class="preview-img" id='previewImage-create'
                                  src="{{asset('admin/images/noPhoto.png')}}"
                                  style="width: 100%;" alt="">
-                        </div>
-                        <div class="form-group">
-                            <label for="title">Başlıq</label>
-                            <input class="form-control" value="{{old('title')}}"
-                                   type="text" maxlength="500"
-                                   name="title" id="title"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="link">Link</label>
-                            <input class="form-control" value="{{old('link')}}"
-                                   type="text" maxlength="190"
-                                   name="link" id="link"/>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -184,18 +151,6 @@
                                  src="{{asset('admin/images/noPhoto.png')}}"
                                  style="width: 100%;" alt="">
                         </div>
-                        <div class="form-group">
-                            <label for="titleEdit">Başlıq</label>
-                            <input class="form-control"
-                                   type="text" maxlength="500"
-                                   name="title" id="titleEdit"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="linkEdit">Link</label>
-                            <input class="form-control"
-                                   type="text" maxlength="190"
-                                   name="link" id="linkEdit"/>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal">
@@ -209,14 +164,10 @@
             </div>
         </div>
     </div>
-
 @endsection
-
 @section('js')
-
     <script src="{{ asset('admin/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('admin/js/plugins-init/datatables.init.js') }}"></script>
-
     <script>
         function PreviewImageCreate() {
             var oFReader = new FileReader();
@@ -270,7 +221,7 @@
 
             $('.checkedBtn').click(function () {
                 if (checkedArr.length != 0) {
-                    let route = '{{route('slider.checked')}}';
+                    let route = '{{route('story.checked')}}';
 
                     Swal.fire({
                         title: 'Xəbərdarlıq',
@@ -322,7 +273,7 @@
 
             $('.deleteItem').click(function () {
                 let dataID = $(this).data('id');
-                let route = '{{route('slider.destroy', ['slider'=>'delete'])}}';
+                let route = '{{route('story.destroy', ['story'=>'delete'])}}';
                 route = route.replace('delete', dataID);
                 Swal.fire({
                     title: 'Xəbərdarlıq',
@@ -359,13 +310,11 @@
             });
 
             function editUser(dataID) {
-                let titleEdit = $('#titleEdit');
-                let linkEdit = $('#linkEdit');
                 let imageEdit = $('#previewImage');
 
-                let route = '{{route('slider.edit', ['slider'=>'edit'])}}';
+                let route = '{{route('story.edit', ['story'=>'edit'])}}';
                 route = route.replace('edit', dataID);
-                let routeUpdate = '{{route('slider.update', ['slider' => 'update'])}}';
+                let routeUpdate = '{{route('story.update', ['story' => 'update'])}}';
                 routeUpdate = routeUpdate.replace('update', dataID);
 
                 $('#formEdit').attr('action', routeUpdate);
@@ -381,16 +330,14 @@
 
                         var post = response.post;
 
-                        titleEdit.val(post.title);
-                        linkEdit.val(post.link);
                         imageEdit.attr("src", (post.image));
                     }
                 })
             }
 
             let searchParams = new URLSearchParams(window.location.search)
-            if (searchParams.has('slider_id')) {
-                let dataId = searchParams.get('slider_id');
+            if (searchParams.has('story_id')) {
+                let dataId = searchParams.get('story_id');
                 $('#editModal').modal('show');
                 editUser(dataId);
             }

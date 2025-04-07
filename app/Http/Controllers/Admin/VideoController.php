@@ -83,22 +83,22 @@ class VideoController extends Controller
     public function store(VideoRequest $request)
     {
         $image = $request->file('image');
-        
+
         $url = $request->link;
-               $position = strpos($url, '=');
+        $position = strpos($url, '=');
 
         if ($position !== false) {
-        $parsedUrl = parse_url($url);
-        
-        parse_str($parsedUrl['query'] ?? '', $queryParams);
-        
-        $videoId = $queryParams['v'] ?? null;
-        
-        if ($videoId) {
-            $url = $videoId;
-        } else {
-            $url = '';
-        }
+            $parsedUrl = parse_url($url);
+
+            parse_str($parsedUrl['query'] ?? '', $queryParams);
+
+            $videoId = $queryParams['v'] ?? null;
+
+            if ($videoId) {
+                $url = $videoId;
+            } else {
+                $url = '';
+            }
         }
 
         Video::create([
@@ -145,22 +145,22 @@ class VideoController extends Controller
         } else if ($image && $_POST['hidden'] == "1") {
             $postUpdate->image = uploadImg($image);
         }
-        
+
         $url = $request->link;
         $position = strpos($url, '=');
 
         if ($position !== false) {
-                    $parsedUrl = parse_url($url);
-        
-        parse_str($parsedUrl['query'] ?? '', $queryParams);
-        
-        $videoId = $queryParams['v'] ?? null;
-        
-        if ($videoId) {
-            $url = $videoId;
-        } else {
-            $url = $url;
-        }
+            $parsedUrl = parse_url($url);
+
+            parse_str($parsedUrl['query'] ?? '', $queryParams);
+
+            $videoId = $queryParams['v'] ?? null;
+
+            if ($videoId) {
+                $url = $videoId;
+            } else {
+                $url = $url;
+            }
         }
 
 

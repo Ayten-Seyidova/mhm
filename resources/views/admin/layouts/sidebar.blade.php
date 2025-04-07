@@ -43,6 +43,15 @@
                         <span class="nav-text">Nəticələr</span>
                     </a>
                 </li>
+                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                        <i class="fas fa-user-circle" style="width:24px"></i>
+                        <span class="nav-text">Qonaqlar</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{route('post.index')}}">Paylaşımlar</a></li>
+                        <li><a href="{{route('answer.index')}}">Cavablar</a></li>
+                    </ul>
+                </li>
             @endauth
             @auth('admin')
                 <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
@@ -81,6 +90,20 @@
                         <i class="fas fa fa-sliders" style="width:30px"></i>
                         <span class="nav-text">Slayder</span>
                     </a>
+                </li>
+                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                        <i class="fas fa-user-circle" style="width:24px"></i>
+                        <span class="nav-text">Qonaqlar</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{route('guest.index')}}">Qonaqlar</a></li>
+                        <li><a href="{{route('direction.index')}}">Hazırlıq istiqamətləri</a></li>
+                        <li><a href="{{route('sub-direction.index')}}">İstiqamətlər</a></li>
+                        <li><a href="{{route('teacher-direction.index')}}">Müəllim istiqamətləri</a></li>
+                        <li><a href="{{route('story.index')}}">Slayder</a></li>
+                        <li><a href="{{route('post.index')}}">Paylaşımlar</a></li>
+                        <li><a href="{{route('answer.index')}}">Cavablar</a></li>
+                    </ul>
                 </li>
                 <li><a href="{{route("faq.index")}}" class="ai-icon" aria-expanded="false">
                         <i class="fas fa fa-question-circle" style="width:30px"></i>

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
@@ -18,6 +19,13 @@ use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\ActionController;
+use App\Http\Controllers\Admin\GuestController;
+use App\Http\Controllers\Admin\DirectionController;
+use App\Http\Controllers\Admin\SubDirectionController;
+use App\Http\Controllers\Admin\TeacherDirectionController;
+use App\Http\Controllers\Admin\StoryController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\AnswerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +61,17 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::resource('/settings', SettingController::class);
     Route::get('/password', [SettingController::class, 'password'])->name('password');
     Route::post('/change-password', [SettingController::class, 'changePassword'])->name('changePassword');
+    Route::resource('/guest', GuestController::class);
+    Route::post('guest/changeStatus', [GuestController::class, 'changeStatus'])->name('guest.changeStatus');
+    Route::post('guest/checked', [GuestController::class, 'checked'])->name('guest.checked');
+    Route::resource('/direction', DirectionController::class);
+    Route::post('direction/checked', [DirectionController::class, 'checked'])->name('direction.checked');
+    Route::resource('/sub-direction', SubDirectionController::class);
+    Route::post('sub-direction/checked', [SubDirectionController::class, 'checked'])->name('sub-direction.checked');
+    Route::resource('/teacher-direction', TeacherDirectionController::class);
+    Route::post('teacher-direction/checked', [TeacherDirectionController::class, 'checked'])->name('teacher-direction.checked');
+    Route::resource('/story', StoryController::class);
+    Route::post('story/checked', [StoryController::class, 'checked'])->name('story.checked');
 });
 
 Route::prefix('administrator/mhm')->middleware('is_teacher')->group(function () {
@@ -75,6 +94,10 @@ Route::prefix('administrator/mhm')->middleware('is_admin_or_teacher')->group(fun
     Route::post('question/changeStatus', [QuestionController::class, 'changeStatus'])->name('question.changeStatus');
     Route::post('question/checked', [QuestionController::class, 'checked'])->name('question.checked');
     Route::resource('/result', ResultController::class);
+    Route::resource('/post', PostController::class);
+    Route::post('post/changeStatus', [PostController::class, 'changeStatus'])->name('post.changeStatus');
+    Route::post('post/checked', [PostController::class, 'checked'])->name('post.checked');
+    Route::resource('/answer', AnswerController::class);
 });
 
 Route::group(['prefix' => 'administrator/mhm'], function () {
