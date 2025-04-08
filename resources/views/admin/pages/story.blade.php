@@ -1,7 +1,7 @@
 @extends('admin.index')
 
 @section('title')
-    Slayder | Admin panel
+    Hekayələr | Admin panel
 @endsection
 
 @section('css')
@@ -16,7 +16,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4 class="card-title">Slayder</h4>
+                            <h4 class="card-title">Hekayələr</h4>
                             <button type="button" class="btn btn-primary btn-rounded mr-2" data-toggle="modal"
                                     data-target="#createModal"><span class="btn-icon-left text-primary"><i
                                         class="fa fa-plus color-info"></i></span>

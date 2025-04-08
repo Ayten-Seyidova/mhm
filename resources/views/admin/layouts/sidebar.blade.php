@@ -100,7 +100,7 @@
                         <li><a href="{{route('direction.index')}}">Hazırlıq istiqamətləri</a></li>
                         <li><a href="{{route('sub-direction.index')}}">İstiqamətlər</a></li>
                         <li><a href="{{route('teacher-direction.index')}}">Müəllim istiqamətləri</a></li>
-                        <li><a href="{{route('story.index')}}">Slayder</a></li>
+                        <li><a href="{{route('story.index')}}">Hekayələr</a></li>
                         <li><a href="{{route('post.index')}}">Paylaşımlar</a></li>
                         <li><a href="{{route('answer.index')}}">Cavablar</a></li>
                     </ul>
