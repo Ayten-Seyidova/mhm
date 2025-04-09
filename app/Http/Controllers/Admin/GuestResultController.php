@@ -3,17 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Answer;
-use App\Models\Customer;
 use App\Models\Guest;
-use App\Models\Post;
-use App\Models\SubDirection;
+use App\Models\GuestExam;
+use App\Models\GuestResult;
 use App\Models\TeacherSubDirection;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AnswerController extends Controller
+class GuestResultController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,37 +19,39 @@ class AnswerController extends Controller
     {
         $user = null;
 
-        $lists = Post::where('type', 'question')->where('is_deleted', 0)->get();
+        $exams = GuestExam::where('status', 1)->where('is_deleted', 0)->get();
         $guests = Guest::where('is_deleted', 0)->get();
-
-        $posts = Answer::where(function ($query) use ($request) {
-            return $request->guest_id ?
-                $query->from('guest_id')->where('guest_id', $request->guest_id) : '';
-        })->where(function ($query) use ($request) {
-            return $request->post_id ?
-                $query->from('post_id')->where('post_id', $request->post_id) : '';
-        })->latest()->paginate(50);
 
         if (Auth::guard('teacher')->check()) {
             $user = Auth::guard('teacher')->user();
+            $exams = GuestExam::where('status', 1)
+                ->where('is_deleted', 0)
+                ->where('user_id', $user->id)
+                ->get();
 
-            $lists = Post::where('type', 'question')->where('user_id', $user->id)->where('is_deleted', 0)->get();
             $teaherDirectionIds = TeacherSubDirection::where('user_id', $user->id)->pluck('sub_direction_id');
             $guests = Guest::where('is_deleted', 0)->whereIn('id', $teaherDirectionIds)->get();
-
-            $posts = Answer::where('post_id', $lists->pluck('id'))
-                ->where(function ($query) use ($request) {
-                    return $request->guest_id ?
-                        $query->from('guest_id')->where('guest_id', $request->guest_id) : '';
-                })
-                ->where(function ($query) use ($request) {
-                    return $request->post_id ?
-                        $query->from('post_id')->where('post_id', $request->post_id) : '';
-                })
-                ->latest()->paginate(50);
         }
 
-        return view('admin.pages.answer', compact('posts', 'guests', 'lists'));
+        $posts = GuestResult::where(function ($query) use ($request) {
+            if ($request->search) {
+                $query->where('correct_count', 'like', "%{$request->search}%");
+            }
+        })
+            ->where(function ($query) use ($request) {
+                if ($request->guest_exam_id) {
+                    $query->where('guest_exam_id', $request->guest_exam_id);
+                }
+            })
+            ->where(function ($query) use ($request) {
+                if ($request->guest_id) {
+                    $query->where('guest_id', $request->guest_id);
+                }
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(20);
+
+        return view('admin.pages.guest-result', compact('posts', 'exams', 'guests'));
     }
 
     /**

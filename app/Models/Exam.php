@@ -15,11 +15,9 @@ class Exam extends Model
     {
         return $this->belongsToMany(Group::class, 'groups', 'id', 'id');
     }
-    
+
     public function questions()
     {
         return $this->hasMany(Question::class, 'exam_id', 'id')->where("is_deleted",0)->where("status",1);
-     }
-    
-    
+    }
 }

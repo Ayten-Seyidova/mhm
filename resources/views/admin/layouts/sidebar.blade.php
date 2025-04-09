@@ -50,6 +50,8 @@
                     <ul aria-expanded="false">
                         <li><a href="{{route('post.index')}}">Paylaşımlar</a></li>
                         <li><a href="{{route('answer.index')}}">Cavablar</a></li>
+                        <li><a href="{{route('guest-exam.index')}}">İmtahanlar</a></li>
+                        <li><a href="{{route('guest-result.index')}}">Nəticələr</a></li>
                     </ul>
                 </li>
             @endauth
@@ -103,6 +105,8 @@
                         <li><a href="{{route('story.index')}}">Hekayələr</a></li>
                         <li><a href="{{route('post.index')}}">Paylaşımlar</a></li>
                         <li><a href="{{route('answer.index')}}">Cavablar</a></li>
+                        <li><a href="{{route('guest-exam.index')}}">İmtahanlar</a></li>
+                        <li><a href="{{route('guest-result.index')}}">Nəticələr</a></li>
                     </ul>
                 </li>
                 <li><a href="{{route("faq.index")}}" class="ai-icon" aria-expanded="false">

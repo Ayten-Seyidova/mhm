@@ -1,10 +1,21 @@
 @extends('admin.index')
 @section('title')
-    Cavablar | Admin panel
+    Nəticələr | Admin panel
 @endsection
 @section('css')
     <link href="{{ asset('admin/vendor/datatables/css/jquery.dataTables.min.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 56px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 56px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 16px !important;
+        }
+    </style>
 @endsection
 @section('content')
     <div class="content-body">
@@ -13,13 +24,27 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4 class="card-title">Cavablar</h4>
+                            <h4 class="card-title">Nəticələr</h4>
                         </div>
                         <div class="card-body">
                             <form method="get" id="searchForm" class="row justify-content-center" action="">
                                 <div class="col-3">
                                     <select class="form-control search-select" onchange="form.submit()"
-                                            name="guest_id">
+                                            name="exam_id">
+                                        <option value="" disabled selected>İmtahan</option>
+                                        @if(!empty($exams[0]))
+                                            @foreach($exams as $exam)
+                                                <option
+                                                    value="{{$exam->id}}" {{isset($_GET['exam_id']) && $_GET['exam_id'] == $exam->id ? 'selected' : ''}}>
+                                                    {{$exam->name}}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <select class="form-control search-select" onchange="form.submit()"
+                                            name="customer_id">
                                         <option value="" disabled selected>Qonaqlar</option>
                                         @if(!empty($guests[0]))
                                             @foreach($guests as $guest)
@@ -31,23 +56,20 @@
                                         @endif
                                     </select>
                                 </div>
-                                <div class="col-3">
-                                    <select class="form-control search-select" onchange="form.submit()"
-                                            name="post_id">
-                                        <option value="" disabled selected>Paylaşım</option>
-                                        @if(!empty($lists[0]))
-                                            @foreach($lists as $list)
-                                                <option
-                                                    value="{{$list->id}}" {{isset($_GET['post_id']) && $_GET['post_id'] == $list->id ? 'selected' : ''}}>
-                                                    {{$list->content}}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
+                                <div class="input-group col-4">
+                                    <div class="form-item">
+                                        <input id="search-input"
+                                               value="{{isset($_GET['search']) ? $_GET['search'] : ''}}" name="search"
+                                               type="search"
+                                               placeholder="Axtarış et" class="form-control"
+                                               style="border-top-right-radius: 0; border-bottom-right-radius: 0"/>
+                                    </div>
+                                    <button id="search-button" type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
                                 </div>
                                 <div class="col-1">
-                                    <button class="filter-search-btn btn btn-secondary clear-btn"><i
-                                            class="fas fa-eraser"></i></button>
+                                    <button class="filter-search-btn btn btn-secondary clear-btn"><i class="fas fa-eraser"></i></button>
                                 </div>
                             </form>
                             <div class="table-responsive">
@@ -55,28 +77,26 @@
                                     <thead>
                                     <tr class="text-center">
                                         <th>Seç</th>
-                                        <th>№</th>
-                                        <th>Paylaşım</th>
+                                        <th>İmtahan</th>
                                         <th>Qonaq</th>
-                                        <th>Qonağın cavabı</th>
-                                        <th>Düzgün cavab</th>
+                                        <th>Düzgün cavab sayı</th>
+                                        <th>Səhv cavab sayı</th>
+                                        <th>Vaxt</th>
+                                        <th>Yaranma tarixi</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach($posts as $key => $postItem)
+                                    @foreach($posts as $postItem)
                                         <tr id="row{{$postItem->id}}" class="text-center">
                                             <td class="text-center"><input value="{{$postItem->id}}" class="checkedItem"
                                                                            name="checked" type="checkbox"></td>
-                                            <td class="text-center">
-                                                @if(request('page'))
-                                                    {{(request('page')-1)*50 + ($key+1)}}
-                                                @else
-                                                    {{$key+1}}
+                                            <td>
+                                                @if(!empty($postItem->guestExam))
+                                                    <a href="{{route('exam.index', ['exam_id'=>$postItem->exam_id])}}">{{$postItem->guestExam->name}}</a>
                                                 @endif
                                             </td>
-                                            <td>{{$postItem->post ? $postItem->post->content : ''}}</td>
                                             <td>
-                                                @if($postItem->guest)
+                                                @if(!empty($postItem->guest))
                                                     @auth('admin')
                                                         <a href="{{route('guest.index', ['guest_id'=>$postItem->guest_id])}}">{{$postItem->guest->name}}</a>
                                                     @else
@@ -84,8 +104,10 @@
                                                     @endauth
                                                 @endif
                                             </td>
-                                            <td>{{$postItem->answer}}</td>
-                                            <td>{{$postItem->post ? $postItem->post->correct : ''}}</td>
+                                            <td>{{$postItem->correct_count}}</td>
+                                            <td>{{$postItem->incorrect_count}}</td>
+                                            <td>{{$postItem->time}}</td>
+                                            <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                         </tr>
                                     @endforeach
                                     </tbody>
@@ -115,7 +137,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
             $('.clear-btn').click(function () {
                 $('#searchForm input').val('');
                 $('#searchForm select').val('');
@@ -123,4 +144,3 @@
         });
     </script>
 @endsection
-

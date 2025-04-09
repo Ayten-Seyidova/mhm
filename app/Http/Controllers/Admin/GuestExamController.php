@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PostRequest;
-use App\Models\Action;
-use App\Models\Direction;
-use App\Models\Post;
+use App\Http\Requests\GuestExamRequest;
+use App\Http\Requests\GuestRequest;
+use App\Models\GuestExam;
+use App\Models\GuestExamSubDirection;
 use App\Models\SubDirection;
 use App\Models\TeacherSubDirection;
 use App\Models\User;
-use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PostController extends Controller
+class GuestExamController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,7 +24,6 @@ class PostController extends Controller
 
         $teachers = User::where('type', 'teacher')->get();
 
-        $directions = Direction::where('is_deleted', 0)->get();
         $allSubDirections = SubDirection::where('is_deleted', 0)->get();
 
         if ($request->direction_id) {
@@ -36,25 +34,22 @@ class PostController extends Controller
 
         $isDeleted = $request->is_deleted ?? 0;
 
-        $posts = Post::where('is_deleted', $isDeleted)
+        $posts = GuestExam::where('is_deleted', $isDeleted)
             ->where(function ($query) use ($request) {
                 if ($request->search) {
-                    $query->where('content', 'like', "%{$request->search}%");
+                    $query->where('name', 'like', "%{$request->search}%")->orWhere('description', 'like', "%{$request->search}%");
                 }
             })
             ->where(function ($query) use ($request) {
                 return $request->user_id ?
                     $query->from('user_id')->where('user_id', $request->user_id) : '';
             })
-            ->where(function ($query) use ($request) {
-                return $request->sub_direction_id ?
-                    $query->from('sub_direction_id')->where('sub_direction_id', $request->sub_direction_id) : '';
-            })
-            ->when($request->direction_id, function ($query) use ($request) {
-                return $query->whereHas('subDirection', function ($q) use ($request) {
-                    $q->where('direction_id', $request->direction_id);
+            ->when($request->sub_direction_id, function ($query) use ($request) {
+                $query->whereHas('guestExamSubDirections', function ($q) use ($request) {
+                    $q->where('sub_direction_id', $request->sub_direction_id);
                 });
-            })->where(function ($query) use ($request) {
+            })
+            ->where(function ($query) use ($request) {
                 return $request->status ?
                     $query->from('status')->where('status', $request->status) : '';
             });
@@ -69,7 +64,7 @@ class PostController extends Controller
         }
 
         $posts = $posts->orderBy('id', 'desc')->paginate(20);
-        return view('admin.pages.post', compact('posts', 'directions', 'subDirections', 'allSubDirections', 'teachers'));
+        return view('admin.pages.guest-exam', compact('posts', 'subDirections', 'allSubDirections', 'teachers'));
     }
 
     /**
@@ -83,7 +78,7 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostRequest $request)
+    public function store(GuestExamRequest $request)
     {
         $image = $request->file('image');
 
@@ -93,7 +88,7 @@ class PostController extends Controller
             $userId = $user->id;
         }
 
-        $url = $request->video;
+        $url = $request->desc_video;
         $position = strpos($url, '=');
 
         if ($position !== false) {
@@ -110,32 +105,32 @@ class PostController extends Controller
             }
         }
 
-        $post = Post::create([
+        $post = GuestExam::create([
             'image' => $image ? uploadImg($image) : 'postImage/noPhoto.png',
-            'type' => $request->type,
-            'content' => $request->content,
-            'video' => $url,
+            'description' => $request->description,
+            'time' => $request->time ? $request->time : null,
+            'desc_video' => $url,
             'user_id' => $userId,
-            'correct' => $request->correct,
             'status' => isset($request->status) ? 1 : 0,
-            'sub_direction_id' => $request->sub_direction_id,
+            'name' => $request->name,
+            'subject' => $request->subject,
+            'duration' => $request->duration,
         ]);
 
-        if ($request->type == 'question') {
-            Variant::create([
-                'post_id' => $post->id,
-                'A' => $request->A,
-                'B' => $request->B,
-                'C' => $request->C,
-                'D' => $request->D,
-                'E' => $request->E,
-            ]);
+        $subDirectionIds = $request->sub_direction_ids;
+        if (!empty($subDirectionIds)) {
+            foreach ($subDirectionIds as $subDirectionId) {
+                GuestExamSubDirection::create([
+                    'guest_exam_id' => $post->id,
+                    'sub_direction_id' => $subDirectionId,
+                ]);
+            }
         }
 
         alert()->success('Uğurlu', 'Əlavə olundu')
             ->showConfirmButton('Tamam', '#163A76');
 
-        return redirect()->route('post.index');
+        return redirect()->route('guest-exam.index');
     }
 
     /**
@@ -151,17 +146,17 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-        $post = Post::with('subDirection')->find($id);
-        $variant = Variant::where('post_id', $post->id)->first();
-        return response()->json(['post' => $post, 'variant' => $variant], 200);
+        $post = GuestExam::find($id);
+        $subDirections = GuestExamSubDirection::where('guest_exam_id', $post->id)->get()->pluck('sub_direction_id');
+        return response()->json(['post' => $post, 'subDirections' => $subDirections], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostRequest $request, string $id)
+    public function update(GuestExamRequest $request, string $id)
     {
-        $postUpdate = Post::find($id);
+        $postUpdate = GuestExam::find($id);
 
         $image = $request->file('image');
 
@@ -171,7 +166,7 @@ class PostController extends Controller
             $postUpdate->image = uploadImg($image);
         }
 
-        $url = $request->video;
+        $url = $request->desc_video;
         $position = strpos($url, '=');
 
         if ($position !== false) {
@@ -186,35 +181,26 @@ class PostController extends Controller
             }
         }
 
-        $postUpdate->video = $url;
-        $postUpdate->content = $request->content;
-        $postUpdate->correct = $request->correct;
-        $postUpdate->type = $request->type;
-        $postUpdate->sub_direction_id = $request->sub_direction_id;
+        $postUpdate->desc_video = $url;
+        $postUpdate->name = $request->name;
+        $postUpdate->time = $request->time;
+        $postUpdate->description = $request->description;
+        $postUpdate->duration = $request->duration;
+        $postUpdate->subject = $request->subject;
         $postUpdate->status = isset($request->status) ? 1 : 0;
 
         $postUpdate->save();
 
-        $variant = Variant::where('post_id', $postUpdate->id)->first();
-        if ($request->type == 'question') {
-            if (empty($variant)) {
-                Variant::create([
-                    'post_id' => $postUpdate->id,
-                    'A' => $request->A,
-                    'B' => $request->B,
-                    'C' => $request->C,
-                    'D' => $request->D,
-                    'E' => $request->E,
+        GuestExamSubDirection::where('guest_exam_id', $postUpdate->id)->delete();
+
+        $subDirectionIds = $request->sub_direction_ids;
+        if (!empty($subDirectionIds)) {
+            foreach ($subDirectionIds as $subDirectionId) {
+                GuestExamSubDirection::create([
+                    'guest_exam_id' => $postUpdate->id,
+                    'sub_direction_id' => $subDirectionId,
                 ]);
-            } else {
-                $variant->A = $request->A;
-                $variant->B = $request->B;
-                $variant->C = $request->C;
-                $variant->D = $request->D;
-                $variant->E = $request->E;
             }
-        } else {
-            Variant::where('post_id', $postUpdate->id)->delete();
         }
 
         alert()->success('Uğurlu', 'Redaktə olundu')
@@ -228,7 +214,7 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        $customer = Post::find($id);
+        $customer = GuestExam::find($id);
         if ($customer->is_deleted == 0) {
             $customer->is_deleted = 1;
         } else {
@@ -242,9 +228,10 @@ class PostController extends Controller
     {
         try {
             $postID = $request->id;
-            $post = Post::find($postID);
+            $post = GuestExam::find($postID);
             $status = $post->status;
             $post->status = $status ? 0 : 1;
+
             $post->save();
 
             return response()->json(['message' => 'Uğurlu', 'status' => $post->status], 200);
@@ -259,19 +246,19 @@ class PostController extends Controller
 
         if ($request->val == 0) {
             foreach ($arr as $id) {
-                $post = Post::find($id);
+                $post = GuestExam::find($id);
                 $post->status = 0;
                 $post->save();
             }
         } else if ($request->val == 1) {
             foreach ($arr as $id) {
-                $post = Post::find($id);
+                $post = GuestExam::find($id);
                 $post->status = 1;
                 $post->save();
             }
-        } else if ($request->val == 2) {
+        } else {
             foreach ($arr as $id) {
-                $customer = Post::find($id);
+                $customer = GuestExam::find($id);
                 if ($customer->is_deleted == 0) {
                     $customer->is_deleted = 1;
                 } else {

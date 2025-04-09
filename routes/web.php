@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
@@ -26,6 +25,9 @@ use App\Http\Controllers\Admin\TeacherDirectionController;
 use App\Http\Controllers\Admin\StoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\AnswerController;
+use App\Http\Controllers\Admin\GuestExamController;
+use App\Http\Controllers\Admin\GuestQuestionController;
+use App\Http\Controllers\Admin\GuestResultController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,22 +100,17 @@ Route::prefix('administrator/mhm')->middleware('is_admin_or_teacher')->group(fun
     Route::post('post/changeStatus', [PostController::class, 'changeStatus'])->name('post.changeStatus');
     Route::post('post/checked', [PostController::class, 'checked'])->name('post.checked');
     Route::resource('/answer', AnswerController::class);
+    Route::resource('/guest-exam', GuestExamController::class);
+    Route::post('guest-exam/changeStatus', [GuestExamController::class, 'changeStatus'])->name('guest-exam.changeStatus');
+    Route::post('guest-exam/checked', [GuestExamController::class, 'checked'])->name('guest-exam.checked');
+    Route::resource('/guest-question', GuestQuestionController::class);
+    Route::post('guest-question/changeStatus', [GuestQuestionController::class, 'changeStatus'])->name('guest-question.changeStatus');
+    Route::post('guest-question/checked', [GuestQuestionController::class, 'checked'])->name('guest-question.checked');
+    Route::resource('/guest-result', GuestResultController::class);
 });
 
 Route::group(['prefix' => 'administrator/mhm'], function () {
     Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::post('/login', [LoginController::class, 'login']);
-});
-
-Route::get('optimize', function () {
-    Artisan::call('cache:clear');
-    Artisan::call('config:clear');
-    Artisan::call('optimize');
-    return 'Successfully cleared';
-});
-
-Route::get('/storage-link', function () {
-    Artisan::call('storage:link');
-    return 'Successfully storage linked!';
 });

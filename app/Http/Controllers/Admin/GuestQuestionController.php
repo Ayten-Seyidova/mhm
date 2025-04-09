@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\QuestionRequest;
-use App\Models\Exam;
-use App\Models\Group;
-use App\Models\Question;
+use App\Http\Requests\GuestQuestionRequest;
+use App\Models\GuestExam;
+use App\Models\GuestQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class QuestionController extends Controller
+class GuestQuestionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,63 +17,36 @@ class QuestionController extends Controller
     public function index(Request $request)
     {
         $user = null;
-
-        $exams = Exam::where('status', 1)->where('is_deleted', 0)->orderBy('id', 'desc')->get();
-
-        if (Auth::guard('teacher')->check()) {
-            $user = Auth::guard('teacher')->user();
-            $exams = Exam::where('status', 1)
-                ->where('is_deleted', 0)
-                ->where(function ($query) use ($user) {
-                    $groupIds = Group::where('user_id', $user->id)
-                        ->where('is_deleted', 0)
-                        ->pluck('id')
-                        ->toArray();
-
-                    $query->where(function ($query) use ($groupIds) {
-                        foreach ($groupIds as $groupId) {
-                            $query->orWhereRaw("JSON_CONTAINS(group_ids, '\"$groupId\"')");
-                        }
-                    });
-                })->orderBy('id', 'desc')->get();
-        }
-
+        $guestExamId = $request->guest_exam_id;
         $isDeleted = $request->is_deleted ?? 0;
+        if (isset($guestExamId) && is_numeric($guestExamId)) {
+            $exam = GuestExam::find($request->guest_exam_id);
 
-        $posts = Question::where('is_deleted', $isDeleted)
-            ->where(function ($query) use ($request) {
-                if ($request->search) {
-                    $query->where('title', 'like', "%{$request->search}%");
-                }
-            })
-            ->where(function ($query) use ($request) {
-                if ($request->exam_id) {
-                    $query->where('exam_id', $request->exam_id);
-                }
-            })
-            ->where(function ($query) use ($request) {
-                return $request->status ?
-                    $query->from('status')->where('status', $request->status) : '';
-            })
-            ->when(Auth::guard('teacher')->check(), function ($query) use ($user) {
-                $groupIds = Group::where('user_id', $user->id)
-                    ->where('is_deleted', 0)
-                    ->pluck('id')
-                    ->toArray();
-
-                $videoCourseIds = Exam::where(function ($query) use ($groupIds) {
-                    foreach ($groupIds as $groupId) {
-                        $query->orWhereRaw("JSON_CONTAINS(group_ids, '\"$groupId\"')");
+            if (!empty($exam)) {
+                if (Auth::guard('teacher')->check()) {
+                    $user = Auth::guard('teacher')->user();
+                    if ($exam->user_id != $user->id) {
+                        abort(403);
                     }
-                })->pluck('id')->toArray();
+                }
 
-                $query->whereIn('exam_id', $videoCourseIds);
-            })
-            ->orderBy('status', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(20);
+                $posts = GuestQuestion::where('is_deleted', $isDeleted)->where('guest_exam_id', $guestExamId)
+                    ->where(function ($query) use ($request) {
+                        if ($request->search) {
+                            $query->where('title', 'like', "%{$request->search}%");
+                        }
+                    })->where(function ($query) use ($request) {
+                        return $request->status ?
+                            $query->from('status')->where('status', $request->status) : '';
+                    })->orderBy('status', 'desc')->orderBy('id', 'desc')->paginate(20);
 
-        return view('admin.pages.question', compact('posts', 'exams'));
+                return view('admin.pages.guest-question', compact('posts', 'exam'));
+            } else {
+                abort(404);
+            }
+        } else {
+            abort(404);
+        }
     }
 
     /**
@@ -88,7 +60,7 @@ class QuestionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(QuestionRequest $request)
+    public function store(GuestQuestionRequest $request)
     {
         $image = $request->file('image');
         $image = $image ? uploadImg($image) : 'postImage/noPhoto.png';
@@ -103,7 +75,7 @@ class QuestionController extends Controller
         $image5 = $request->file('image5');
         $image5 = $image5 ? uploadImg($image5) : '';
 
-        Question::create([
+        GuestQuestion::create([
             'title' => $request->title_type == 'text' ? str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->title) : $image,
             'A' => $request->variant_type == 'text' ? str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->A) : $image1,
             'B' => $request->variant_type == 'text' ? str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->B) : $image2,
@@ -114,13 +86,13 @@ class QuestionController extends Controller
             'correct' => $request->correct,
             'title_type' => $request->title_type,
             'variant_type' => $request->variant_type,
-            'exam_id' => $request->exam_id,
+            'guest_exam_id' => $request->exam_id,
         ]);
 
         alert()->success('Uğurlu', 'Əlavə olundu')
             ->showConfirmButton('Tamam', '#163A76');
 
-        return redirect()->route('question.index');
+        return redirect()->back();
     }
 
     /**
@@ -136,16 +108,16 @@ class QuestionController extends Controller
      */
     public function edit(string $id)
     {
-        $post = Question::find($id);
+        $post = GuestQuestion::find($id);
         return response()->json(['post' => $post], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(QuestionRequest $request, string $id)
+    public function update(GuestQuestionRequest $request, string $id)
     {
-        $postUpdate = Question::find($id);
+        $postUpdate = GuestQuestion::find($id);
 
         $image = $request->file('image');
 
@@ -217,7 +189,6 @@ class QuestionController extends Controller
         $postUpdate->variant_type = $request->variant_type;
         $postUpdate->title_type = $request->title_type;
         $postUpdate->status = isset($request->status) ? 1 : 0;
-        $postUpdate->exam_id = $request->exam_id;
 
         $postUpdate->save();
 
@@ -232,7 +203,7 @@ class QuestionController extends Controller
      */
     public function destroy($id)
     {
-        $customer = Question::find($id);
+        $customer = GuestQuestion::find($id);
         if ($customer->is_deleted == 0) {
             $customer->is_deleted = 1;
         } else {
@@ -246,7 +217,7 @@ class QuestionController extends Controller
     {
         try {
             $postID = $request->id;
-            $post = Question::find($postID);
+            $post = GuestQuestion::find($postID);
             $status = $post->status;
             $post->status = $status ? 0 : 1;
 
@@ -264,19 +235,19 @@ class QuestionController extends Controller
 
         if ($request->val == 0) {
             foreach ($arr as $id) {
-                $post = Question::find($id);
+                $post = GuestQuestion::find($id);
                 $post->status = 0;
                 $post->save();
             }
         } else if ($request->val == 1) {
             foreach ($arr as $id) {
-                $post = Question::find($id);
+                $post = GuestQuestion::find($id);
                 $post->status = 1;
                 $post->save();
             }
         } else {
             foreach ($arr as $id) {
-                $customer = Question::find($id);
+                $customer = GuestQuestion::find($id);
                 if ($customer->is_deleted == 0) {
                     $customer->is_deleted = 1;
                 } else {

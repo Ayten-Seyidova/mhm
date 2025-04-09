@@ -16,8 +16,8 @@ class Answer extends Model
         return $this->hasOne(Post::class, 'id', 'post_id');
     }
 
-    public function customer()
+    public function guest()
     {
-        return $this->hasOne(Customer::class, 'id', 'customer_id');
+        return $this->hasOne(Guest::class, 'id', 'guest_id');
     }
 }

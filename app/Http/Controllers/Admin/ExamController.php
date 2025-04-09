@@ -80,21 +80,21 @@ class ExamController extends Controller
     {
         $image = $request->file('image');
 
-$url = $request->link;
-               $position = strpos($url, '=');
+        $url = $request->link;
+        $position = strpos($url, '=');
 
         if ($position !== false) {
-        $parsedUrl = parse_url($url);
-        
-        parse_str($parsedUrl['query'] ?? '', $queryParams);
-        
-        $videoId = $queryParams['v'] ?? null;
-        
-        if ($videoId) {
-            $url = $videoId;
-        } else {
-            $url = '';
-        }
+            $parsedUrl = parse_url($url);
+
+            parse_str($parsedUrl['query'] ?? '', $queryParams);
+
+            $videoId = $queryParams['v'] ?? null;
+
+            if ($videoId) {
+                $url = $videoId;
+            } else {
+                $url = '';
+            }
         }
 
         Exam::create([
@@ -149,17 +149,17 @@ $url = $request->link;
         $position = strpos($url, '=');
 
         if ($position !== false) {
-                    $parsedUrl = parse_url($url);
-        
-        parse_str($parsedUrl['query'] ?? '', $queryParams);
-        
-        $videoId = $queryParams['v'] ?? null;
-        
-        if ($videoId) {
-            $url = $videoId;
-        } else {
-            $url = $url;
-        }
+            $parsedUrl = parse_url($url);
+
+            parse_str($parsedUrl['query'] ?? '', $queryParams);
+
+            $videoId = $queryParams['v'] ?? null;
+
+            if ($videoId) {
+                $url = $videoId;
+            } else {
+                $url = $url;
+            }
         }
 
         $postUpdate->name = $request->name;
