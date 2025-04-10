@@ -20,7 +20,7 @@ class SubDirectionController extends Controller
         if (!isset($isDeleted)) {
             $isDeleted = 0;
         }
-        $posts = SubDirection::where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
+        $posts = SubDirection::with('direction')->where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
             return $request->search ?
                 $query->from('search')->where('title', 'like', "%$request->search%") : '';
         })->where(function ($query) use ($request) {

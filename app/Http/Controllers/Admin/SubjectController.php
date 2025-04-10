@@ -41,7 +41,7 @@ class SubjectController extends Controller
 
         $isDeleted = $request->is_deleted ?? 0;
 
-        $posts = Subject::where('is_deleted', $isDeleted)
+        $posts = Subject::with('course')->with('videos')->where('is_deleted', $isDeleted)
             ->where(function ($query) use ($request) {
                 if ($request->search) {
                     $query->where('name', 'like', "%{$request->search}%");

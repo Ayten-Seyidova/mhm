@@ -34,7 +34,7 @@ class GuestExamController extends Controller
 
         $isDeleted = $request->is_deleted ?? 0;
 
-        $posts = GuestExam::where('is_deleted', $isDeleted)
+        $posts = GuestExam::with('teacher')->with('guestExamSubDirections')->where('is_deleted', $isDeleted)
             ->where(function ($query) use ($request) {
                 if ($request->search) {
                     $query->where('name', 'like', "%{$request->search}%")->orWhere('description', 'like', "%{$request->search}%");

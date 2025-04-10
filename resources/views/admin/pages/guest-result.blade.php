@@ -92,7 +92,7 @@
                                                                            name="checked" type="checkbox"></td>
                                             <td>
                                                 @if(!empty($postItem->guestExam))
-                                                    <a href="{{route('exam.index', ['exam_id'=>$postItem->exam_id])}}">{{$postItem->guestExam->name}}</a>
+                                                    <a href="{{route('guest-exam.index', ['guest-exam_id'=>$postItem->guest_exam_id])}}">{{$postItem->guestExam->name}}</a>
                                                 @endif
                                             </td>
                                             <td>

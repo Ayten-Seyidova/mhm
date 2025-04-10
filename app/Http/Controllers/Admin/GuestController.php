@@ -33,7 +33,7 @@ class GuestController extends Controller
             $isDeleted = 0;
         }
 
-        $posts = Guest::where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
+        $posts = Guest::with('subDirection')->where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
             return $request->search ?
                 $query->from('search')->where('name', 'like', "%$request->search%")->orWhere('phone', 'like', "%$request->search%") : '';
         })->where(function ($query) use ($request) {

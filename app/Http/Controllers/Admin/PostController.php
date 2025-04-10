@@ -36,7 +36,7 @@ class PostController extends Controller
 
         $isDeleted = $request->is_deleted ?? 0;
 
-        $posts = Post::where('is_deleted', $isDeleted)
+        $posts = Post::with('teacher')->with('subDirection')->where('is_deleted', $isDeleted)
             ->where(function ($query) use ($request) {
                 if ($request->search) {
                     $query->where('content', 'like', "%{$request->search}%");

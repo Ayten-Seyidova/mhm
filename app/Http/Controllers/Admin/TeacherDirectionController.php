@@ -27,7 +27,7 @@ class TeacherDirectionController extends Controller
             $subDirections = $allSubDirections;
         }
 
-        $posts = TeacherSubDirection::where(function ($query) use ($request) {
+        $posts = TeacherSubDirection::with('teacher')->with('subDirection')->where(function ($query) use ($request) {
             return $request->user_id ?
                 $query->from('user_id')->where('user_id', $request->user_id) : '';
         })->where(function ($query) use ($request) {

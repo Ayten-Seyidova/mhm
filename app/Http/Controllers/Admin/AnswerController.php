@@ -25,7 +25,7 @@ class AnswerController extends Controller
         $lists = Post::where('type', 'question')->where('is_deleted', 0)->get();
         $guests = Guest::where('is_deleted', 0)->get();
 
-        $posts = Answer::where(function ($query) use ($request) {
+        $posts = Answer::with('post')->with('guest')->where(function ($query) use ($request) {
             return $request->guest_id ?
                 $query->from('guest_id')->where('guest_id', $request->guest_id) : '';
         })->where(function ($query) use ($request) {
@@ -40,7 +40,7 @@ class AnswerController extends Controller
             $teaherDirectionIds = TeacherSubDirection::where('user_id', $user->id)->pluck('sub_direction_id');
             $guests = Guest::where('is_deleted', 0)->whereIn('id', $teaherDirectionIds)->get();
 
-            $posts = Answer::where('post_id', $lists->pluck('id'))
+            $posts = Answer::with('post')->with('guest')->where('post_id', $lists->pluck('id'))
                 ->where(function ($query) use ($request) {
                     return $request->guest_id ?
                         $query->from('guest_id')->where('guest_id', $request->guest_id) : '';

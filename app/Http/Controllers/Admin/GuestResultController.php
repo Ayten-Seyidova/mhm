@@ -21,6 +21,19 @@ class GuestResultController extends Controller
 
         $exams = GuestExam::where('status', 1)->where('is_deleted', 0)->get();
         $guests = Guest::where('is_deleted', 0)->get();
+        $posts = GuestResult::with('guest')->with('guestExam')->where(function ($query) use ($request) {
+            if ($request->search) {
+                $query->where('correct_count', 'like', "%{$request->search}%");
+            }
+        })->where(function ($query) use ($request) {
+            if ($request->guest_exam_id) {
+                $query->where('guest_exam_id', $request->guest_exam_id);
+            }
+        })->where(function ($query) use ($request) {
+            if ($request->guest_id) {
+                $query->where('guest_id', $request->guest_id);
+            }
+        });
 
         if (Auth::guard('teacher')->check()) {
             $user = Auth::guard('teacher')->user();
@@ -31,25 +44,16 @@ class GuestResultController extends Controller
 
             $teaherDirectionIds = TeacherSubDirection::where('user_id', $user->id)->pluck('sub_direction_id');
             $guests = Guest::where('is_deleted', 0)->whereIn('id', $teaherDirectionIds)->get();
+
+            $userId = $user->id;
+            $posts = $posts->when($userId, function ($query, $userId) {
+                $query->whereHas('guestExam', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                });
+            });
         }
 
-        $posts = GuestResult::where(function ($query) use ($request) {
-            if ($request->search) {
-                $query->where('correct_count', 'like', "%{$request->search}%");
-            }
-        })
-            ->where(function ($query) use ($request) {
-                if ($request->guest_exam_id) {
-                    $query->where('guest_exam_id', $request->guest_exam_id);
-                }
-            })
-            ->where(function ($query) use ($request) {
-                if ($request->guest_id) {
-                    $query->where('guest_id', $request->guest_id);
-                }
-            })
-            ->orderBy('id', 'desc')
-            ->paginate(20);
+        $posts = $posts->orderBy('id', 'desc')->paginate(20);
 
         return view('admin.pages.guest-result', compact('posts', 'exams', 'guests'));
     }

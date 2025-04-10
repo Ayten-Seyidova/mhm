@@ -88,10 +88,14 @@
                         <li><a href="{{route('result.index')}}">Nəticələr</a></li>
                     </ul>
                 </li>
-                <li><a href="{{route("slider.index")}}" class="ai-icon" aria-expanded="false">
-                        <i class="fas fa fa-sliders" style="width:30px"></i>
-                        <span class="nav-text">Slayder</span>
+                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                        <i class="fas fa-info-circle" style="width:24px"></i>
+                        <span class="nav-text">Məlumatlar</span>
                     </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{route('slider.index')}}">Slayder</a></li>
+                        <li><a href="{{route('faq.index')}}">Faq</a></li>
+                    </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
                         <i class="fas fa-user-circle" style="width:24px"></i>
@@ -105,14 +109,16 @@
                         <li><a href="{{route('story.index')}}">Hekayələr</a></li>
                         <li><a href="{{route('post.index')}}">Paylaşımlar</a></li>
                         <li><a href="{{route('answer.index')}}">Cavablar</a></li>
+                    </ul>
+                </li>
+                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                        <i class="fas fa-file-excel-o" style="width:24px"></i>
+                        <span class="nav-text">Qonaq imtahanları</span>
+                    </a>
+                    <ul aria-expanded="false">
                         <li><a href="{{route('guest-exam.index')}}">İmtahanlar</a></li>
                         <li><a href="{{route('guest-result.index')}}">Nəticələr</a></li>
                     </ul>
-                </li>
-                <li><a href="{{route("faq.index")}}" class="ai-icon" aria-expanded="false">
-                        <i class="fas fa fa-question-circle" style="width:30px"></i>
-                        <span class="nav-text">Faq</span>
-                    </a>
                 </li>
                 <li><a href="{{route("settings.index")}}" class="ai-icon" aria-expanded="false">
                         <i class="flaticon-381-settings-2" style="width:30px"></i>

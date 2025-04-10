@@ -41,7 +41,7 @@ class QuestionController extends Controller
 
         $isDeleted = $request->is_deleted ?? 0;
 
-        $posts = Question::where('is_deleted', $isDeleted)
+        $posts = Question::with('exam')->where('is_deleted', $isDeleted)
             ->where(function ($query) use ($request) {
                 if ($request->search) {
                     $query->where('title', 'like', "%{$request->search}%");

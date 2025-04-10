@@ -22,7 +22,7 @@ class GroupController extends Controller
         if (!isset($isDeleted)) {
             $isDeleted = 0;
         }
-        $posts = Group::where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
+        $posts = Group::with('teacher')->where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
             return $request->search ?
                 $query->from('search')->where('name', 'like', "%$request->search%") : '';
         })->where(function ($query) use ($request) {

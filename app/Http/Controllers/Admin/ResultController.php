@@ -59,7 +59,7 @@ class ResultController extends Controller
         }
 
 
-        $posts = Result::where(function ($query) use ($request) {
+        $posts = Result::with('customer')->with('exam')->where(function ($query) use ($request) {
             if ($request->search) {
                 $query->where('correct_count', 'like', "%{$request->search}%");
             }

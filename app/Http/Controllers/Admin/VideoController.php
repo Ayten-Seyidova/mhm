@@ -46,7 +46,7 @@ class VideoController extends Controller
 
         $isDeleted = $request->is_deleted ?? 0;
 
-        $posts = Video::where('is_deleted', $isDeleted)
+        $posts = Video::with('subject')->where('is_deleted', $isDeleted)
             ->where(function ($query) use ($request) {
                 if ($request->search) {
                     $query->where('name', 'like', "%{$request->search}%")

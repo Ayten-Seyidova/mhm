@@ -143,7 +143,7 @@
                                                      src="{{asset($postItem->image)}}" alt=""></td>
                                             <td>{{$postItem->name}}</td>
                                             <td style="white-space: nowrap">
-                                                @php($examDirections = \App\Models\GuestExamSubDirection::where('guest_exam_id', $postItem->id)->get())
+                                                @php($examDirections = \App\Models\GuestExamSubDirection::with('subDirection')->where('guest_exam_id', $postItem->id)->get())
                                                 @if(!empty($examDirections[0]))
                                                     @foreach($examDirections as $examDirection)
                                                         {{$examDirection->subDirection ? $examDirection->subDirection ->title : ''}}
