@@ -39,6 +39,9 @@ use App\Http\Controllers\Admin\GuestResultController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+//Route::get('/', function() { return 123; });
+
 Route::get('/payment-notification', [CustomerController::class, 'payment']);
 
 Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
