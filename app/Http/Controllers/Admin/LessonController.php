@@ -3,28 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PostRequest;
-use App\Models\Action;
+use App\Http\Requests\LessonRequest;
 use App\Models\Direction;
-use App\Models\Post;
+use App\Models\Lesson;
 use App\Models\SubDirection;
-use App\Models\TeacherSubDirection;
-use App\Models\User;
-use App\Models\Variant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class PostController extends Controller
+class LessonController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $user = null;
-
-        $teachers = User::where('type', 'teacher')->get();
-
         $directions = Direction::where('is_deleted', 0)->get();
         $allSubDirections = SubDirection::where('is_deleted', 0)->get();
 
@@ -34,17 +25,11 @@ class PostController extends Controller
             $subDirections = $allSubDirections;
         }
 
-        $isDeleted = $request->is_deleted ?? 0;
-
-        $posts = Post::with('teacher')->with('subDirection')->where('is_deleted', $isDeleted)
+        $posts = Lesson::with('subDirection')
             ->where(function ($query) use ($request) {
                 if ($request->search) {
-                    $query->where('content', 'like', "%{$request->search}%");
+                    $query->where('content', 'like', "%{$request->search}%")->orWhere('title', 'like', "%{$request->search}%");
                 }
-            })
-            ->where(function ($query) use ($request) {
-                return $request->user_id ?
-                    $query->from('user_id')->where('user_id', $request->user_id) : '';
             })
             ->where(function ($query) use ($request) {
                 return $request->sub_direction_id ?
@@ -59,17 +44,8 @@ class PostController extends Controller
                     $query->from('status')->where('status', $request->status) : '';
             });
 
-        if (Auth::guard('teacher')->check()) {
-            $user = Auth::guard('teacher')->user();
-
-            $posts = $posts->where('user_id', $user->id);
-
-            $teaherDirectionIds = TeacherSubDirection::where('user_id', $user->id)->pluck('sub_direction_id');
-            $subDirections = SubDirection::whereIn('id', $teaherDirectionIds)->get();
-        }
-
         $posts = $posts->orderBy('id', 'desc')->paginate(20);
-        return view('admin.pages.post', compact('posts', 'directions', 'subDirections', 'allSubDirections', 'teachers'));
+        return view('admin.pages.lesson', compact('posts', 'directions', 'subDirections', 'allSubDirections'));
     }
 
     /**
@@ -83,15 +59,9 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostRequest $request)
+    public function store(LessonRequest $request)
     {
         $image = $request->file('image');
-
-        $userId = null;
-        if (Auth::guard('teacher')->check()) {
-            $user = Auth::guard('teacher')->user();
-            $userId = $user->id;
-        }
 
         $url = $request->video;
         $position = strpos($url, '=');
@@ -110,32 +80,19 @@ class PostController extends Controller
             }
         }
 
-        $post = Post::create([
+        Lesson::create([
             'image' => $image ? uploadImg($image) : 'postImage/noPhoto.png',
-            'type' => $request->type,
+            'title' => $request->title,
             'content' => $request->content,
             'video' => $url,
-            'user_id' => $userId,
-            'correct' => $request->correct,
             'status' => isset($request->status) ? 1 : 0,
             'sub_direction_id' => $request->sub_direction_id,
         ]);
 
-        if ($request->type == 'question') {
-            Variant::create([
-                'post_id' => $post->id,
-                'A' => $request->A,
-                'B' => $request->B,
-                'C' => $request->C,
-                'D' => $request->D,
-                'E' => $request->E,
-            ]);
-        }
-
         alert()->success('Uğurlu', 'Əlavə olundu')
             ->showConfirmButton('Tamam', '#163A76');
 
-        return redirect()->route('post.index');
+        return redirect()->route('lesson.index');
     }
 
     /**
@@ -151,17 +108,16 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-        $post = Post::with('subDirection')->find($id);
-        $variant = Variant::where('post_id', $post->id)->first();
-        return response()->json(['post' => $post, 'variant' => $variant], 200);
+        $post = Lesson::with('subDirection')->find($id);
+        return response()->json(['post' => $post], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostRequest $request, string $id)
+    public function update(LessonRequest $request, string $id)
     {
-        $postUpdate = Post::find($id);
+        $postUpdate = Lesson::find($id);
 
         $image = $request->file('image');
 
@@ -188,34 +144,11 @@ class PostController extends Controller
 
         $postUpdate->video = $url;
         $postUpdate->content = $request->content;
-        $postUpdate->correct = $request->correct;
-        $postUpdate->type = $request->type;
+        $postUpdate->title = $request->title;
         $postUpdate->sub_direction_id = $request->sub_direction_id;
         $postUpdate->status = isset($request->status) ? 1 : 0;
 
         $postUpdate->save();
-
-        $variant = Variant::where('post_id', $postUpdate->id)->first();
-        if ($request->type == 'question') {
-            if (empty($variant)) {
-                Variant::create([
-                    'post_id' => $postUpdate->id,
-                    'A' => $request->A,
-                    'B' => $request->B,
-                    'C' => $request->C,
-                    'D' => $request->D,
-                    'E' => $request->E,
-                ]);
-            } else {
-                $variant->A = $request->A;
-                $variant->B = $request->B;
-                $variant->C = $request->C;
-                $variant->D = $request->D;
-                $variant->E = $request->E;
-            }
-        } else {
-            Variant::where('post_id', $postUpdate->id)->delete();
-        }
 
         alert()->success('Uğurlu', 'Redaktə olundu')
             ->showConfirmButton('Tamam', '#163A76');
@@ -228,13 +161,7 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        $customer = Post::find($id);
-        if ($customer->is_deleted == 0) {
-            $customer->is_deleted = 1;
-        } else {
-            $customer->is_deleted = 0;
-        }
-        $customer->save();
+        Lesson::find($id)->delete();
         return response()->json(['message' => 'Uğurlu']);
     }
 
@@ -242,7 +169,7 @@ class PostController extends Controller
     {
         try {
             $postID = $request->id;
-            $post = Post::find($postID);
+            $post = Lesson::find($postID);
             $status = $post->status;
             $post->status = $status ? 0 : 1;
             $post->save();
@@ -259,25 +186,19 @@ class PostController extends Controller
 
         if ($request->val == 0) {
             foreach ($arr as $id) {
-                $post = Post::find($id);
+                $post = Lesson::find($id);
                 $post->status = 0;
                 $post->save();
             }
         } else if ($request->val == 1) {
             foreach ($arr as $id) {
-                $post = Post::find($id);
+                $post = Lesson::find($id);
                 $post->status = 1;
                 $post->save();
             }
         } else if ($request->val == 2) {
             foreach ($arr as $id) {
-                $customer = Post::find($id);
-                if ($customer->is_deleted == 0) {
-                    $customer->is_deleted = 1;
-                } else {
-                    $customer->is_deleted = 0;
-                }
-                $customer->save();
+                Lesson::find($id)->delete();
             }
         }
 

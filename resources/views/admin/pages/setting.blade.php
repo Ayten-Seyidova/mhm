@@ -44,6 +44,12 @@
                                               id="editor" cols="30"
                                               rows="10">{{$setting->security}}</textarea>
                                 </div>
+                                <div class="form-group col-12">
+                                    <label for="terms">Şərtlər və qaydalar</label>
+                                    <textarea name="terms" class="editor1"
+                                              id="editor1" cols="30"
+                                              rows="10">{{$setting->terms}}</textarea>
+                                </div>
                                 <div class="form-group">
                                     <button type="submit" name="submit" value="submit"
                                             class="btn btn-primary btn-block">Yadda
@@ -63,6 +69,13 @@
     <script>
         $('textarea.editor').each(function () {
             CKEDITOR.replace('editor', {
+                filebrowserUploadUrl: "{{route('editor.upload',['_token'=>csrf_token()])}}",
+                filebrowserUploadMethod: 'form'
+            })
+        })
+
+        $('textarea.editor1').each(function () {
+            CKEDITOR.replace('editor1', {
                 filebrowserUploadUrl: "{{route('editor.upload',['_token'=>csrf_token()])}}",
                 filebrowserUploadMethod: 'form'
             })

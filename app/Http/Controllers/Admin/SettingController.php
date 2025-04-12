@@ -64,6 +64,7 @@ class SettingController extends Controller
         $settings->facebook = $request->facebook;
         $settings->customer_service = $request->customer_service;
         $settings->security = str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->security);
+        $settings->terms = str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->terms);
         $settings->save();
 
         alert()->success('Uğurlu', 'Tənzimləmələr redaktə olundu')

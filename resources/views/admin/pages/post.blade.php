@@ -856,6 +856,7 @@
                 let subDirectionIdEdit = $('#subDirectionIdEdit');
                 let typeEdit = $('#typeEdit');
                 let contentEdit = $('#contentEdit');
+                let statusEdit = $('#statusEdit');
 
                 let route = '{{route('post.edit', ['post'=>'edit'])}}';
                 route = route.replace('edit', dataID);
@@ -877,6 +878,11 @@
                         var variant = response.variant;
                         typeEdit.val(post.type);
                         contentEdit.val(post.content);
+                        if (post.status == 1) {
+                            statusEdit.attr('checked', true);
+                        } else {
+                            statusEdit.attr('checked', false);
+                        }
                         @auth('admin')
                         directionIdEdit.val(post.sub_direction ? post.sub_direction.direction_id : '');
                         $('#directionIdEdit').trigger('change');

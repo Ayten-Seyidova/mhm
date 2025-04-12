@@ -95,6 +95,10 @@
                     <ul aria-expanded="false">
                         <li><a href="{{route('slider.index')}}">Slayder</a></li>
                         <li><a href="{{route('faq.index')}}">Faq</a></li>
+                        <li><a href="{{route('about.index')}}">Kurs haqqında məlumat</a></li>
+                        <li><a href="{{route('our-teacher.index')}}">Müəllimlərimiz</a></li>
+                        <li><a href="{{route('lesson.index')}}">Ödənişli dərslər</a></li>
+                        <li><a href="{{route('book.index')}}">Kitablar</a></li>
                     </ul>
                 </li>
                 <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">

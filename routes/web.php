@@ -28,6 +28,10 @@ use App\Http\Controllers\Admin\AnswerController;
 use App\Http\Controllers\Admin\GuestExamController;
 use App\Http\Controllers\Admin\GuestQuestionController;
 use App\Http\Controllers\Admin\GuestResultController;
+use App\Http\Controllers\Admin\AboutController;
+use App\Http\Controllers\Admin\OurTeacherController;
+use App\Http\Controllers\Admin\LessonController;
+use App\Http\Controllers\Admin\BookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +67,7 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::resource('/settings', SettingController::class);
     Route::get('/password', [SettingController::class, 'password'])->name('password');
     Route::post('/change-password', [SettingController::class, 'changePassword'])->name('changePassword');
+    Route::resource('/about', AboutController::class);
     Route::resource('/guest', GuestController::class);
     Route::post('guest/changeStatus', [GuestController::class, 'changeStatus'])->name('guest.changeStatus');
     Route::post('guest/checked', [GuestController::class, 'checked'])->name('guest.checked');
@@ -74,6 +79,15 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::post('teacher-direction/checked', [TeacherDirectionController::class, 'checked'])->name('teacher-direction.checked');
     Route::resource('/story', StoryController::class);
     Route::post('story/checked', [StoryController::class, 'checked'])->name('story.checked');
+    Route::resource('/our-teacher', OurTeacherController::class);
+    Route::post('our-teacher/changeStatus', [OurTeacherController::class, 'changeStatus'])->name('our-teacher.changeStatus');
+    Route::post('our-teacher/checked', [OurTeacherController::class, 'checked'])->name('our-teacher.checked');
+    Route::resource('/lesson', LessonController::class);
+    Route::post('lesson/changeStatus', [LessonController::class, 'changeStatus'])->name('lesson.changeStatus');
+    Route::post('lesson/checked', [LessonController::class, 'checked'])->name('lesson.checked');
+    Route::resource('/book', BookController::class);
+    Route::post('book/changeStatus', [BookController::class, 'changeStatus'])->name('book.changeStatus');
+    Route::post('book/checked', [BookController::class, 'checked'])->name('book.checked');
 });
 
 Route::prefix('administrator/mhm')->middleware('is_teacher')->group(function () {
