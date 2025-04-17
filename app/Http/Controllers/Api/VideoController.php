@@ -17,10 +17,8 @@ class VideoController extends Controller
          $orderBy = $_GET['orderBy'] ?? null;
          $searchKey = $_GET['searchKey'] ?? null;
          $groupParams = @$request->groups;
-         $endDate = @$request->user()->end_date;
-         //$date = @$request->user()->date;
-         $groupAdded = @$request->user()->groupAdded->toArray();
-         $groups = json_decode($request->user()->group_ids);
+         $groups = $request->user()->load("groups")->groups->pluck("id")->toArray();
+//dd($groups);
          $videoCourses = VideoCourse::selectRaw('*,
        IFNULL((select ceil(SUM(rate) / count(customer_id))
             from comments
@@ -40,73 +38,36 @@ class VideoController extends Controller
             group by video_course_id),0) as subjects_count
        ')->where('type',$type)
          ->where('is_deleted',0)->where('status',1)
-         ->with(['groups','comments.customer','subjects.videos']);
-
-
-     /*    if($date!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',">=", $date);
-          }   */
-
-         if($endDate!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',"<=", $endDate);
-          }
-
-
-
+         ->with(['groupsFilter','groups','comments.customer','subjects.videos']);
 
           if($searchKey!=null){
               $videoCourses = $videoCourses
                                 ->where('name',"like", "%".$searchKey."%");
           }
 
-        //   dd($groupParams);
           if(isset($groupParams)){
-              $videoCourses = $videoCourses->where(function ($query) use ($groupParams) {
-                    foreach ($groupParams as $groupParam) {
-                        $query->orWhere('group_ids', 'like', '%"'.$groupParam.'"%');
-                    }
-                });
+              $videoCourses->whereHas('groups',function ($query) use($groupParams){
+                  $query->whereIn('group_id', $groupParams);
+              });
           }
 
-
-            $videoCourses = $videoCourses->where(function ($query) use ($groups) {
-                foreach ($groups as $group) {
-                    $query->orWhere('group_ids', 'like', '%"'.$group.'"%');
-                }
-            });
-
-
-            $videoCourses = $videoCourses->whereHas('groups',function ($query) use($groups){
-                foreach ($groups as $group) {
-                    $query->orWhere('group_id', $group);
-                }
-            })->has('groups');
-
-          $videoCourses = $videoCourses->has('groups');
+          $videoCourses = $videoCourses->whereHas('groupsFilter',function ($query) use($groups){
+                  $query->whereIn('group_id', $groups);
+          });
 
           if($orderBy!=null){
               $orderBy = explode("_",$orderBy);
               $videoCourses = $videoCourses->orderBy($orderBy[0],$orderBy[1]);
           }
 
-          if($paginate!=null){
-              $videoCourses = $videoCourses->paginate($paginate);
-          }else{
-              $videoCourses = $videoCourses->get();
-          }
+          $videoCourses = $paginate!=null?$videoCourses->paginate($paginate):$videoCourses->get();
 
-        //  $newList = [];
-        //  foreach (($paginate!=null?$videoCourses->toArray()['data']:$videoCourses->toArray()) as $val){
-        //      if(!empty($val['groups'])){
-        //          $newList[]=$val;
-        //      }
-        //  }
+        $videoCourses = $videoCourses->filter(function ($item) {
+            return $item->groupsFilter && count($item->groupsFilter) > 0;
+        })->values();
 
-        // $result = $paginate!=null?['data'=>$newList]:$newList;
 
-         return response(['status' => 'success', 'videoCourses' => $videoCourses]);
+        return response(['status' => 'success', 'videoCourses' => $videoCourses]);
     }
 
      public function myVideoCourses($type,Request $request){
@@ -114,9 +75,7 @@ class VideoController extends Controller
          $orderBy = $_GET['orderBy'] ?? null;
          $searchKey = $_GET['searchKey'] ?? null;
          $groupParams = @$request->groups;
-         $endDate = @$request->user()->end_date;
-         //$date = @$request->user()->date;
-         $groups = json_decode($request->user()->group_ids);
+         $groups = $request->user()->load("groups")->groups->pluck("id")->toArray();
          $videoCourses = VideoCourse::selectRaw('*,
        IFNULL((select ceil(SUM(rate) / count(customer_id))
             from comments
@@ -126,62 +85,42 @@ class VideoController extends Controller
             from video_done
             where video_course_id = video_courses.id and customer_id=?
             group by video_course_id),0) * 100)  as done_decimal,
-            IFNULL((select count(id)
+       IFNULL((select count(id)
             from comments
             where video_course_id = video_courses.id
             group by video_course_id),0) as raiting_count,
             50 AS video_count,
             10 as subjects_count
        ', [$request->user()->id])->where('type',$type)
-         ->where('is_deleted',0)->where('status',1)->with(['comments.customer','subjects.videos']);
-
-          /*if($date!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',">=", $date);
-          }*/
-
-          if($endDate!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',"<=", $endDate);
-          }
-
+         ->where('is_deleted',0)->where('status',1)->with(['groupsFilter','groups','comments.customer','subjects.videos']);
 
           if($searchKey!=null){
               $videoCourses = $videoCourses
                                 ->where('name',"like", "%".$searchKey."%");
           }
 
-        //   dd($groupParams);
-          if(isset($groupParams)){
-              $videoCourses = $videoCourses->where(function ($query) use ($groupParams) {
-                        foreach ($groupParams as $groupParam) {
-                            $query->orWhere('group_ids', 'like', '%"'.$groupParam.'"%');
-                        }
-                    });
-          }
+         if(isset($groupParams)){
+             $videoCourses->whereHas('groups',function ($query) use($groupParams){
+                 $query->whereIn('group_id', $groupParams);
+             });
+         }
 
+         $videoCourses = $videoCourses->whereHas('groupsFilter',function ($query) use($groups){
+             $query->whereIn('group_id', $groups);
+         });
 
-        $videoCourses = $videoCourses->where(function ($query) use ($groups) {
-            foreach ($groups as $group) {
-                $query->orWhere('group_ids', 'like', '%"'.$group.'"%');
-            }
-        });
+       if($orderBy!=null){
+           $orderBy = explode("_",$orderBy);
+           $videoCourses = $videoCourses->orderBy($orderBy[0],$orderBy[1]);
+       }
 
+         $videoCourses = $paginate!=null?$videoCourses->paginate($paginate):$videoCourses->get();
 
-        //   dd($videoCourses->toSql());
+         $videoCourses = $videoCourses->filter(function ($item) {
+             return $item->groupsFilter && count($item->groupsFilter) > 0;
+         })->values();
 
-          if($orderBy!=null){
-              $orderBy = explode("_",$orderBy);
-              $videoCourses = $videoCourses->orderBy($orderBy[0],$orderBy[1]);
-          }
-
-          if($paginate!=null){
-              $videoCourses = $videoCourses->paginate($paginate);
-          }else{
-              $videoCourses = $videoCourses->get();
-          }
-
-         return response(['status' => 'success', 'videoCourses' => $videoCourses]);
+       return response(['status' => 'success', 'videoCourses' => $videoCourses]);
     }
 
     public function setVideoDone(Request $request){
