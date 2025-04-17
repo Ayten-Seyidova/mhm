@@ -86,14 +86,4 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerGroupDate::class, 'customer_id', 'id');
     }
-
-    public function groups()
-    {
-        return $this->belongsToMany(Group::class, 'customer_group_dates', 'customer_id', 'group_id');
-//            ->where(function ($query) {
-//                    $query->where('end_date', null);
-//                    $query->orWhere('end_date', '>=', date('Y-m-d'));
-//            });
-    }
-
 }

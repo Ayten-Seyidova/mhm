@@ -17,11 +17,6 @@ class VideoCourse extends Model
         return $this->belongsToMany(Group::class, 'groups', 'id', 'id');
     }
 
-    public function groups()
-    {
-        return $this->belongsToMany(VideoCourse::class, 'course_groups', 'video_course_id', 'group_id');
-    }
-
     public function subjects()
     {
 
@@ -42,19 +37,19 @@ class VideoCourse extends Model
         return $this->hasMany(Comment::class, 'video_course_id', 'id');
     }
 
-    public function groupsFilter()
+    public function groups()
     {
-        $groupAdded = @Auth::user()->load('groupAdded')->groupAdded->toArray();
-//        dd($groupAdded);
+        $groupAdded = @Auth::user()->groupAdded->toArray();
         $result = $this->hasMany(CourseGroup::class,'video_course_id', 'id');
         foreach ($groupAdded as $group) {
             $result = $result->orWhere(function ($query) use ($group) {
                 $query->where('group_id', $group['group_id']);
+
                     if ($group['end_date']) {
                         $query->where('created_at', '<=', $group['end_date']);
                     }
                     if ($group['date']) {
-                        $query->where('created_at', '>=', $group['date']);
+                        $query->where('created_at', '>', $group['date']);
                     }
             });
         }
