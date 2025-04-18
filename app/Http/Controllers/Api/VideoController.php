@@ -36,7 +36,6 @@ class VideoController extends Controller
 
         $videoCourses = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($type, $paginate, $orderBy, $searchKey, $groupParams, $groupAdded) {
 
-            // Sadəcə statistikaları bir dəfə yığ (əlavə join yerinə)
             $stats = DB::table('video_courses')
                 ->leftJoin('comments', 'video_courses.id', '=', 'comments.video_course_id')
                 ->leftJoin('subjects', 'video_courses.id', '=', 'subjects.video_course_id')
