@@ -10,191 +10,222 @@ use App\Models\Exam;
 use App\Models\Api\VideoDone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class VideoController extends Controller
 {
     public function videoCourses($type, Request $request)
     {
-        $paginate = $_GET['limit'] ?? null;
-        $orderBy = $_GET['orderBy'] ?? null;
-        $searchKey = $_GET['searchKey'] ?? null;
-        $groupParams = @$request->groups;
-        $groupAdded = $request->user()->load("groupAdded")->groupAdded;
+        $paginate   = $request->get('limit');
+        $orderBy    = $request->get('orderBy');
+        $searchKey  = $request->get('searchKey');
+        $groupParams = $request->groups;
+        $user       = $request->user();
 
-        $cacheKey = "video_courses_{$type}_" . md5(json_encode($request->all()));
+        $groupAdded = Cache::remember("user_groups_{$user->id}", now()->addMinutes(30), function () use ($user) {
+            return $user->load("groupAdded")->groupAdded;
+        });
 
-        $cachedData = Cache::get($cacheKey);
-        if ($cachedData) {
-            return response(['status' => 'success', 'videoCourses' => $cachedData]);
-        }
+        $cacheKey = "video_courses_{$type}_" . md5(json_encode([
+                'limit'       => $paginate,
+                'orderBy'     => $orderBy,
+                'searchKey'   => $searchKey,
+                'groups'      => $groupParams,
+                'userGroups'  => $groupAdded->pluck('group_id'),
+            ]));
 
-        $videoCoursesCountList = VideoCourse::selectRaw('video_courses.id,
-                IFNULL(AVG(comments.rate), 0) as raiting_sum_point,
-                IFNULL(COUNT(comments.id), 0) as raiting_count,
-                IFNULL(COUNT(DISTINCT videos.id), 0) AS video_count,
-                IFNULL(COUNT(DISTINCT subjects.id), 0) as subjects_count')
-            ->leftJoin('comments', 'video_courses.id', '=', 'comments.video_course_id')
-            ->leftJoin('subjects', 'video_courses.id', '=', 'subjects.video_course_id')
-            ->leftJoin('videos', 'videos.subject_id', '=', 'subjects.id')
-            ->where('video_courses.type', $type)
-            ->where('video_courses.is_deleted', 0)
-            ->where('video_courses.status', 1)
-            ->where('subjects.is_deleted', 0)
-            ->where('subjects.status', 1)
-            ->groupBy(['video_courses.id'])->get();
+        $videoCourses = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($type, $paginate, $orderBy, $searchKey, $groupParams, $groupAdded) {
 
-        $videoCoursesCountListNew = [];
-        foreach ($videoCoursesCountList as $videoCoursesCount) {
-            $videoCoursesCountListNew[$videoCoursesCount['id']] = $videoCoursesCount->toArray();
-        }
+            // Sadəcə statistikaları bir dəfə yığ (əlavə join yerinə)
+            $stats = DB::table('video_courses')
+                ->leftJoin('comments', 'video_courses.id', '=', 'comments.video_course_id')
+                ->leftJoin('subjects', 'video_courses.id', '=', 'subjects.video_course_id')
+                ->leftJoin('videos', 'videos.subject_id', '=', 'subjects.id')
+                ->where('video_courses.type', $type)
+                ->where('video_courses.is_deleted', 0)
+                ->where('video_courses.status', 1)
+                ->where('subjects.is_deleted', 0)
+                ->where('subjects.status', 1)
+                ->groupBy('video_courses.id')
+                ->selectRaw('
+                video_courses.id,
+                COUNT(DISTINCT subjects.id) as subjects_count,
+                COUNT(DISTINCT videos.id) as video_count,
+                COUNT(comments.id) as raiting_count,
+                IFNULL(AVG(comments.rate), 0) as raiting_sum_point
+            ')
+                ->get()
+                ->keyBy('id');
 
-        $videoCourses = VideoCourse::where('type', $type)
-            ->where('is_deleted', 0)
-            ->where('status', 1)
-            ->with(['groupsFilter', 'groups', 'comments.customer', 'subjects.videos'])->has('subjects')
-            ->whereHas('groupsFilter', function ($q) use ($groupAdded) {
-                $q->where(function ($subQuery) use ($groupAdded) {
-                    foreach ($groupAdded as $index => $group) {
-                        $subQueryMethod = $index === 0 ? 'where' : 'orWhere';
-                        $subQuery->$subQueryMethod(function ($query) use ($group) {
-                            $query->where('group_id', $group['group_id']);
-                            if (!empty($group['end_date'])) {
-                                $query->where('created_at', '<=', $group['end_date']);
-                            }
-                            if (!empty($group['date'])) {
-                                $query->where('created_at', '>=', $group['date']);
-                            }
-                        });
-                    }
+            $query = VideoCourse::where('type', $type)
+                ->where('is_deleted', 0)
+                ->where('status', 1)
+                ->with(['groupsFilter:id,video_course_id,group_id', 'groups:id,name', 'subjects:id,video_course_id', 'comments:id,video_course_id,rate']);
+
+            if ($groupAdded->isNotEmpty()) {
+                $query->whereHas('groupsFilter', function ($q) use ($groupAdded) {
+                    $q->where(function ($subQuery) use ($groupAdded) {
+                        foreach ($groupAdded as $index => $group) {
+                            $method = $index === 0 ? 'where' : 'orWhere';
+                            $subQuery->$method(function ($query) use ($group) {
+                                $query->where('group_id', $group['group_id']);
+                                if (!empty($group['end_date'])) {
+                                    $query->where('created_at', '<=', $group['end_date']);
+                                }
+                                if (!empty($group['date'])) {
+                                    $query->where('created_at', '>=', $group['date']);
+                                }
+                            });
+                        }
+                    });
                 });
-            });
+            }
 
-        if ($searchKey != null) {
-            $videoCourses = $videoCourses->where('name', "like", "%" . $searchKey . "%");
-        }
+            if ($searchKey) {
+                $query->where('name', 'like', "%$searchKey%");
+            }
 
-        if (isset($groupParams)) {
-            $videoCourses->whereHas('groups', function ($query) use ($groupParams) {
-                $query->whereIn('group_id', $groupParams);
-            });
-        }
+            if (!empty($groupParams)) {
+                $query->whereHas('groups', function ($q) use ($groupParams) {
+                    $q->whereIn('group_id', $groupParams);
+                });
+            }
 
-        if ($orderBy != null) {
-            $orderBy = explode("_", $orderBy);
-            $videoCourses = $videoCourses->orderBy($orderBy[0], $orderBy[1]);
-        }
+            if ($orderBy) {
+                $parts = explode("_", $orderBy);
+                $query->orderBy($parts[0], $parts[1] ?? 'asc');
+            }
 
-        $videoCourses = $paginate != null ? $videoCourses->paginate($paginate) : $videoCourses->get();
-        $videoCourses = $videoCourses->toArray()['data'];
+            $videoCourses = $paginate ? $query->paginate($paginate)->toArray()['data'] : $query->get()->toArray();
 
-        foreach ($videoCourses as $key => $videoCourse) {
-            $videoCourses[$key] = array_merge($videoCourse, $videoCoursesCountListNew[$videoCourse['id']]);
-        }
+            foreach ($videoCourses as $key => $vc) {
+                if (isset($stats[$vc['id']])) {
+                    $videoCourses[$key]['subjects_count']     = $stats[$vc['id']]->subjects_count;
+                    $videoCourses[$key]['video_count']        = $stats[$vc['id']]->video_count;
+                    $videoCourses[$key]['raiting_count']      = $stats[$vc['id']]->raiting_count;
+                    $videoCourses[$key]['raiting_sum_point']  = $stats[$vc['id']]->raiting_sum_point;
+                } else {
+                    $videoCourses[$key]['subjects_count']     = 0;
+                    $videoCourses[$key]['video_count']        = 0;
+                    $videoCourses[$key]['raiting_count']      = 0;
+                    $videoCourses[$key]['raiting_sum_point']  = 0;
+                }
+            }
 
-        Cache::put($cacheKey, $videoCourses, now()->addHours(1));
+            return $videoCourses;
+        });
 
-        return response(['status' => 'success', 'videoCourses' => $videoCourses]);
+        return response([
+            'status'       => 'success',
+            'videoCourses' => $videoCourses
+        ]);
     }
 
 
     public function myVideoCourses($type, Request $request)
     {
-        $paginate = $_GET['limit'] ?? null;
-        $orderBy = $_GET['orderBy'] ?? null;
-        $searchKey = $_GET['searchKey'] ?? null;
-        $groupParams = @$request->groups;
-        $groupAdded = $request->user()->load("groupAdded")->groupAdded;
+        $paginate   = $request->get('limit');
+        $orderBy    = $request->get('orderBy');
+        $searchKey  = $request->get('searchKey');
+        $groupParams = $request->groups;
+        $user       = $request->user();
 
-        $cacheKey = "video_courses_{$type}_" . md5(json_encode($request->all()));
+        $groupAdded = Cache::remember("user_groups_{$user->id}", now()->addMinutes(30), function () use ($user) {
+            return $user->load("groupAdded")->groupAdded;
+        });
 
-        $cachedData = Cache::get($cacheKey);
-        if ($cachedData) {
-            return response(['status' => 'success', 'videoCourses' => $cachedData]);
-        }
-//         $videoCourses = VideoCourse::selectRaw('*,
-//       IFNULL((select ceil(SUM(rate) / count(customer_id))
-//            from comments
-//            where video_course_id = video_courses.id
-//            group by video_course_id),0) as raiting_sum_point,
-//       ceil(IFNULL((select (count(id) / (select count(id) from videos where is_deleted=0 and videos.subject_id in (select id from subjects where is_deleted=0 and status=1 and subjects.video_course_id = video_courses.id)))
-//            from video_done
-//            where video_course_id = video_courses.id and customer_id=?
-//            group by video_course_id),0) * 100)  as done_decimal,
-//       IFNULL((select count(id)
-//            from comments
-//            where video_course_id = video_courses.id
-//            group by video_course_id),0) as raiting_count,
-//            50 AS video_count,
-//            10 as subjects_count
-//       ', [$request->user()->id])->where('type',$type)
-//         ->where('is_deleted',0)->where('status',1)->with(['groupsFilter','groups','comments.customer','subjects.videos']);
+        $cacheKey = "video_courses_{$type}_" . md5(json_encode([
+                'limit'       => $paginate,
+                'orderBy'     => $orderBy,
+                'searchKey'   => $searchKey,
+                'groups'      => $groupParams,
+                'userGroups'  => $groupAdded->pluck('group_id'),
+            ]));
 
-        $videoCoursesCountList = VideoCourse::selectRaw('video_courses.id,
-                IFNULL(AVG(comments.rate), 0) as raiting_sum_point,
-                IFNULL(COUNT(comments.id), 0) as raiting_count,
-                IFNULL(COUNT(DISTINCT videos.id), 0) AS video_count,
-                IFNULL(COUNT(DISTINCT subjects.id), 0) as subjects_count')
-            ->leftJoin('comments', 'video_courses.id', '=', 'comments.video_course_id')
-            ->leftJoin('subjects', 'video_courses.id', '=', 'subjects.video_course_id')
-            ->leftJoin('videos', 'videos.subject_id', '=', 'subjects.id')
-            ->where('video_courses.type', $type)
-            ->where('video_courses.is_deleted', 0)
-            ->where('video_courses.status', 1)
-            ->where('subjects.is_deleted', 0)
-            ->where('subjects.status', 1)
-            ->groupBy(['video_courses.id'])->get();
+        $videoCourses = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($type, $paginate, $orderBy, $searchKey, $groupParams, $groupAdded) {
 
-        $videoCoursesCountListNew = [];
-        foreach ($videoCoursesCountList as $videoCoursesCount) {
-            $videoCoursesCountListNew[$videoCoursesCount['id']] = $videoCoursesCount->toArray();
-        }
+            $stats = DB::table('video_courses')
+                ->leftJoin('comments', 'video_courses.id', '=', 'comments.video_course_id')
+                ->leftJoin('subjects', 'video_courses.id', '=', 'subjects.video_course_id')
+                ->leftJoin('videos', 'videos.subject_id', '=', 'subjects.id')
+                ->where('video_courses.type', $type)
+                ->where('video_courses.is_deleted', 0)
+                ->where('video_courses.status', 1)
+                ->where('subjects.is_deleted', 0)
+                ->where('subjects.status', 1)
+                ->groupBy('video_courses.id')
+                ->selectRaw('
+                video_courses.id,
+                COUNT(DISTINCT subjects.id) as subjects_count,
+                COUNT(DISTINCT videos.id) as video_count,
+                COUNT(comments.id) as raiting_count,
+                IFNULL(AVG(comments.rate), 0) as raiting_sum_point
+            ')
+                ->get()
+                ->keyBy('id');
 
-        $videoCourses = VideoCourse::where('type', $type)
-            ->where('is_deleted', 0)
-            ->where('status', 1)
-            ->with(['groupsFilter', 'groups', 'comments.customer', 'subjects.videos'])->has('subjects')
-            ->whereHas('groupsFilter', function ($q) use ($groupAdded) {
-                $q->where(function ($subQuery) use ($groupAdded) {
-                    foreach ($groupAdded as $index => $group) {
-                        $subQueryMethod = $index === 0 ? 'where' : 'orWhere';
-                        $subQuery->$subQueryMethod(function ($query) use ($group) {
-                            $query->where('group_id', $group['group_id']);
-                            if (!empty($group['end_date'])) {
-                                $query->where('created_at', '<=', $group['end_date']);
-                            }
-                            if (!empty($group['date'])) {
-                                $query->where('created_at', '>=', $group['date']);
-                            }
-                        });
-                    }
+            $query = VideoCourse::where('type', $type)
+                ->where('is_deleted', 0)
+                ->where('status', 1)
+                ->with(['groupsFilter:id,video_course_id,group_id', 'groups:id,name', 'subjects:id,video_course_id', 'comments:id,video_course_id,rate']);
+
+            if ($groupAdded->isNotEmpty()) {
+                $query->whereHas('groupsFilter', function ($q) use ($groupAdded) {
+                    $q->where(function ($subQuery) use ($groupAdded) {
+                        foreach ($groupAdded as $index => $group) {
+                            $method = $index === 0 ? 'where' : 'orWhere';
+                            $subQuery->$method(function ($query) use ($group) {
+                                $query->where('group_id', $group['group_id']);
+                                if (!empty($group['end_date'])) {
+                                    $query->where('created_at', '<=', $group['end_date']);
+                                }
+                                if (!empty($group['date'])) {
+                                    $query->where('created_at', '>=', $group['date']);
+                                }
+                            });
+                        }
+                    });
                 });
-            });
+            }
 
-        if ($searchKey != null) {
-            $videoCourses = $videoCourses->where('name', "like", "%" . $searchKey . "%");
-        }
+            if ($searchKey) {
+                $query->where('name', 'like', "%$searchKey%");
+            }
 
-        if (isset($groupParams)) {
-            $videoCourses->whereHas('groups', function ($query) use ($groupParams) {
-                $query->whereIn('group_id', $groupParams);
-            });
-        }
+            if (!empty($groupParams)) {
+                $query->whereHas('groups', function ($q) use ($groupParams) {
+                    $q->whereIn('group_id', $groupParams);
+                });
+            }
 
-        if ($orderBy != null) {
-            $orderBy = explode("_", $orderBy);
-            $videoCourses = $videoCourses->orderBy($orderBy[0], $orderBy[1]);
-        }
+            if ($orderBy) {
+                $parts = explode("_", $orderBy);
+                $query->orderBy($parts[0], $parts[1] ?? 'asc');
+            }
 
-        $videoCourses = $paginate != null ? $videoCourses->paginate($paginate) : $videoCourses->get();
-        $videoCourses = $videoCourses->toArray()['data'];
+            $videoCourses = $paginate ? $query->paginate($paginate)->toArray()['data'] : $query->get()->toArray();
 
-        foreach ($videoCourses as $key => $videoCourse) {
-            $videoCourses[$key] = array_merge($videoCourse, $videoCoursesCountListNew[$videoCourse['id']]);
-        }
+            foreach ($videoCourses as $key => $vc) {
+                if (isset($stats[$vc['id']])) {
+                    $videoCourses[$key]['subjects_count']     = $stats[$vc['id']]->subjects_count;
+                    $videoCourses[$key]['video_count']        = $stats[$vc['id']]->video_count;
+                    $videoCourses[$key]['raiting_count']      = $stats[$vc['id']]->raiting_count;
+                    $videoCourses[$key]['raiting_sum_point']  = $stats[$vc['id']]->raiting_sum_point;
+                } else {
+                    $videoCourses[$key]['subjects_count']     = 0;
+                    $videoCourses[$key]['video_count']        = 0;
+                    $videoCourses[$key]['raiting_count']      = 0;
+                    $videoCourses[$key]['raiting_sum_point']  = 0;
+                }
+            }
 
-        Cache::put($cacheKey, $videoCourses, now()->addHours(1));
+            return $videoCourses;
+        });
 
-        return response(['status' => 'success', 'videoCourses' => $videoCourses]);
+        return response([
+            'status'       => 'success',
+            'videoCourses' => $videoCourses
+        ]);
     }
 
 
