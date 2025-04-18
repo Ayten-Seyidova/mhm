@@ -27,7 +27,7 @@ class VideoCourse extends Model
 
         $user = Auth::user();
         $arr = json_decode($user->blocked_subject_ids,1);
-        $result = $this->hasMany(Subject::class, 'video_course_id', 'id');
+        $result = $this->hasMany(Subject::class, 'video_course_id', 'id')->where(['is_deleted' => 0,'status'=>1]);
 
         if($arr){
             $result = $result->whereNotIn('id', $arr);
@@ -44,20 +44,7 @@ class VideoCourse extends Model
 
     public function groupsFilter()
     {
-        $groupAdded = @Auth::user()->load('groupAdded')->groupAdded->toArray();
-//        dd($groupAdded);
         $result = $this->hasMany(CourseGroup::class,'video_course_id', 'id');
-        foreach ($groupAdded as $group) {
-            $result = $result->orWhere(function ($query) use ($group) {
-                $query->where('group_id', $group['group_id']);
-                    if ($group['end_date']) {
-                        $query->where('created_at', '<=', $group['end_date']);
-                    }
-                    if ($group['date']) {
-                        $query->where('created_at', '>=', $group['date']);
-                    }
-            });
-        }
         return $result;
     }
 }
