@@ -98,6 +98,7 @@ class VideoController extends Controller
          $searchKey = $_GET['searchKey'] ?? null;
          $groupParams = @$request->groups;
          $endDate = @$request->user()->end_date;
+         $groupAdded = @$request->user()->groupAdded->toArray();
          //$date = @$request->user()->date;
          $groups = json_decode($request->user()->group_ids);
          $videoCourses = VideoCourse::selectRaw('*,
@@ -116,17 +117,30 @@ class VideoController extends Controller
             50 AS video_count,
             10 as subjects_count
        ', [$request->user()->id])->where('type',$type)
-         ->where('is_deleted',0)->where('status',1)->with(['comments.customer','subjects.videos']);
+         ->where('is_deleted',0)->where('status',1)->with(['comments.customer','subjects.videos'])
+             ->whereHas('groupsFilter', function ($q) use ($groupAdded) {
+                 $q->where(function ($subQuery) use ($groupAdded) {
+                     foreach ($groupAdded as $index => $group) {
+                         $method = $index === 0 ? 'where' : 'orWhere';
+                         $subQuery->$method(function ($query) use ($group) {
+                             $query->where('group_id', $group['group_id']);
+                             if (!empty($group['end_date'])) {
+                                 $query->where('created_at', '<=', $group['end_date']);
+                             }
+                             if (!empty($group['date'])) {
+                                 $query->where('created_at', '>=', $group['date']);
+                             }
+                         });
+                     }
+                 });
+             });
 
           /*if($date!=null){
               $videoCourses = $videoCourses
                                 ->where('created_at',">=", $date);
           }*/
 
-          if($endDate!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',"<=", $endDate);
-          }
+
 
 
           if($searchKey!=null){
@@ -144,11 +158,6 @@ class VideoController extends Controller
           }
 
 
-        $videoCourses = $videoCourses->where(function ($query) use ($groups) {
-            foreach ($groups as $group) {
-                $query->orWhere('group_ids', 'like', '%"'.$group.'"%');
-            }
-        });
 
 
         //   dd($videoCourses->toSql());
