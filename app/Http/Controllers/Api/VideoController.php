@@ -22,7 +22,23 @@ class VideoController extends Controller
          $groupAdded = @$request->user()->groupAdded->toArray();
 //         dd($groupAdded);
          $groups = json_decode($request->user()->group_ids);
-         $videoCourses = VideoCourse::selectRaw('*
+         $videoCourses = VideoCourse::selectRaw('*,
+       IFNULL((select ceil(SUM(rate) / count(customer_id))
+            from comments
+            where video_course_id = video_courses.id
+            group by video_course_id),0) as raiting_sum_point,
+       IFNULL((select count(id)
+            from comments
+            where video_course_id = video_courses.id
+            group by video_course_id),0) as raiting_count,
+       IFNULL((select count(id)
+            from videos
+            where subject_id in ( select id from subjects where video_course_id = video_courses.id and is_deleted=0 and status=1) and is_deleted=0
+            ),0) AS video_count,
+            IFNULL((select count(id)
+            from subjects
+            where video_course_id = video_courses.id and is_deleted=0 and status=1
+            group by video_course_id),0) as subjects_count
        ')->where('type',$type)
          ->where('is_deleted',0)->where('status',1)
          ->with(['groupsFilter','groups','comments.customer','subjects.videos'])
