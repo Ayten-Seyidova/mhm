@@ -20,27 +20,28 @@ class VideoController extends Controller
          $endDate = @$request->user()->end_date;
          //$date = @$request->user()->date;
          $groupAdded = @$request->user()->groupAdded->toArray();
+//         dd($groupAdded);
          $groups = json_decode($request->user()->group_ids);
-         $videoCourses = VideoCourse::selectRaw('*,
-       IFNULL((select ceil(SUM(rate) / count(customer_id))
-            from comments
-            where video_course_id = video_courses.id
-            group by video_course_id),0) as raiting_sum_point,
-       IFNULL((select count(id)
-            from comments
-            where video_course_id = video_courses.id
-            group by video_course_id),0) as raiting_count,
-       IFNULL((select count(id)
-            from videos
-            where subject_id in ( select id from subjects where video_course_id = video_courses.id and is_deleted=0 and status=1) and is_deleted=0
-            ),0) AS video_count,
-            IFNULL((select count(id)
-            from subjects
-            where video_course_id = video_courses.id and is_deleted=0 and status=1
-            group by video_course_id),0) as subjects_count
+         $videoCourses = VideoCourse::selectRaw('*
        ')->where('type',$type)
          ->where('is_deleted',0)->where('status',1)
-         ->with(['groups','comments.customer','subjects.videos']);
+         ->with(['groupsFilter','groups','comments.customer','subjects.videos'])
+         ->whereHas('groupsFilter', function ($q) use ($groupAdded) {
+            $q->where(function ($subQuery) use ($groupAdded) {
+                foreach ($groupAdded as $index => $group) {
+                    $method = $index === 0 ? 'where' : 'orWhere';
+                    $subQuery->$method(function ($query) use ($group) {
+                        $query->where('group_id', $group['group_id']);
+                        if (!empty($group['end_date'])) {
+                            $query->where('created_at', '<=', $group['end_date']);
+                        }
+                        if (!empty($group['date'])) {
+                            $query->where('created_at', '>=', $group['date']);
+                        }
+                    });
+                }
+            });
+        });
 
 
      /*    if($date!=null){
@@ -48,10 +49,6 @@ class VideoController extends Controller
                                 ->where('created_at',">=", $date);
           }   */
 
-         if($endDate!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',"<=", $endDate);
-          }
 
 
 
@@ -69,20 +66,6 @@ class VideoController extends Controller
                     }
                 });
           }
-
-
-            $videoCourses = $videoCourses->where(function ($query) use ($groups) {
-                foreach ($groups as $group) {
-                    $query->orWhere('group_ids', 'like', '%"'.$group.'"%');
-                }
-            });
-
-
-            $videoCourses = $videoCourses->whereHas('groups',function ($query) use($groups){
-                foreach ($groups as $group) {
-                    $query->orWhere('group_id', $group);
-                }
-            })->has('groups');
 
           $videoCourses = $videoCourses->has('groups');
 
@@ -115,6 +98,7 @@ class VideoController extends Controller
          $searchKey = $_GET['searchKey'] ?? null;
          $groupParams = @$request->groups;
          $endDate = @$request->user()->end_date;
+         $groupAdded = @$request->user()->groupAdded->toArray();
          //$date = @$request->user()->date;
          $groups = json_decode($request->user()->group_ids);
          $videoCourses = VideoCourse::selectRaw('*,
@@ -133,17 +117,30 @@ class VideoController extends Controller
             50 AS video_count,
             10 as subjects_count
        ', [$request->user()->id])->where('type',$type)
-         ->where('is_deleted',0)->where('status',1)->with(['comments.customer','subjects.videos']);
+         ->where('is_deleted',0)->where('status',1)->with(['comments.customer','subjects.videos'])
+             ->whereHas('groupsFilter', function ($q) use ($groupAdded) {
+                 $q->where(function ($subQuery) use ($groupAdded) {
+                     foreach ($groupAdded as $index => $group) {
+                         $method = $index === 0 ? 'where' : 'orWhere';
+                         $subQuery->$method(function ($query) use ($group) {
+                             $query->where('group_id', $group['group_id']);
+                             if (!empty($group['end_date'])) {
+                                 $query->where('created_at', '<=', $group['end_date']);
+                             }
+                             if (!empty($group['date'])) {
+                                 $query->where('created_at', '>=', $group['date']);
+                             }
+                         });
+                     }
+                 });
+             });
 
           /*if($date!=null){
               $videoCourses = $videoCourses
                                 ->where('created_at',">=", $date);
           }*/
 
-          if($endDate!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',"<=", $endDate);
-          }
+
 
 
           if($searchKey!=null){
@@ -161,11 +158,6 @@ class VideoController extends Controller
           }
 
 
-        $videoCourses = $videoCourses->where(function ($query) use ($groups) {
-            foreach ($groups as $group) {
-                $query->orWhere('group_ids', 'like', '%"'.$group.'"%');
-            }
-        });
 
 
         //   dd($videoCourses->toSql());
