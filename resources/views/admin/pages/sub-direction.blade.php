@@ -216,15 +216,15 @@
                             <label for="titleEdit">Başlıq</label>
                             <input class="form-control"
                                    type="text" required maxlength="190"
-                                   name="title" id="nameEdit"/>
+                                   name="title" id="titleEdit"/>
                         </div>
                         <div class="form-group">
                             <label for="directionIdEdit">Hazırlıq istiqaməti</label>
                             <select name="direction_id" class="form-control search-select" required
                                     id="directionIdEdit">
-                                @if(!empty($teachers[0]))
-                                    @foreach($teachers as $teacher)
-                                        <option value="{{$teacher->id}}">{{$teacher->name}}</option>
+                                @if(!empty($directions[0]))
+                                    @foreach($directions as $direction)
+                                        <option value="{{$direction->id}}">{{$direction->title}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -381,9 +381,8 @@
                     success: function (response) {
 
                         var post = response.post;
-
                         titleEdit.val(post.title);
-                        directionIdEdit.val(post.direction_id);
+                        directionIdEdit.val(post.direction_id).trigger('change');
                     }
                 })
             }
