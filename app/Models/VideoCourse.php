@@ -17,12 +17,17 @@ class VideoCourse extends Model
         return $this->belongsToMany(Group::class, 'groups', 'id', 'id');
     }
 
+    public function groups()
+    {
+        return $this->belongsToMany(VideoCourse::class, 'course_groups', 'video_course_id', 'group_id');
+    }
+
     public function subjects()
     {
 
         $user = Auth::user();
         $arr = json_decode($user->blocked_subject_ids,1);
-        $result = $this->hasMany(Subject::class, 'video_course_id', 'id');
+        $result = $this->hasMany(Subject::class, 'video_course_id', 'id')->where(['is_deleted' => 0,'status'=>1]);
 
         if($arr){
             $result = $result->whereNotIn('id', $arr);
@@ -37,22 +42,9 @@ class VideoCourse extends Model
         return $this->hasMany(Comment::class, 'video_course_id', 'id');
     }
 
-    public function groups()
+    public function groupsFilter()
     {
-        $groupAdded = @Auth::user()->groupAdded->toArray();
         $result = $this->hasMany(CourseGroup::class,'video_course_id', 'id');
-        foreach ($groupAdded as $group) {
-            $result = $result->orWhere(function ($query) use ($group) {
-                $query->where('group_id', $group['group_id']);
-
-                    if ($group['end_date']) {
-                        $query->where('created_at', '<=', $group['end_date']);
-                    }
-                    if ($group['date']) {
-                        $query->where('created_at', '>', $group['date']);
-                    }
-            });
-        }
         return $result;
     }
 }
