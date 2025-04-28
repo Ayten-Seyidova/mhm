@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use \App\Http\Controllers\Api\AuthController;
@@ -9,6 +8,10 @@ use \App\Http\Controllers\Api\SettingsController;
 use \App\Http\Controllers\Api\CommentsController;
 use \App\Http\Controllers\Api\ResultController;
 use \App\Http\Controllers\Api\VideoController;
+use \App\Http\Controllers\Api\OtpController;
+use \App\Http\Controllers\Api\GuestController;
+use \App\Http\Controllers\Api\AboutController;
+use \App\Http\Controllers\Api\NotificationsGuestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,12 +24,6 @@ use \App\Http\Controllers\Api\VideoController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-
-
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/registerRequest', [AuthController::class, 'registerRequest'])->name('api.registerRequest');
 
@@ -38,7 +35,6 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/uploadImage', [AuthController::class, 'uploadImage'])->name('api.uploadImage');
     Route::put('/updateUserData', [AuthController::class, 'updateUserData'])->name('api.updateUserData');
 
-    
     //course
     Route::post('/videoCourses/{type}', [VideoController::class, 'videoCourses'])->name('videoCourses');
     Route::post('/myVideoCourses/{type}', [VideoController::class, 'myVideoCourses'])->name('myVideoCourses');
@@ -46,24 +42,18 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/exam', [VideoController::class, 'exam'])->name('exam');
     Route::get('/videos', [VideoController::class, 'videos'])->name('videos');
 
-
     //settings
     Route::get('/sliders', [SettingsController::class, 'sliders'])->name('sliders');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/faq', [SettingsController::class, 'faq'])->name('faq');
     Route::get('/groups', [SettingsController::class, 'groups'])->name('groups');
-      
 
-    
     //comments
     Route::post('/setComment', [CommentsController::class, 'setComment'])->name('setComment');
-    
+
     //result
     Route::post('/setResult', [ResultController::class, 'setResult'])->name('setResult');
     Route::get('/getResult', [ResultController::class, 'getResult'])->name('getResult');
-    
-    
-    
 
     //notifications
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications');
@@ -71,5 +61,42 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::delete('/notification', [NotificationsController::class, 'delete'])->name('notification-delete');
     Route::post('/setParam', [NotificationsController::class, 'setParam'])->name('setParam');
     Route::delete('/deleteParam', [NotificationsController::class, 'deleteParam'])->name('deleteParam');
+
+});
+
+
+
+Route::match(['post','put'],'/sendOtp', [OtpController::class, 'sendOtp'])->name('sendOtp');
+Route::post('/checkOtpRegister', [OtpController::class, 'checkOtpRegister'])->name('checkOtpRegister');
+Route::put('/checkOtpLogin', [OtpController::class, 'checkOtpLogin'])->name('checkOtpLogin');
+
+Route::group(['middleware' => ['auth:apiGuest']], function () {
+    //auth
+    Route::get('/guestDetails', [AuthController::class, 'guestDetails'])->name('guestDetails');
+    Route::put('/updateGuestData', [AuthController::class, 'updateGuestData'])->name('api.updateGuestData');
+    Route::post('/uploadImageGuest', [AuthController::class, 'uploadImage'])->name('api.uploadImageGuest');
+
+    //posts
+    Route::get('/posts', [GuestController::class, 'posts'])->name('posts');
+    Route::post('/answer', [GuestController::class, 'answer'])->name('answer');
+
+    //guestExams
+    Route::get('/guestExam', [GuestController::class, 'guestExam'])->name('guestExam');
+
+
+    Route::get('/directions', [GuestController::class, 'directions'])->name('directions');
+    Route::get('/stories', [GuestController::class, 'stories'])->name('stories');
+    Route::get('/teachers', [GuestController::class, 'teachers'])->name('teachers');
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
+    Route::get('/ourTeachers', [GuestController::class, 'ourTeachers'])->name('ourTeachers');
+    Route::get('/lessons', [GuestController::class, 'lessons'])->name('lessons');
+    Route::get('/books', [GuestController::class, 'books'])->name('books');
+
+    //notificationsGuest
+    Route::get('/notificationsGuest', [NotificationsGuestController::class, 'index'])->name('notifications-guest');
+    Route::put('/notificationGuest', [NotificationsGuestController::class, 'update'])->name('notification-guest-update');
+    Route::delete('/notificationGuest', [NotificationsGuestController::class, 'delete'])->name('notification-guest-delete');
+    Route::post('/setParamGuest', [NotificationsGuestController::class, 'setParam'])->name('setParam-guest');
+    Route::delete('/deleteParamGuest', [NotificationsGuestController::class, 'deleteParam'])->name('deleteParam-guest');
 
 });

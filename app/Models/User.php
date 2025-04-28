@@ -45,4 +45,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function subDirection(){
+        return $this->hasMany(TeacherSubDirection::class, 'user_id');
+    }
 }

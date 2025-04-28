@@ -20,4 +20,9 @@ class GuestExam extends Model
     {
         return $this->hasMany(GuestExamSubDirection::class, 'guest_exam_id');
     }
+
+    public function questions()
+    {
+        return $this->hasMany(GuestQuestion::class, 'guest_exam_id');
+    }
 }

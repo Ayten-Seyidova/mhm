@@ -5,13 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Direction extends Model
+class NotificationParametersGuest extends Model
 {
     use HasFactory;
-
     protected $guarded = [];
 
-    public function subDirections(){
-        return $this->hasMany(SubDirection::class)->where('is_deleted',0);
-    }
+    protected $table = 'notification_parameters_guest';
 }

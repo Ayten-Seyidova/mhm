@@ -56,6 +56,10 @@ return [
             'driver' => 'sanctum',
             'provider' => 'apiCustomers',
         ],
+        'apiGuest' => [
+            'driver' => 'sanctum',
+            'provider' => 'apiGuest',
+        ],
     ],
 
     /*
@@ -95,6 +99,10 @@ return [
         'apiCustomers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Customer::class,
+        ],
+        'apiGuest' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Guest::class,
         ],
     ],
 

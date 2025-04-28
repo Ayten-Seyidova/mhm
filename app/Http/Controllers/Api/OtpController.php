@@ -7,6 +7,7 @@ use App\Http\Helpers\MixHelper;
 use App\Http\Requests\Api\OtpRequest;
 use App\Models\Api\OtpPhones;
 use App\Models\Customer;
+use App\Models\Guest;
 use Illuminate\Http\Request;
 use App\Http\Helpers\SmsHelper;
 use Illuminate\Support\Facades\Hash;
@@ -54,8 +55,8 @@ class OtpController extends Controller
 
         try {
             $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
-            $smsSend = SmsHelper::send($message, $phoneNumber);
-            return response(['status'=>'success', 'deactive_date'=>$deactive_date]);
+//            $smsSend = SmsHelper::send($message, $phoneNumber);
+            return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
         }catch (\Exception $exception){
             return response(['status'=>'error','desc'=>$exception],403);
         }
@@ -114,13 +115,11 @@ class OtpController extends Controller
     public function checkOtpRegister(Request $request)
     {
         $validated = $request->validate([
-            'phoneNumber' => 'required|max:13|unique:customers,phone',
+            'phoneNumber' => 'required|max:13|unique:guests,phone',
             'otpCode' => 'required|max:4',
-            'email' => 'required|email',
             'name' => 'required',
-            'surname' => 'required',
-            'deviceId' => 'required',
-            'password' => 'required|min:8']);
+            'subDirectionId' => 'required',
+            'isStudent' => 'required']);
 
         $phoneNumber = str_replace(['+','_',''], '',$validated['phoneNumber']);
         $otpCode = $validated['otpCode'];
@@ -129,21 +128,12 @@ class OtpController extends Controller
 
         if($otpCheck)
         {
-//            $data = [];
             $data['phone'] = $phoneNumber;
-            $data['password'] = Hash::make($validated['password']);
-            $data['email'] = $validated['email'];
+            $data['sub_direction_id'] = $validated['subDirectionId'];
             $data['name'] = $validated['name'];
-            $data['surname'] = $validated['surname'];
-            $customer = Customer::create($data);
+            $data['is_student'] = $validated['isStudent'];
+            $customer = Guest::create($data);
             $token = $customer->createToken('token_name')->plainTextToken;
-            
-            $param = [
-                'deviceId' => $validated['deviceId'],
-                'customerId' => $customer->id
-            ];
-            
-            DB::insert("INSERT into device_log (device_id,customer_id) values (:deviceId,:customerId)", $param);
 
             return response(['status'=>'success', 'payStatus'  => true, 'token'=>$token, 'data'=>$customer]);
         }else{
@@ -239,7 +229,7 @@ class OtpController extends Controller
 
         if($otpCheck)
         {
-            $user = Customer::where("phone",$phoneNumber)->first();
+            $user = Guest::where("phone",$phoneNumber)->first();
             $user->tokens()->delete();
             $token = $user->createToken('token_name')->plainTextToken;
             return response(['status'=>'success', 'payStatus'=> true,'token'=>$token, 'user'=>$user]);
