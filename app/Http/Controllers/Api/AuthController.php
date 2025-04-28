@@ -52,8 +52,27 @@ class AuthController extends Controller
             'class'=>'required',
             'lesson'=>'required'
         ]);
-        
+
         $result = $request->user()->update($parameters);
+        if ($result){
+            return response(['status'=>'success', 'user'=>$request->user()]);
+        }else{
+            return response(['status'=>'error','desc'=>'There was problem. Please contact support.'],403);
+        }
+    }
+
+    public function updateGuestData(Request $request)
+    {
+        $parameters = $request->validate([
+            'name' => 'required',
+            'isStudent'=>'required',
+            'subDirectionId'=>'required'
+        ]);
+        $data['sub_direction_id'] = $parameters['subDirectionId'];
+        $data['name'] = $parameters['name'];
+        $data['is_student'] = $parameters['isStudent'];
+
+        $result = $request->user()->update($data);
         if ($result){
             return response(['status'=>'success', 'user'=>$request->user()]);
         }else{
@@ -89,21 +108,21 @@ class AuthController extends Controller
      */
     public function login(LoginApiRequest $request){
         $request = $request->validated();
-        
+
         $user = Customer::where("username",$request['userName'])->first();
-        
+
         if ($user && Hash::check($request['password'], $user->password)) {
-    
+
             $param = [
                 'deviceId' => $request['deviceId'],
                 'customerId' => $user['id']
             ];
-            
+
             if ($user->username !== 'user350') {
                 $deviceCheck = DB::select("SELECT * FROM device_log WHERE customer_id = :customerId", [
                     'customerId' => $user['id']
                 ]);
-        
+
                 if (!$deviceCheck) {
                     DB::insert("INSERT into device_log (device_id, customer_id) values (:deviceId, :customerId)", $param);
                 } else {
@@ -112,18 +131,18 @@ class AuthController extends Controller
                     }
                 }
             }
-            
+
             $user->tokens()->delete();
             $token = $user->createToken('token_name')->plainTextToken;
-            
+
             return response(['status' => 'success', 'payStatus' => true, 'token' => $token, 'user' => $user]);
-        
+
         } else {
             return response(['status' => 'error', 'payStatus' => true, 'desc' => 'Giriş məlumatları düzgün deyil!'], 403);
         }
 
     }
-    
+
     public function registerRequest(Request $request)
     {
         $request = $request->validate([
@@ -139,17 +158,17 @@ class AuthController extends Controller
             'class'=>$request['class'],
             'lesson'=>$request['lesson']
         ]);
-        
-        
+
+
          if($result){
             return response(['status'=>'success', 'result'=>$result]);
         }else{
             return response(['status'=>'error', 'desc'=>'These credentials do not match our records'], 403);
         }
-        
-        
+
+
     }
-    
+
 
     /**
      * @OA\Put(
@@ -228,9 +247,9 @@ class AuthController extends Controller
         }else{
             return response(['status'=>'error', 'desc'=>"Image couldn't upload"],403);
         }
-        
+
     }
-    
+
      /**
      * @OA\Delete(
      *      path="/api/userDelete",
@@ -276,7 +295,7 @@ class AuthController extends Controller
             return response(['status'=>"success"]);
         }
     }
-    
+
      /**
      * @OA\Get(
      *      path="/api/userDetails",
@@ -294,19 +313,18 @@ class AuthController extends Controller
     {
          $groups = Group::whereIn("id",json_decode($request->user()->group_ids,1))->get();
 
-        //  $newP = array_map(function($pack) use($request){
-             
-        //      $pack['users'] = in_array($request->user()->id, array_column($pack['users'],'id'));
-             
-        //      return $pack;
-        //  },$packages);
-         
          $userData = $request->user();
-         
+
          $userData['groups'] = $groups;
 
-         
         return response(['status'=>"success", "user"=>$userData]);
-        
+
+    }
+
+    public function guestDetails(Request $request)
+    {
+        $userData = $request->user();
+
+        return response(['status'=>"success", "user"=>$userData]);
     }
 }
