@@ -135,7 +135,7 @@ class OtpController extends Controller
             $customer = Guest::create($data);
             $token = $customer->createToken('token_name')->plainTextToken;
 
-            return response(['status'=>'success', 'payStatus'  => true, 'token'=>$token, 'data'=>$customer]);
+            return response(['status'=>'success', 'payStatus'  => true, 'token'=>$token, 'user'=>$customer]);
         }else{
             return response(['status'=>'error', 'desc'=>'Wrong OTP code'], 403);
         }
