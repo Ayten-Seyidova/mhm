@@ -69,6 +69,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 Route::match(['post','put'],'/sendOtp', [OtpController::class, 'sendOtp'])->name('sendOtp');
 Route::post('/checkOtpRegister', [OtpController::class, 'checkOtpRegister'])->name('checkOtpRegister');
 Route::put('/checkOtpLogin', [OtpController::class, 'checkOtpLogin'])->name('checkOtpLogin');
+Route::get('/directions', [GuestController::class, 'directions'])->name('directions');
 
 Route::group(['middleware' => ['auth:apiGuest']], function () {
     //auth
@@ -84,7 +85,6 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::get('/guestExam', [GuestController::class, 'guestExam'])->name('guestExam');
 
 
-    Route::get('/directions', [GuestController::class, 'directions'])->name('directions');
     Route::get('/stories', [GuestController::class, 'stories'])->name('stories');
     Route::get('/teachers', [GuestController::class, 'teachers'])->name('teachers');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
