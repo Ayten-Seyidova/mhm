@@ -150,12 +150,28 @@
                                                          src="{{asset($postItem->image)}}"
                                                          alt="">
                                                 @elseif($postItem->type=='video')
-                                                    <iframe width="200" height="120"
-                                                            src="https://www.youtube.com/embed/{{$postItem->video}}"
-                                                            title="YouTube video player" frameborder="0"
-                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                            referrerpolicy="strict-origin-when-cross-origin"
-                                                            allowfullscreen></iframe>
+                                                    <img class="d-block mb-2 btn btn-xs" data-toggle="modal"
+                                                         style="width: 200px; margin: auto"
+                                                         src="{{asset($postItem->image)}}"
+                                                         alt="" data-target="#variantModal{{$key}}">
+                                                    <div class="modal fade" id="variantModal{{$key}}" tabindex="-1"
+                                                         role="dialog"
+                                                         aria-labelledby="exampleModalCenterTitle"
+                                                         aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered"
+                                                             role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-body p-2">
+                                                                    <iframe width="400" height="240"
+                                                                            src="https://www.youtube.com/embed/{{$postItem->video}}"
+                                                                            title="YouTube video player" frameborder="0"
+                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                            referrerpolicy="strict-origin-when-cross-origin"
+                                                                            allowfullscreen></iframe>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 @elseif($postItem->type=='question')
                                                     @php($variant=\App\Models\Variant::where('post_id', $postItem->id)->first())
                                                     @if(!empty($variant))
@@ -613,11 +629,11 @@
                     $('.video-section').addClass('d-none');
                     $('.question-section').addClass('d-none');
                 } else if ($(this).find(":selected").val() == 'video') {
-                    $('.img-section input').prop('required', false)
+                    $('.img-section input').prop('required', true)
                     $('.video-section input').prop('required', true)
                     $('.question-section textarea').prop('required', false)
                     $('.question-section select').prop('required', false)
-                    $('.img-section').addClass('d-none');
+                    $('.img-section').removeClass('d-none');
                     $('.video-section').removeClass('d-none');
                     $('.question-section').addClass('d-none');
                 } else if ($(this).find(":selected").val() == 'question') {
@@ -649,11 +665,11 @@
                     $('.video-sectionEdit').addClass('d-none');
                     $('.question-sectionEdit').addClass('d-none');
                 } else if ($(this).find(":selected").val() == 'video') {
-                    $('.img-sectionEdit input').prop('required', false)
+                    $('.img-sectionEdit input').prop('required', true)
                     $('.video-sectionEdit input').prop('required', true)
                     $('.question-sectionEdit textarea').prop('required', false)
                     $('.question-sectionEdit select').prop('required', false)
-                    $('.img-sectionEdit').addClass('d-none');
+                    $('.img-sectionEdit').removeClass('d-none');
                     $('.video-sectionEdit').removeClass('d-none');
                     $('.question-sectionEdit').addClass('d-none');
                 } else if ($(this).find(":selected").val() == 'question') {
@@ -896,12 +912,14 @@
                             let imageEdit = $('#previewImage');
                             imageEdit.attr("src", (post.image));
                         } else if (post.type == 'video') {
-                            $('.img-sectionEdit').addClass('d-none');
+                            $('.img-sectionEdit').removeClass('d-none');
                             $('.question-sectionEdit').addClass('d-none');
                             $('.video-sectionEdit').removeClass('d-none');
                             $('.video-sectionEdit input').prop('required', true)
                             let videoEdit = $('#videoEdit');
                             videoEdit.val(post.video);
+                            let imageEdit = $('#previewImage');
+                            imageEdit.attr("src", (post.image));
                         } else if (post.type == 'question') {
                             $('.img-sectionEdit').addClass('d-none');
                             $('.video-sectionEdit').addClass('d-none');
