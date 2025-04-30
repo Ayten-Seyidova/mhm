@@ -46,9 +46,13 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
+        $image = $request->file('image');
+
         User::create([
+            'image' => $image ? uploadImg($image) : 'postImage/noUser.png',
             'name' => $request->name,
             'email' => $request->email,
+            'about' => $request->about,
             'type' => $request->type,
             'status' => isset($request->status) ? 1 : 0,
             'password' => bcrypt($request->password),
@@ -90,8 +94,17 @@ class UserController extends Controller
             'email.unique' => 'Bu e-poçt adresinə aid hesab artıq mövcuddur',
         ]);
 
+        $image = $request->file('image');
+
+        if ($_POST['hidden'] == "0") {
+            $postUpdate->image = 'postImage/noUser.png';
+        } else if ($image && $_POST['hidden'] == "1") {
+            $postUpdate->image = uploadImg($image);
+        }
+
         $postUpdate->name = $request->name;
         $postUpdate->type = $request->type;
+        $postUpdate->about = $request->about;
         $postUpdate->email = $request->email;
         $postUpdate->status = isset($request->status) ? 1 : 0;
 

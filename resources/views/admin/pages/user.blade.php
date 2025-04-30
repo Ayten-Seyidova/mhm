@@ -35,7 +35,8 @@
                         </div>
                         <div class="card-body">
                             <form method="get" id="searchForm" class="row justify-content-center" action="">
-                                <input type="hidden" name="is_deleted" value="{{isset($_GET['is_deleted']) ? $_GET['is_deleted'] : ''}}">
+                                <input type="hidden" name="is_deleted"
+                                       value="{{isset($_GET['is_deleted']) ? $_GET['is_deleted'] : ''}}">
                                 <div class="col-3">
                                     <select class="form-control default-select" onchange="form.submit()" name="status"
                                             id="searchOption">
@@ -66,7 +67,9 @@
                                 <div class="input-group col-4">
                                     <div class="form-item">
                                         <input id="search-input" name="search" type="search"
-                                               placeholder="Axtarış et"  value="{{isset($_GET['search']) ? $_GET['search'] : ''}}" class="form-control"
+                                               placeholder="Axtarış et"
+                                               value="{{isset($_GET['search']) ? $_GET['search'] : ''}}"
+                                               class="form-control"
                                                style="border-top-right-radius: 0; border-bottom-right-radius: 0"/>
                                     </div>
                                     <button id="search-button" type="submit" class="btn btn-primary">
@@ -97,8 +100,10 @@
                                     <thead>
                                     <tr class="text-center">
                                         <th>Seç</th>
+                                        <th>Şəkil</th>
                                         <th>Ad və soyad</th>
                                         <th>Email</th>
+                                        <th>Haqqında</th>
                                         <th>Tip</th>
                                         <th>Yaranma tarixi</th>
                                         <th>Status</th>
@@ -110,8 +115,12 @@
                                         <tr id="row{{$postItem->id}}" class="text-center">
                                             <td class="text-center"><input value="{{$postItem->id}}" class="checkedItem"
                                                                            name="checked" type="checkbox"></td>
+                                            <td><img class="d-block" style="width: 100px; margin: auto"
+                                                     src="{{asset($postItem->image)}}"
+                                                     alt=""></td>
                                             <td>{{$postItem->name}}</td>
                                             <td>{{$postItem->email}}</td>
+                                            <td>{{$postItem->about}}</td>
                                             <td>{{$postItem->type == 'teacher' ? 'Müəllim' : 'Admin'}}</td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td class="m-auto text-center">
@@ -198,18 +207,25 @@
                     @csrf
                     <div class="modal-body pb-0 pt-2">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-4">
+                                <div class="form-group img-section">
+                                    <label for="uploadImage-create">Şəkil</label>
+                                    <div class="img-input d-flex justify-content-between mb-2">
+                                        <input id="uploadImage-create" type="file"
+                                               name="image" class="form-control-file"
+                                               onchange="PreviewImageCreate();">
+                                        <div class="delete-img c-pointer" onclick="deleteImageCreate();">
+                                            <i class="fas fa-trash"></i></div>
+                                    </div>
+                                    <img class="preview-img" id='previewImage-create'
+                                         src="{{asset('admin/images/noUser.png')}}"
+                                         style="width: 100%;" alt="">
+                                </div>
                                 <div class="form-group">
                                     <label for="name">Ad</label>
                                     <input class="form-control" value="{{old('name')}}"
                                            type="text" required maxlength="100"
                                            name="name" id="name"/>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">E-poçt</label>
-                                    <input class="form-control" value="{{old('email')}}"
-                                           type="text" required maxlength="100"
-                                           name="email" id="email"/>
                                 </div>
                                 <div class="form-group d-flex mt-4">
                                     <label for="status">Status</label>
@@ -220,7 +236,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-8">
+                                <div class="form-group">
+                                    <label for="email">E-poçt</label>
+                                    <input class="form-control" value="{{old('email')}}"
+                                           type="text" required maxlength="100"
+                                           name="email" id="email"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="about">Haqqında</label>
+                                    <input class="form-control" value="{{old('about')}}"
+                                           type="text" maxlength="190"
+                                           name="about" id="about"/>
+                                </div>
                                 <div class="form-group">
                                     <label for="type">Tip</label>
                                     <select class="form-control" name="type"
@@ -285,18 +313,26 @@
                     @method('PUT')
                     <div class="modal-body pb-0 pt-2">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-4">
+                                <div class="form-group img-sectionEdit">
+                                    <label for="uploadImage">Şəkil</label>
+                                    <div class="img-input d-flex justify-content-between mb-2">
+                                        <input id="uploadImage" type="file"
+                                               name="image" value="" class="form-control-file"
+                                               onchange="PreviewImage();">
+                                        <div class="delete-img c-pointer" onclick="deleteImage();">
+                                            <i class="fas fa-trash"></i></div>
+                                        <input id="hiddenInput" type="hidden" name="hidden" value="1">
+                                    </div>
+                                    <img class="preview-img" id='previewImage'
+                                         src="{{asset('admin/images/noUser.png')}}"
+                                         style="width: 100%;" alt="">
+                                </div>
                                 <div class="form-group">
                                     <label for="nameEdit">Ad</label>
                                     <input class="form-control"
                                            type="text" required maxlength="100"
                                            name="name" id="nameEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label for="emailEdit">E-poçt</label>
-                                    <input class="form-control"
-                                           type="text" required maxlength="100"
-                                           name="email" id="emailEdit"/>
                                 </div>
                                 <div class="form-group d-flex mt-4">
                                     <label for="statusEdit">Status</label>
@@ -307,7 +343,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-8">
+                                <div class="form-group">
+                                    <label for="emailEdit">E-poçt</label>
+                                    <input class="form-control"
+                                           type="text" required maxlength="100"
+                                           name="email" id="emailEdit"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="aboutEdit">Haqqında</label>
+                                    <input class="form-control"
+                                           type="text" maxlength="190"
+                                           name="about" id="aboutEdit"/>
+                                </div>
                                 <div class="form-group">
                                     <label for="typeEdit">Tip</label>
                                     <select class="form-control" name="type"
@@ -362,6 +410,34 @@
     <script src="{{ asset('admin/js/plugins-init/datatables.init.js') }}"></script>
 
     <script>
+        function PreviewImageCreate() {
+            var oFReader = new FileReader();
+            oFReader.readAsDataURL(document.getElementById("uploadImage-create").files[0]);
+
+            oFReader.onload = function (oFREvent) {
+                document.getElementById("previewImage-create").src = oFREvent.target.result;
+            };
+        };
+
+        function deleteImageCreate() {
+            document.getElementById("previewImage-create").src = '{{asset('admin/images/noUser.png')}}';
+            document.getElementById("uploadImage-create").value = '';
+        }
+
+        function PreviewImage() {
+            document.getElementById('hiddenInput').value = '1';
+            var oFReader = new FileReader();
+            oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
+            oFReader.onload = function (oFREvent) {
+                document.getElementById("previewImage").src = oFREvent.target.result;
+            };
+        };
+
+        function deleteImage() {
+            document.getElementById("previewImage").src = '{{asset('admin/images/noUser.png')}}';
+            document.getElementById('hiddenInput').value = '0';
+        }
+
         const togglePassword = document.querySelector("#togglePassword");
         const password = document.querySelector("#newPassword");
 
@@ -665,6 +741,7 @@
                 let emailEdit = $('#emailEdit');
                 let typeEdit = $('#typeEdit');
                 let statusEdit = $('#statusEdit');
+                let aboutEdit = $('#aboutEdit');
 
                 let route = '{{route('user.edit', ['user'=>'edit'])}}';
                 route = route.replace('edit', dataID);
@@ -686,7 +763,10 @@
 
                         nameEdit.val(post.name);
                         emailEdit.val(post.email);
+                        aboutEdit.val(post.about);
                         typeEdit.val(post.type);
+                        let imageEdit = $('#previewImage');
+                        imageEdit.attr("src", (post.image));
 
                         if (post.status == 1) {
                             statusEdit.attr('checked', true);

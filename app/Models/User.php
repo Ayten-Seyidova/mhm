@@ -23,6 +23,8 @@ class User extends Authenticatable
         'type',
         'is_deleted',
         'status',
+        'image',
+        'about',
         'password',
     ];
 
@@ -48,5 +50,10 @@ class User extends Authenticatable
 
     public function subDirection(){
         return $this->hasMany(TeacherSubDirection::class, 'user_id');
+    }
+
+    public function getImageAttribute($value)
+    {
+        return config('app.url') . '/' . $value;
     }
 }
