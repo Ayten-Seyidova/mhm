@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
-use App\Models\Video;
 use App\Models\VideoCourse;
 use App\Models\Exam;
 use App\Models\Api\VideoDone;
@@ -17,11 +15,7 @@ class VideoController extends Controller
          $orderBy = $_GET['orderBy'] ?? null;
          $searchKey = $_GET['searchKey'] ?? null;
          $groupParams = @$request->groups;
-         $endDate = @$request->user()->end_date;
-         //$date = @$request->user()->date;
          $groupAdded = @$request->user()->groupAdded->toArray();
-//         dd($groupAdded);
-         $groups = json_decode($request->user()->group_ids);
          $videoCourses = VideoCourse::selectRaw('*,
        IFNULL((select ceil(SUM(rate) / count(customer_id))
             from comments
@@ -60,21 +54,11 @@ class VideoController extends Controller
         });
 
 
-     /*    if($date!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',">=", $date);
-          }   */
-
-
-
-
-
           if($searchKey!=null){
               $videoCourses = $videoCourses
                                 ->where('name',"like", "%".$searchKey."%");
           }
 
-        //   dd($groupParams);
           if(isset($groupParams)){
               $videoCourses = $videoCourses->where(function ($query) use ($groupParams) {
                     foreach ($groupParams as $groupParam) {
@@ -96,15 +80,6 @@ class VideoController extends Controller
               $videoCourses = $videoCourses->get();
           }
 
-        //  $newList = [];
-        //  foreach (($paginate!=null?$videoCourses->toArray()['data']:$videoCourses->toArray()) as $val){
-        //      if(!empty($val['groups'])){
-        //          $newList[]=$val;
-        //      }
-        //  }
-
-        // $result = $paginate!=null?['data'=>$newList]:$newList;
-
          return response(['status' => 'success', 'videoCourses' => $videoCourses]);
     }
 
@@ -113,10 +88,7 @@ class VideoController extends Controller
          $orderBy = $_GET['orderBy'] ?? null;
          $searchKey = $_GET['searchKey'] ?? null;
          $groupParams = @$request->groups;
-         $endDate = @$request->user()->end_date;
          $groupAdded = @$request->user()->groupAdded->toArray();
-         //$date = @$request->user()->date;
-         $groups = json_decode($request->user()->group_ids);
          $videoCourses = VideoCourse::selectRaw('*,
        IFNULL((select ceil(SUM(rate) / count(customer_id))
             from comments
@@ -151,20 +123,12 @@ class VideoController extends Controller
                  });
              });
 
-          /*if($date!=null){
-              $videoCourses = $videoCourses
-                                ->where('created_at',">=", $date);
-          }*/
-
-
-
 
           if($searchKey!=null){
               $videoCourses = $videoCourses
                                 ->where('name',"like", "%".$searchKey."%");
           }
 
-        //   dd($groupParams);
           if(isset($groupParams)){
               $videoCourses = $videoCourses->where(function ($query) use ($groupParams) {
                         foreach ($groupParams as $groupParam) {
@@ -172,11 +136,6 @@ class VideoController extends Controller
                         }
                     });
           }
-
-
-
-
-        //   dd($videoCourses->toSql());
 
           if($orderBy!=null){
               $orderBy = explode("_",$orderBy);
@@ -209,23 +168,15 @@ class VideoController extends Controller
     public function exam(Request $request){
          $paginate = $request->limit ?? null;
          $orderBy = $request->orderBy ?? null;
-         //$date = @$request->user()->date;
          $endDate = @$request->user()->end_date;
          $searchKey = $_GET['searchKey'] ?? null;
          $groups = json_decode($request->user()->group_ids);
          $groupParams = @$request->groups;
          $list = Exam::with('questions')->withCount('questions')->where('status',1)->where("is_deleted",0);
 
-
-         /*if($date!=null){
-              $list = $list->where('created_at',">=", $date);
-          }*/
-
-
          if($endDate!=null){
               $list = $list->where('created_at',"<=", $endDate);
           }
-
 
          $list = $list->where(function ($query) use ($groups) {
             foreach ($groups as $group) {
@@ -244,8 +195,6 @@ class VideoController extends Controller
           if($searchKey!=null){
               $list = $list->where('name',"like", "%".$searchKey."%");
           }
-
-        //   dd($list->toSql());
 
           if($orderBy!=null){
               $orderBy = explode("_",$orderBy);

@@ -30,7 +30,7 @@ class OtpRequest extends FormRequest
         ];
 
         if ($this->method()=="POST") {
-            $request['phoneNumber'] = 'required|max:15|unique:customers,phone';
+            $request['phoneNumber'] = 'required|max:15|unique:guests,phone';
         }
 
         return $request;
@@ -50,12 +50,12 @@ class OtpRequest extends FormRequest
             ]);
         }
     }
-    
+
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
     {
         throw new HttpResponseException(
             response()->json(
-                ['message' => 'Access Forbidden'], 
+                ['message' => 'Access Forbidden'],
                 403
             )
         );
