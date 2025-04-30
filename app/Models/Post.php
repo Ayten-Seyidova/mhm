@@ -24,4 +24,9 @@ class Post extends Model
     public function getImageAttribute($value){
         return config('app.url').'/'.$value;
     }
+
+    public function variants()
+    {
+        return $this->hasMany(Variant::class, 'id', 'post_id');
+    }
 }
