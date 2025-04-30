@@ -26,7 +26,9 @@ use \App\Http\Controllers\Api\NotificationsGuestController;
 
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/registerRequest', [AuthController::class, 'registerRequest'])->name('api.registerRequest');
-
+Route::get('/sliders', [SettingsController::class, 'sliders'])->name('sliders');
+Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+Route::get('/faq', [SettingsController::class, 'faq'])->name('faq');
 
 Route::group(['middleware' => ['auth:api']], function () {
 
@@ -42,10 +44,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/exam', [VideoController::class, 'exam'])->name('exam');
     Route::get('/videos', [VideoController::class, 'videos'])->name('videos');
 
-    //settings
-    Route::get('/sliders', [SettingsController::class, 'sliders'])->name('sliders');
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-    Route::get('/faq', [SettingsController::class, 'faq'])->name('faq');
+    //groups
     Route::get('/groups', [SettingsController::class, 'groups'])->name('groups');
 
     //comments

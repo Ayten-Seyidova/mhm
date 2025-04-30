@@ -18,7 +18,9 @@ use PharIo\Manifest\Library;
 class GuestController extends Controller
 {
     public function posts(Request $request){
-        $result = Post::with("subDirection")
+        $paginate = $request->limit ?? null;
+        $orderBy = $request->orderBy ?? null;
+        $result = Post::with(["subDirection", "variants","teacher"])
             ->where('status', 1)
             ->where('sub_direction_id', $request->user()->sub_direction_id);
 
@@ -26,7 +28,16 @@ class GuestController extends Controller
             $result= $result->where('type',$request->type);
         }
 
-        $result= $result->get();
+        if($orderBy!=null){
+            $orderBy = explode("_",$orderBy);
+            $result = $result->orderBy($orderBy[0],$orderBy[1]);
+        }
+
+        if($paginate!=null){
+            $result = $result->paginate($paginate);
+        }else{
+            $result = $result->get();
+        }
 
         return response(['status'=>'success', 'data'=>$result]);
     }
