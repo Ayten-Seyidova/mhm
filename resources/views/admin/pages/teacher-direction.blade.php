@@ -38,27 +38,13 @@
                                 </div>
                                 <div class="col-3">
                                     <select class="form-control search-select" onchange="form.submit()"
-                                            name="direction_id">
-                                        <option value="" disabled selected>Hazırlıq istiqaməti</option>
-                                        @if(!empty($directions[0]))
-                                            @foreach($directions as $direction)
-                                                <option
-                                                    value="{{$direction->id}}" {{isset($_GET['direction_id']) && $_GET['direction_id'] == $direction->id ? 'selected' : ''}}>
-                                                    {{$direction->title}}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <select class="form-control search-select" onchange="form.submit()"
                                             name="sub_direction_id">
                                         <option value="" disabled selected>İstiqamət</option>
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
                                                 <option
                                                     value="{{$subDirection->id}}" {{isset($_GET['sub_direction_id']) && $_GET['sub_direction_id'] == $subDirection->id ? 'selected' : ''}}>
-                                                    {{$subDirection->title}}
+                                                    {{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}
                                                 </option>
                                             @endforeach
                                         @endif
@@ -74,41 +60,42 @@
                                     <thead>
                                     <tr class="text-center">
                                         <th>Seç</th>
-                                        <th>№</th>
                                         <th>Müəllim</th>
-                                        <th>Hazırlıq istiqaməti</th>
                                         <th>İstiqamət</th>
                                         <th>Əməliyyatlar</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach($posts as $key => $postItem)
-                                        <tr id="row{{$postItem->id}}" class="text-center">
-                                            <td class="text-center"><input value="{{$postItem->id}}" class="checkedItem"
-                                                                           name="checked" type="checkbox"></td>
-                                            <td class="text-center">
-                                                @if(request('page'))
-                                                    {{(request('page')-1)*50 + ($key+1)}}
-                                                @else
-                                                    {{$key+1}}
-                                                @endif
-                                            </td>
-                                            <td>{{$postItem->teacher ? $postItem->teacher->name : ''}}</td>
-                                            <td>{{$postItem->subDirection ? ($postItem->subDirection->direction ? $postItem->subDirection->direction->title : '') : ''}}</td>
-                                            <td>{{$postItem->subDirection ? $postItem->subDirection->title : ''}}</td>
-                                            <td>
-                                                <div class="d-flex align-items-center justify-content-center">
-                                                    <a href="javascript:void(0)" data-id="{{$postItem->id}}"
-                                                       data-target="#editModal"
-                                                       data-toggle="modal"
-                                                       class="btn btn-primary shadow btn-xs sharp mr-1 editModal"><i
-                                                            class="fa fa-pencil"></i></a>
-                                                    <a data-id="{{$postItem->id}}"
-                                                       class="btn btn-danger shadow btn-xs sharp deleteItem"><i
-                                                            class="fa fa-trash"></i></a>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        @php($directions = \App\Models\TeacherSubDirection::where('user_id', $postItem->id)->get())
+                                        @if(!empty($directions[0]))
+                                            <tr id="row{{$postItem->id}}" class="text-center">
+                                                <td class="text-center"><input value="{{$postItem->id}}"
+                                                                               class="checkedItem"
+                                                                               name="checked" type="checkbox"></td>
+                                                <td>{{$postItem->name}}</td>
+                                                <td>
+                                                    @foreach($directions as $direction)
+                                                        {{($direction->subDirection ? $direction->subDirection->title : '') . ($direction->subDirection ? ($direction->subDirection->direction ? ' ('.$direction->subDirection->direction->title.')' : '') : '') }}
+                                                        @if(!$loop->last)
+                                                            <br>
+                                                        @endif
+                                                    @endforeach
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <a href="javascript:void(0)" data-id="{{$postItem->id}}"
+                                                           data-target="#editModal"
+                                                           data-toggle="modal"
+                                                           class="btn btn-primary shadow btn-xs sharp mr-1 editModal"><i
+                                                                class="fa fa-pencil"></i></a>
+                                                        <a data-id="{{$postItem->id}}"
+                                                           class="btn btn-danger shadow btn-xs sharp deleteItem"><i
+                                                                class="fa fa-trash"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                     </tbody>
                                 </table>
@@ -120,8 +107,6 @@
                                     </div>
                                     <br>
                                 @endif
-                                <div
-                                    class="d-flex justify-content-center">{{$posts->appends(request()->input())->links()}}</div>
                             </div>
                         </div>
                     </div>
@@ -157,24 +142,13 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="directionId">Hazırlıq istiqaməti</label>
-                            <select name="direction_id" required class="form-control search-select"
-                                    id="directionId">
-                                @if(!empty($directions[0]))
-                                    @foreach($directions as $direction)
-                                        <option value="{{$direction->id}}">{{$direction->title}}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="subDirectionId">İstiqamət</label>
-                            <select name="sub_direction_id" required class="form-control search-select"
+                            <select name="sub_direction_id[]" multiple required class="form-control search-select"
                                     id="subDirectionId">
                                 @if(!empty($subDirections[0]))
                                     @foreach($subDirections as $subDirection)
                                         <option value="{{$subDirection->id}}"
-                                                data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title}}</option>
+                                                data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -221,24 +195,13 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="directionIdEdit">Hazırlıq istiqaməti</label>
-                            <select name="direction_id" required class="form-control search-select"
-                                    id="directionIdEdit">
-                                @if(!empty($directions[0]))
-                                    @foreach($directions as $direction)
-                                        <option value="{{$direction->id}}">{{$direction->title}}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="subDirectionIdEdit">İstiqamət</label>
-                            <select name="sub_direction_id" required class="form-control search-select"
+                            <select name="sub_direction_id[]" multiple required class="form-control search-select"
                                     id="subDirectionIdEdit">
                                 @if(!empty($subDirections[0]))
                                     @foreach($subDirections as $subDirection)
                                         <option value="{{$subDirection->id}}"
-                                                data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title}}</option>
+                                                data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -271,41 +234,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
-            let allOptions = $('#subDirectionId option').clone();
-
-            $('#directionId').on('change', function () {
-                let selectedDirection = $(this).val();
-                let $subDirectionSelect = $('#subDirectionId');
-                $subDirectionSelect.empty();
-
-                allOptions.each(function () {
-                    if ($(this).attr('data-direction_id') === selectedDirection || $(this).val() === '') {
-                        $subDirectionSelect.append($(this).clone());
-                    }
-                });
-
-                $subDirectionSelect.trigger('change.select2');
-            });
-
-            $('#directionId').trigger('change');
-
-            $('#directionIdEdit').on('change', function () {
-                let selectedDirection = $(this).val();
-                let $subDirectionSelect = $('#subDirectionIdEdit');
-                $subDirectionSelect.empty();
-
-                allOptions.each(function () {
-                    if ($(this).attr('data-direction_id') === selectedDirection || $(this).val() === '') {
-                        $subDirectionSelect.append($(this).clone());
-                    }
-                });
-
-                $subDirectionSelect.trigger('change.select2');
-            });
-
-            $('#directionIdEdit').trigger('change');
-
 
             let checkedArr = [];
 
@@ -413,7 +341,6 @@
 
             function editUser(dataID) {
                 let teacherIdEdit = $('#teacherIdEdit');
-                let directionIdEdit = $('#directionIdEdit');
                 let subDirectionIdEdit = $('#subDirectionIdEdit');
 
                 let route = '{{route('teacher-direction.edit', ['teacher_direction'=>'edit'])}}';
@@ -432,11 +359,19 @@
                     async: false,
                     success: function (response) {
 
-                        var post = response.post;
-                        teacherIdEdit.val(post.user_id);
-                        directionIdEdit.val(post.sub_direction ? post.sub_direction.direction_id : '');
-                        $('#directionIdEdit').trigger('change');
-                        subDirectionIdEdit.val(post.sub_direction_id);
+                        var posts = response.posts;
+                        teacherIdEdit.val(dataID).trigger('change');
+
+                        if (posts && posts.length > 0) {
+                            const selectedValues = posts.map(post => post.sub_direction_id.toString());
+
+                            $('#subDirectionIdEdit option').each(function () {
+                                const optionValue = $(this).val();
+                                $(this).prop('selected', selectedValues.includes(optionValue));
+                            });
+
+                            $('#subDirectionIdEdit').trigger('change.select2');
+                        }
                     }
                 });
             }

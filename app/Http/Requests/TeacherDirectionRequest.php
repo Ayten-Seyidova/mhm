@@ -23,7 +23,6 @@ class TeacherDirectionRequest extends FormRequest
     {
         return [
             "user_id" => "required",
-            "direction_id" => "required",
             "sub_direction_id" => "required",
         ];
     }
@@ -32,7 +31,6 @@ class TeacherDirectionRequest extends FormRequest
     {
         return [
             "user_id.required" => "Müəllim seçilməlidir",
-            "direction_id.required" => "Hazırlıq istiqaməti seçilməlidir",
             "sub_direction_id.required" => "İstiqamət seçilməlidir",
         ];
     }
