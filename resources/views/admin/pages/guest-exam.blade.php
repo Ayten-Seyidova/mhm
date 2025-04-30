@@ -128,6 +128,7 @@
                                         <th>Tarix</th>
                                         <th>Video</th>
                                         <th>Suallar</th>
+                                        <th>Faiz</th>
                                         <th>Yaranma tarixi</th>
                                         <th>Status</th>
                                         <th>Əməliyyatlar</th>
@@ -181,6 +182,7 @@
                                                 @endif
                                             </td>
                                             <td><a href="{{route('guest-question.index', ['guest_exam_id'=>$postItem->id])}}" class="btn btn-primary btn-xs sharp"><i class="fas fa-question-circle"></i></a></td>
+                                            <td>{{$postItem->percent ? $postItem->percent . '%' : ''}}</td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
@@ -248,7 +250,6 @@
         </div>
     </div>
 
-
     <div class="modal fade" id="createModal" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -297,6 +298,12 @@
                                     <input class="form-control" value="{{old('subject')}}"
                                            type="text" required maxlength="190"
                                            name="subject" id="subject"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="percent">Faiz</label>
+                                    <input class="form-control" value="{{old('percent')}}"
+                                           type="number"
+                                           name="percent" id="percent"/>
                                 </div>
                                 <div class="form-group d-flex mt-4">
                                     <label for="status">Status</label>
@@ -402,6 +409,12 @@
                                     <input class="form-control"
                                            type="text" required maxlength="190"
                                            name="subject" id="subjectEdit"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="percentEdit">Faiz</label>
+                                    <input class="form-control"
+                                           type="number"
+                                           name="percent" id="percentEdit"/>
                                 </div>
                                 <div class="form-group d-flex mt-4">
                                     <label for="statusEdit">Status</label>
@@ -646,6 +659,7 @@
                 let descriptionEdit = $('#descriptionEdit');
                 let subDirectionIdEdit = $('#subDirectionIdEdit');
                 let timeEdit = $('#timeEdit');
+                let percentEdit = $('#percentEdit');
 
                 let route = '{{route('guest-exam.edit', ['guest_exam'=>'edit'])}}';
                 route = route.replace('edit', dataID);
@@ -678,6 +692,7 @@
                             return veritabaniZaman;
                         }
 
+                        percentEdit.val(post.percent);
                         nameEdit.val(post.name);
                         durationEdit.val(post.duration);
                         descriptionEdit.val(post.description);

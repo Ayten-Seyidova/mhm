@@ -17,6 +17,7 @@ class ResultController extends Controller
      */
     public function index(Request $request)
     {
+        return getResult(1);
         $user = null;
 
         $exams = Exam::where('status', 1)->where('is_deleted', 0)->get();

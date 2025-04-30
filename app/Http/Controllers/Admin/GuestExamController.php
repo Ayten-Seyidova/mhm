@@ -114,6 +114,7 @@ class GuestExamController extends Controller
             'status' => isset($request->status) ? 1 : 0,
             'name' => $request->name,
             'subject' => $request->subject,
+            'percent' => $request->percent,
             'duration' => $request->duration,
         ]);
 
@@ -186,6 +187,7 @@ class GuestExamController extends Controller
         $postUpdate->time = $request->time;
         $postUpdate->description = $request->description;
         $postUpdate->duration = $request->duration;
+        $postUpdate->percent = $request->percent;
         $postUpdate->subject = $request->subject;
         $postUpdate->status = isset($request->status) ? 1 : 0;
 

@@ -79,6 +79,7 @@
                                         <th>Seç</th>
                                         <th>İmtahan</th>
                                         <th>Qonaq</th>
+                                        <th>Bal</th>
                                         <th>Düzgün cavab sayı</th>
                                         <th>Səhv cavab sayı</th>
                                         <th>Vaxt</th>
@@ -104,6 +105,7 @@
                                                     @endauth
                                                 @endif
                                             </td>
+                                            <td>{{$postItem->point}}</td>
                                             <td>{{$postItem->correct_count}}</td>
                                             <td>{{$postItem->incorrect_count}}</td>
                                             <td>{{$postItem->time}}</td>

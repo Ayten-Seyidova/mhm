@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 function cleaner($text, $character)
 {
@@ -66,4 +67,29 @@ function uploadImg($image)
         }
     }
 }
+
+function getResult($resultId)
+{
+    $result = \App\Models\GuestResult::with('guestExam')->with('guest')->find($resultId);
+
+    if (!$result) {
+        abort(404, 'Nəticə tapılmadı');
+    }
+
+    $fileName = 'result-' . $result->id . '.pdf';
+    $storagePath = 'public/results/' . $fileName;
+
+    $pdf = \PDF::loadView('admin.pages.pdf', ['result' => $result])->setPaper('a4')
+        ->setOption('encoding', 'utf-8');
+
+    $pdfContent = $pdf->output();
+
+    Storage::put($storagePath, $pdfContent);
+
+    return response($pdfContent, 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+    ]);
+}
+
 ?>

@@ -53,6 +53,19 @@
                                         </option>
                                     </select>
                                 </div>
+                                <div class="col-2">
+                                    <select class="form-control default-select" onchange="form.submit()" name="type">
+                                        <option value="" disabled selected>Tip</option>
+                                        <option
+                                            value="specialty" {{isset($_GET['type']) && $_GET['type'] == 'specialty' ? 'selected' : ''}} >
+                                            İxtisas
+                                        </option>
+                                        <option
+                                            value="methodology" {{isset($_GET['type']) && $_GET['type'] == "methodology" ? 'selected' : ''}} >
+                                            Metodika
+                                        </option>
+                                    </select>
+                                </div>
                                 <div class="input-group col-4">
                                     <div class="form-item">
                                         <input id="search-input"
@@ -97,6 +110,8 @@
                                         <th>D</th>
                                         <th>E</th>
                                         <th>Düzgün cavab</th>
+                                        <th>Tip</th>
+                                        <th>Bal</th>
                                         <th>Yaranma tarixi</th>
                                         <th>Status</th>
                                         <th>Əməliyyatlar</th>
@@ -156,6 +171,8 @@
                                                 @endif
                                             </td>
                                             <td>{{$postItem->correct}}</td>
+                                            <td>{{$postItem->type ? $postItem->type=='specialty' ? 'İxtisas' : 'Müsabiqə' : ''}}</td>
+                                            <td>{{$postItem->point}}</td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
@@ -244,8 +261,8 @@
                             <div class="form-group">
                                 <label for="title_type">Sual tipi</label>
                                 <select name="title_type" class="form-control title-type" required id="title_type">
-                                    <option value="text">Text</option>
                                     <option value="image">Image</option>
+                                    <option value="text">Text</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -267,6 +284,18 @@
                                     <option value="E">E</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="type">Tip</label>
+                                <select name="type" class="form-control" required id="type">
+                                    <option value="specialty">İxtisas</option>
+                                    <option value="methodology">Metodika</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="point">Bal</label>
+                                <input name="point" type="number" step="0.01" value="{{old('point')}}" class="form-control"
+                                          id="point"/>
+                            </div>
                             <div class="form-group d-flex mt-4">
                                 <label for="status">Status</label>
                                 <div class="form-check form-switch ml-4">
@@ -277,13 +306,13 @@
                             </div>
                         </div>
                         <div class="col-8">
-                            <div class="form-group text-section">
+                            <div class="form-group text-section d-none">
                                 <label for="title">Sual</label>
                                 <textarea name="title" class="editor"
                                           id="editor" required cols="30"
                                           rows="10">{{old('title')}}</textarea>
                             </div>
-                            <div class="form-group img-section image-section d-none">
+                            <div class="form-group img-section image-section">
                                 <label for="uploadImage-create">Sual</label>
                                 <div class="img-input d-flex justify-content-between mb-2">
                                     <input id="uploadImage-create" type="file"
@@ -450,6 +479,18 @@
                                     <option value="D">D</option>
                                     <option value="E">E</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="typeEdit">Tip</label>
+                                <select name="type" class="form-control" required id="typeEdit">
+                                    <option value="specialty">İxtisas</option>
+                                    <option value="methodology">Metodika</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pointEdit">Bal</label>
+                                <input name="point" type="number" step="0.01" class="form-control"
+                                       id="pointEdit"/>
                             </div>
                             <div class="form-group d-flex mt-4">
                                 <label for="statusEdit">Status</label>
@@ -1201,6 +1242,8 @@
                 let variant_typeEdit = $('#variant_typeEdit');
                 let correctEdit = $('#correctEdit');
                 let statusEdit = $('#statusEdit');
+                let typeEdit = $('#typeEdit');
+                let pointEdit = $('#pointEdit');
                 let imageEdit = $('#previewImage');
                 let imageEdit1 = $('#previewImage1');
                 let imageEdit2 = $('#previewImage2');
@@ -1233,6 +1276,8 @@
 
                         var post = response.post;
 
+                        typeEdit.val(post.type);
+                        pointEdit.val(post.point);
                         title_typeEdit.val(post.title_type);
                         variant_typeEdit.val(post.variant_type);
                         correctEdit.val(post.correct);

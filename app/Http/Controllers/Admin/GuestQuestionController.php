@@ -38,7 +38,10 @@ class GuestQuestionController extends Controller
                     })->where(function ($query) use ($request) {
                         return $request->status ?
                             $query->from('status')->where('status', $request->status) : '';
-                    })->orderBy('status', 'desc')->orderBy('id', 'desc')->paginate(20);
+                    })->where(function ($query) use ($request) {
+                        return $request->type ?
+                            $query->from('type')->where('type', $request->type) : '';
+                    })->orderBy('type', 'desc')->orderBy('id', 'desc')->paginate(20);
 
                 return view('admin.pages.guest-question', compact('posts', 'exam'));
             } else {
@@ -84,6 +87,8 @@ class GuestQuestionController extends Controller
             'E' => $request->variant_type == 'text' ? str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->E) : $image5,
             'status' => isset($request->status) ? 1 : 0,
             'correct' => $request->correct,
+            'type' => $request->type,
+            'point' => $request->point,
             'title_type' => $request->title_type,
             'variant_type' => $request->variant_type,
             'guest_exam_id' => $request->exam_id,
@@ -186,6 +191,8 @@ class GuestQuestionController extends Controller
         $postUpdate->D = $request->variant_type == 'text' ? str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->D) : $image4;
         $postUpdate->E = $request->variant_type == 'text' ? str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->E) : $image5;
         $postUpdate->correct = $request->correct;
+        $postUpdate->point = $request->point;
+        $postUpdate->type = $request->type;
         $postUpdate->variant_type = $request->variant_type;
         $postUpdate->title_type = $request->title_type;
         $postUpdate->status = isset($request->status) ? 1 : 0;
