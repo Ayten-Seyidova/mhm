@@ -323,7 +323,7 @@ class AuthController extends Controller
 
     public function guestDetails(Request $request)
     {
-        $userData = $request->user();
+        $userData = $request->user()->load('subDirection');
 
         return response(['status'=>"success", "user"=>$userData]);
     }
