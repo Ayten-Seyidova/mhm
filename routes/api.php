@@ -98,7 +98,7 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::post('/setParamGuest', [NotificationsGuestController::class, 'setParam'])->name('setParam-guest');
     Route::delete('/deleteParamGuest', [NotificationsGuestController::class, 'deleteParam'])->name('deleteParam-guest');
 
-    Route::post('/setResult', [ResultController::class, 'setResult'])->name('setResultGuest');
-    Route::get('/getResult', [ResultController::class, 'getResult'])->name('getResultGuest');
+//    Route::post('/setResult', [ResultController::class, 'setResult'])->name('setResultGuest');
+//    Route::get('/getResult', [ResultController::class, 'getResult'])->name('getResultGuest');
 
 });
