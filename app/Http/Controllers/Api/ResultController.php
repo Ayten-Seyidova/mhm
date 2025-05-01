@@ -15,7 +15,7 @@ class ResultController extends Controller
      $orderBy = $request->orderBy ?? null;
      $isGuest = $request->isGuest ?? null;
 
-     $model = $isGuest?GuestResult::query():Result::query();
+     $model = $isGuest?GuestResult::class:Result::class;
 
      $list = $model::with('exam')->where(($isGuest?"guest":"customer").'_id', $request->user()->id);
 
@@ -41,7 +41,7 @@ class ResultController extends Controller
         $incorrectCount = $request->incorrectCount;
         $time = $request->time;
         $isGuest = $request->isGuest ?? null;
-        $model = $isGuest?GuestResult::query():Result::query();
+        $model = $isGuest?GuestResult::class:Result::class;
 
         $result = $model::create([
                 'time'=>$time,
