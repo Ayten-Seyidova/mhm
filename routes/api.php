@@ -7,6 +7,7 @@ use \App\Http\Controllers\Api\NotificationsController;
 use \App\Http\Controllers\Api\SettingsController;
 use \App\Http\Controllers\Api\CommentsController;
 use \App\Http\Controllers\Api\ResultController;
+use \App\Http\Controllers\Api\ResultGuestController;
 use \App\Http\Controllers\Api\VideoController;
 use \App\Http\Controllers\Api\OtpController;
 use \App\Http\Controllers\Api\GuestController;
@@ -98,7 +99,7 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::post('/setParamGuest', [NotificationsGuestController::class, 'setParam'])->name('setParam-guest');
     Route::delete('/deleteParamGuest', [NotificationsGuestController::class, 'deleteParam'])->name('deleteParam-guest');
 
-//    Route::post('/setResult', [ResultController::class, 'setResult'])->name('setResultGuest');
-//    Route::get('/getResult', [ResultController::class, 'getResult'])->name('getResultGuest');
+    Route::post('/setResultGuest', [ResultGuestController::class, 'setResultGuest'])->name('setResultGuest');
+    Route::get('/getResultGuest', [ResultGuestController::class, 'getResultGuest'])->name('getResultGuest');
 
 });

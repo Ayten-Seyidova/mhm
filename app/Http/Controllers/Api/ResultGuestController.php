@@ -3,20 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Guest;
 use App\Models\GuestResult;
 use App\Models\Result;
 use Illuminate\Http\Request;
 
-class ResultController extends Controller
+class ResultGuestController extends Controller
 {
 
-    public function getResult(Request $request){
+    public function getResultGuest(Request $request){
      $paginate = $request->limit ?? null;
      $orderBy = $request->orderBy ?? null;
 
-     $model = Result::class;
+     $model = GuestResult::class;
 
-     $list = $model::with('exam')->where("customer_id", $request->user()->id);
+     $list = $model::with('guestExam')->where("guest_id", $request->user()->id);
 
       if($orderBy!=null){
           $orderBy = explode("_",$orderBy);
@@ -32,19 +33,19 @@ class ResultController extends Controller
      return response(['status' => 'success', 'list' => $list]);
     }
 
-   public function setResult(Request $request){
+   public function setResultGuest(Request $request){
         $examId = $request->examId;
         $correctCount = $request->correctCount;
         $incorrectCount = $request->incorrectCount;
         $time = $request->time;
-        $model = Result::class;
+        $model = GuestResult::class;
 
         $result = $model::create([
                 'time'=>$time,
                 'correct_count'=>$correctCount,
                 'incorrect_count'=>$incorrectCount,
-                'exam_id'=>$examId,
-                'customer_id'=>$request->user()->id
+                'guest_exam_id'=>$examId,
+                'guest_id'=>$request->user()->id
             ]);
 
         return response(['status' => 'success', 'result' => $result]);
