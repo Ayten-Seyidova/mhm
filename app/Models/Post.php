@@ -27,6 +27,6 @@ class Post extends Model
 
     public function variants()
     {
-        return $this->hasMany(Variant::class, 'id', 'post_id');
+        return $this->hasMany(Variant::class, 'post_id', 'id');
     }
 }
