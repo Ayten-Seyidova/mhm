@@ -92,6 +92,7 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::get('/lessons', [GuestController::class, 'lessons'])->name('lessons');
     Route::get('/books', [GuestController::class, 'books'])->name('books');
     Route::post('/sendCommentByPost', [GuestController::class, 'sendCommentByPost'])->name('sendCommentByPost');
+    Route::get('/getCommentsByPost', [GuestController::class, 'getCommentsByPost'])->name('getCommentsByPost');
 
     //notificationsGuest
     Route::get('/notificationsGuest', [NotificationsGuestController::class, 'index'])->name('notifications-guest');
