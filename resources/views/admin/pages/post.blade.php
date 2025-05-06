@@ -76,7 +76,7 @@
                                             @foreach($subDirections as $subDirection)
                                                 <option
                                                     value="{{$subDirection->id}}" {{isset($_GET['sub_direction_id']) && $_GET['sub_direction_id'] == $subDirection->id ? 'selected' : ''}}>
-                                                    {{$subDirection->title}}
+                                                    {{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}
                                                 </option>
                                             @endforeach
                                         @endif
@@ -124,7 +124,6 @@
                                         <th>Fayl</th>
                                         @auth('admin')
                                             <th>Müəllim</th>
-                                            <th>Hazırlıq istiqaməti</th>
                                         @endauth
                                         <th>İstiqamət</th>
                                         <th>Status</th>
@@ -204,9 +203,8 @@
                                             </td>
                                             @auth('admin')
                                                 <td>{{$postItem->teacher ? $postItem->teacher->name : ''}}</td>
-                                                <td>{{$postItem->subDirection ? ($postItem->subDirection->direction ? $postItem->subDirection->direction->title : '') : ''}}</td>
                                             @endauth
-                                            <td>{{$postItem->subDirection ? $postItem->subDirection->title : ''}}</td>
+                                            <td>{{$postItem->subDirection ? $postItem->subDirection->title.($postItem->subDirection->direction ? ' ('.$postItem->subDirection->direction->title.')' : '') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
                                                     <div class="form-check form-switch">
@@ -327,7 +325,7 @@
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
                                                 <option value="{{$subDirection->id}}"
-                                                        data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title}}</option>
+                                                        data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -474,7 +472,7 @@
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
                                                 <option value="{{$subDirection->id}}"
-                                                        data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title}}</option>
+                                                        data-direction_id="{{$subDirection->direction_id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                             @endforeach
                                         @endif
                                     </select>

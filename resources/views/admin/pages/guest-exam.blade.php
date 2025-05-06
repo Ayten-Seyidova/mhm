@@ -75,7 +75,7 @@
                                             @foreach($subDirections as $subDirection)
                                                 <option
                                                     value="{{$subDirection->id}}" {{isset($_GET['sub_direction_id']) && $_GET['sub_direction_id'] == $subDirection->id ? 'selected' : ''}}>
-                                                    {{$subDirection->title}}
+                                                    {{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}
                                                 </option>
                                             @endforeach
                                         @endif
@@ -147,7 +147,7 @@
                                                 @php($examDirections = \App\Models\GuestExamSubDirection::with('subDirection')->where('guest_exam_id', $postItem->id)->get())
                                                 @if(!empty($examDirections[0]))
                                                     @foreach($examDirections as $examDirection)
-                                                        {{$examDirection->subDirection ? $examDirection->subDirection ->title : ''}}
+                                                        {{($examDirection->subDirection ? $examDirection->subDirection->title : '') . ($examDirection->subDirection ? ($examDirection->subDirection->direction ? ' ('.$examDirection->subDirection->direction->title.')' : '') : '') }}
                                                         <br>
                                                     @endforeach
                                                 @endif
@@ -322,7 +322,7 @@
                                             id="subDirectionId">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
-                                                <option value="{{$subDirection->id}}">{{$subDirection->title}}</option>
+                                                <option value="{{$subDirection->id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -433,7 +433,7 @@
                                             id="subDirectionIdEdit">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
-                                                <option value="{{$subDirection->id}}">{{$subDirection->title}}</option>
+                                                <option value="{{$subDirection->id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                             @endforeach
                                         @endif
                                     </select>
