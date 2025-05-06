@@ -60,7 +60,9 @@ class GuestController extends Controller
 
     public function setLikeByPost(Request $request)
     {
-        $result = PostLike::with(['post','guest'])->create(['post_id'=>$request->postId, 'guest_id'=>$request->user()->id]);
+        $model = PostLike::query();
+        $checkLike = $model->where(['post_id'=>$request->postId, 'guest_id'=>$request->user()->id]);
+        $result = $checkLike->first()?$checkLike->delete():$model->create(['post_id'=>$request->postId, 'guest_id'=>$request->user()->id]);
 
         return response(['status'=>'success', 'data'=>$result]);
     }
