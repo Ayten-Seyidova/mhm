@@ -29,4 +29,9 @@ class Post extends Model
     {
         return $this->hasMany(Variant::class, 'post_id', 'id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(GuestComment::class, 'post_id', 'id');
+    }
 }
