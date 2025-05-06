@@ -12,6 +12,7 @@ use App\Models\GuestExam;
 use App\Models\Lesson;
 use App\Models\OurTeacher;
 use App\Models\Post;
+use App\Models\PostLike;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class GuestController extends Controller
     public function posts(Request $request){
         $paginate = $request->limit ?? null;
         $orderBy = $request->orderBy ?? null;
-        $result = Post::with(["subDirection", "variants","teacher","comments"])
+        $result = Post::with(["subDirection", "variants","teacher","comments", "likes"])->withCount(["comments","likes"])
             ->where('status', 1)
             ->where('sub_direction_id', $request->user()->sub_direction_id);
 
@@ -55,7 +56,13 @@ class GuestController extends Controller
         $result = GuestComment::with(['post','guest'])->create(['post_id'=>$request->postId, 'comment'=>$request->comment, 'guest_id'=>$request->user()->id]);
 
         return response(['status'=>'success', 'data'=>$result]);
+    }
 
+    public function setLikeByPost(Request $request)
+    {
+        $result = PostLike::with(['post','guest'])->create(['post_id'=>$request->postId, 'guest_id'=>$request->user()->id]);
+
+        return response(['status'=>'success', 'data'=>$result]);
     }
 
     public function getCommentsByPost(Request $request)
@@ -63,7 +70,6 @@ class GuestController extends Controller
         $result = GuestComment::with(['post','guest'])->where('post_id',$request->postId)->paginate(10);
 
         return response(['status'=>'success', 'data'=>$result]);
-
     }
 
     public function directions(Request $request){

@@ -93,6 +93,7 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::get('/books', [GuestController::class, 'books'])->name('books');
     Route::post('/sendCommentByPost', [GuestController::class, 'sendCommentByPost'])->name('sendCommentByPost');
     Route::get('/getCommentsByPost', [GuestController::class, 'getCommentsByPost'])->name('getCommentsByPost');
+    Route::post('/setLikeByPost', [GuestController::class, 'setLikeByPost'])->name('setLikeByPost');
 
     //notificationsGuest
     Route::get('/notificationsGuest', [NotificationsGuestController::class, 'index'])->name('notifications-guest');
@@ -103,5 +104,4 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
 
     Route::post('/setResultGuest', [ResultGuestController::class, 'setResultGuest'])->name('setResultGuest');
     Route::get('/getResultGuest', [ResultGuestController::class, 'getResultGuest'])->name('getResultGuest');
-
 });

@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
+    protected $appends = ['liked'];
 
     public function teacher()
     {
@@ -33,5 +35,17 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(GuestComment::class, 'post_id', 'id');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(PostLike::class, 'post_id', 'id');
+    }
+
+    public function getLikedAttribute()
+    {
+        if (!Auth::guard("apiGuest")->check()) return false;
+
+        return $this->likes->contains('guest_id', Auth::user()->id);
     }
 }
