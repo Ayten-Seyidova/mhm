@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Answer;
 use App\Models\Book;
+use App\Models\Comment;
 use App\Models\Direction;
+use App\Models\GuestComment;
 use App\Models\GuestExam;
 use App\Models\Lesson;
 use App\Models\OurTeacher;
@@ -20,7 +22,7 @@ class GuestController extends Controller
     public function posts(Request $request){
         $paginate = $request->limit ?? null;
         $orderBy = $request->orderBy ?? null;
-        $result = Post::with(["subDirection", "variants","teacher"])
+        $result = Post::with(["subDirection", "variants","teacher","comments"])
             ->where('status', 1)
             ->where('sub_direction_id', $request->user()->sub_direction_id);
 
@@ -47,6 +49,15 @@ class GuestController extends Controller
 
         return response(['status'=>'success', 'data'=>$result]);
     }
+
+    public function sendCommentByPost(Request $request)
+    {
+        $result = GuestComment::with(['post','guest'])->create(['post_id'=>$request->postId, 'comment'=>$request->comment, 'guest_id'=>$request->user()->id]);
+
+        return response(['status'=>'success', 'data'=>$result]);
+
+    }
+
 
     public function directions(Request $request){
         $result = Direction::with('subDirections')->where('is_deleted',0)->get();
