@@ -320,7 +320,7 @@
                                 @endauth
                                 <div class="form-group">
                                     <label for="subDirectionId">İstiqamət</label>
-                                    <select name="sub_direction_id" required class="form-control search-select"
+                                    <select name="sub_direction_id[]" multiple required class="form-control search-select"
                                             id="subDirectionId">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)

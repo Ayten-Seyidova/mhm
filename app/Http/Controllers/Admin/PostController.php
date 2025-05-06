@@ -87,6 +87,8 @@ class PostController extends Controller
     {
         $image = $request->file('image');
 
+        $uploadedImg = uploadImg($image);
+
         $userId = null;
         if (Auth::guard('teacher')->check()) {
             $user = Auth::guard('teacher')->user();
@@ -110,26 +112,31 @@ class PostController extends Controller
             }
         }
 
-        $post = Post::create([
-            'image' => $image ? uploadImg($image) : 'postImage/noPhoto.png',
-            'type' => $request->type,
-            'content' => $request->content,
-            'video' => $url,
-            'user_id' => $userId,
-            'correct' => $request->correct,
-            'status' => isset($request->status) ? 1 : 0,
-            'sub_direction_id' => $request->sub_direction_id,
-        ]);
+        $subDirectionIds = $request->sub_direction_id;
+        if (!empty($subDirectionIds)) {
+            foreach ($subDirectionIds as $subDirectionId) {
+                $post = Post::create([
+                    'sub_direction_id' => $subDirectionId,
+                    'image' => $image ? $uploadedImg : 'postImage/noPhoto.png',
+                    'type' => $request->type,
+                    'content' => $request->content,
+                    'video' => $url,
+                    'user_id' => $userId,
+                    'correct' => $request->correct,
+                    'status' => isset($request->status) ? 1 : 0,
+                ]);
 
-        if ($request->type == 'question') {
-            Variant::create([
-                'post_id' => $post->id,
-                'A' => $request->A,
-                'B' => $request->B,
-                'C' => $request->C,
-                'D' => $request->D,
-                'E' => $request->E,
-            ]);
+                if ($request->type == 'question') {
+                    Variant::create([
+                        'post_id' => $post->id,
+                        'A' => $request->A,
+                        'B' => $request->B,
+                        'C' => $request->C,
+                        'D' => $request->D,
+                        'E' => $request->E,
+                    ]);
+                }
+            }
         }
 
         alert()->success('Uğurlu', 'Əlavə olundu')
