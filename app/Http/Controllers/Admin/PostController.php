@@ -87,7 +87,7 @@ class PostController extends Controller
     {
         $image = $request->file('image');
 
-        $uploadedImg = uploadImg($image);
+        $uploadedImg = $image ? uploadImg($image) : 'postImage/noPhoto.png';
 
         $userId = null;
         if (Auth::guard('teacher')->check()) {
@@ -117,7 +117,7 @@ class PostController extends Controller
             foreach ($subDirectionIds as $subDirectionId) {
                 $post = Post::create([
                     'sub_direction_id' => $subDirectionId,
-                    'image' => $image ? $uploadedImg : 'postImage/noPhoto.png',
+                    'image' => $uploadedImg,
                     'type' => $request->type,
                     'content' => $request->content,
                     'video' => $url,
