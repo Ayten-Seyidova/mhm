@@ -18,6 +18,6 @@ class GuestResult extends Model
 
     public function guestExam()
     {
-        return $this->belongsTo(GuestExam::class, 'guest_exam_id');
+        return $this->belongsTo(GuestExam::class,'guest_exam_id');
     }
 }
