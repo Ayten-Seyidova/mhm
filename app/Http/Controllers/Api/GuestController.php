@@ -58,6 +58,13 @@ class GuestController extends Controller
 
     }
 
+    public function getCommentsByPost(Request $request)
+    {
+        $result = GuestComment::with(['post','guest'])->where('post_id',$request->postId)->paginate(10);
+
+        return response(['status'=>'success', 'data'=>$result]);
+
+    }
 
     public function directions(Request $request){
         $result = Direction::with('subDirections')->where('is_deleted',0)->get();
