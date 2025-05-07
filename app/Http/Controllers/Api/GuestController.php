@@ -117,7 +117,7 @@ class GuestController extends Controller
             $now = Carbon::now();
             $list = $list->where('time',"!=",null)
                 ->where('time', '>', $now)
-                ->orderBy('time', 'asc')->first();
+                ->orderBy('time', 'asc')->limit(1)->get();
         }
 
         return response(['status' => 'success', 'list' => $list]);
