@@ -40,6 +40,8 @@ class ResultGuestController extends Controller
         $time = $request->time;
         $model = GuestResult::class;
 
+
+
         $result = $model::create([
                 'time'=>$time,
                 'correct_count'=>$correctCount,
