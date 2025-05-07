@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Answer;
 use App\Models\Book;
-use App\Models\Comment;
 use App\Models\Direction;
 use App\Models\GuestComment;
 use App\Models\GuestExam;
@@ -17,7 +16,6 @@ use App\Models\Story;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use PharIo\Manifest\Library;
 
 class GuestController extends Controller
 {
@@ -54,6 +52,13 @@ class GuestController extends Controller
     public function sendCommentByPost(Request $request)
     {
         $result = GuestComment::with(['post','guest'])->create(['post_id'=>$request->postId, 'comment'=>$request->comment, 'guest_id'=>$request->user()->id]);
+
+        return response(['status'=>'success', 'data'=>$result]);
+    }
+
+    public function deleteComment(Request $request)
+    {
+        $result = GuestComment::where("id",$request->commentId)->delete();
 
         return response(['status'=>'success', 'data'=>$result]);
     }
@@ -134,7 +139,6 @@ class GuestController extends Controller
 
         return response(['status'=>'success', 'data'=>$result]);
     }
-
 
     public function lessons(Request $request){
         $result = Lesson::with("subDirection")
