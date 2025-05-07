@@ -21,7 +21,7 @@ class GuestController extends Controller
 {
     public function posts(Request $request){
         $paginate = $request->limit ?? null;
-        $orderBy = $request->orderBy ? $request->orderBy : ['id','desc'];
+        $orderBy = $request->orderBy ? explode("_",$request->orderBy) : ['id','desc'];
         $result = Post::with(["subDirection", "variants","teacher","comments", "likes"])->withCount(["comments","likes"])
             ->where('status', 1)
             ->where('sub_direction_id', $request->user()->sub_direction_id);
@@ -30,7 +30,6 @@ class GuestController extends Controller
             $result= $result->where('type',$request->type);
         }
 
-        $orderBy = explode("_",$orderBy);
         $result = $result->orderBy($orderBy[0],$orderBy[1]);
 
 
