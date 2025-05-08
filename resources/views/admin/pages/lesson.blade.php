@@ -58,7 +58,7 @@
                                             @foreach($subDirections as $subDirection)
                                                 <option
                                                     value="{{$subDirection->id}}" {{isset($_GET['sub_direction_id']) && $_GET['sub_direction_id'] == $subDirection->id ? 'selected' : ''}}>
-                                                    {{$subDirection->title}}
+                                                    {{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}
                                                 </option>
                                             @endforeach
                                         @endif
@@ -89,7 +89,6 @@
                                         <th>№</th>
                                         <th>Şəkil</th>
                                         <th>Başlıq</th>
-                                        <th>Hazırlıq istiqaməti</th>
                                         <th>İstiqamət</th>
                                         <th>Video</th>
                                         <th>Status</th>
@@ -112,8 +111,7 @@
                                                      src="{{asset($postItem->image)}}"
                                                      alt=""></td>
                                             <td>{{addDots($postItem->title, 100)}}</td>
-                                            <td>{{$postItem->subDirection ? ($postItem->subDirection->direction ? $postItem->subDirection->direction->title : '') : ''}}</td>
-                                            <td>{{$postItem->subDirection ? $postItem->subDirection->title : ''}}</td>
+                                            <td>{{$postItem->subDirection ? $postItem->subDirection->title.($postItem->subDirection->direction ? ' ('.$postItem->subDirection->direction->title.')' : '') : ''}}</td>
                                             <td>
                                                 @if($postItem->video)
                                                     <button class="btn btn-secondary btn-sm text-nowrap"
@@ -224,19 +222,8 @@
                                          style="width: 100%;" alt="">
                                 </div>
                                 <div class="form-group">
-                                    <label for="directionId">Hazırlıq istiqaməti</label>
-                                    <select name="direction_id" required class="form-control search-select"
-                                            id="directionId">
-                                        @if(!empty($directions[0]))
-                                            @foreach($directions as $direction)
-                                                <option value="{{$direction->id}}">{{$direction->title}}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <div class="form-group">
                                     <label for="subDirectionId">İstiqamət</label>
-                                    <select name="sub_direction_id" required class="form-control search-select"
+                                    <select name="sub_direction_id[]" multiple required class="form-control search-select"
                                             id="subDirectionId">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
@@ -321,17 +308,6 @@
                                     <img class="preview-img" id='previewImage'
                                          src="{{asset('admin/images/noPhoto.png')}}"
                                          style="width: 100%;" alt="">
-                                </div>
-                                <div class="form-group">
-                                    <label for="directionIdEdit">Hazırlıq istiqaməti</label>
-                                    <select name="direction_id" required class="form-control search-select"
-                                            id="directionIdEdit">
-                                        @if(!empty($directions[0]))
-                                            @foreach($directions as $direction)
-                                                <option value="{{$direction->id}}">{{$direction->title}}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="subDirectionIdEdit">İstiqamət</label>
@@ -611,7 +587,6 @@
             });
 
             function editUser(dataID) {
-                let directionIdEdit = $('#directionIdEdit');
                 let subDirectionIdEdit = $('#subDirectionIdEdit');
                 let titleEdit = $('#titleEdit');
                 let contentEdit = $('#contentEdit');
@@ -637,9 +612,7 @@
                         var post = response.post;
                         titleEdit.val(post.title);
                         contentEdit.val(post.content);
-                        directionIdEdit.val(post.sub_direction ? post.sub_direction.direction_id : '');
-                        $('#directionIdEdit').trigger('change');
-                        subDirectionIdEdit.val(post.sub_direction_id);
+                        subDirectionIdEdit.val(post.sub_direction_id).trigger('change');
                         imageEdit.attr("src", (post.image));
                         videoEdit.val(post.video);
                         if (post.status == 1) {

@@ -62,6 +62,7 @@ class LessonController extends Controller
     public function store(LessonRequest $request)
     {
         $image = $request->file('image');
+        $uploadedImg = $image ? uploadImg($image) : 'postImage/noPhoto.png';
 
         $url = $request->video;
         $position = strpos($url, '=');
@@ -79,16 +80,19 @@ class LessonController extends Controller
                 $url = '';
             }
         }
-
-        Lesson::create([
-            'image' => $image ? uploadImg($image) : 'postImage/noPhoto.png',
-            'title' => $request->title,
-            'content' => $request->content,
-            'video' => $url,
-            'status' => isset($request->status) ? 1 : 0,
-            'sub_direction_id' => $request->sub_direction_id,
-        ]);
-
+        $subDirectionIds = $request->sub_direction_id;
+        if (!empty($subDirectionIds)) {
+            foreach ($subDirectionIds as $subDirectionId) {
+                Lesson::create([
+                    'image' => $uploadedImg,
+                    'title' => $request->title,
+                    'content' => $request->content,
+                    'video' => $url,
+                    'status' => isset($request->status) ? 1 : 0,
+                    'sub_direction_id' => $subDirectionId,
+                ]);
+            }
+        }
         alert()->success('Uğurlu', 'Əlavə olundu')
             ->showConfirmButton('Tamam', '#163A76');
 
