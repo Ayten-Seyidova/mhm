@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\MixHelper;
+use App\Http\Helpers\WhatsappHelper;
 use App\Http\Requests\Api\OtpRequest;
 use App\Models\Api\OtpPhones;
 use App\Models\Customer;
@@ -52,14 +53,15 @@ class OtpController extends Controller
             'otp_code'=>$otp,
             'deactive_date'=>$deactive_date
         ];
-
-        try {
+//        try {
             $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
 //            $smsSend = SmsHelper::send($message, $phoneNumber);
+            $whatsappSend = WhatsappHelper::send($otp, $phoneNumber);
+
             return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
-        }catch (\Exception $exception){
-            return response(['status'=>'error','desc'=>$exception],403);
-        }
+//        }catch (\Exception $exception){
+//            return response(['status'=>'error','desc'=>$exception],403);
+//        }
     }
 
     /**
