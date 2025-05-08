@@ -230,7 +230,7 @@ class OtpController extends Controller
         if($otpCheck)
         {
             $user = Guest::where("phone",$phoneNumber)->first();
-            $user->tokens()->delete();
+            if(isset($user->tokens)) $user->tokens()->delete();
             $token = $user->createToken('token_name')->plainTextToken;
             return response(['status'=>'success', 'payStatus'=> true,'token'=>$token, 'user'=>$user]);
         }else{
