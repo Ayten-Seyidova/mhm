@@ -24,6 +24,7 @@ class GuestController extends Controller
         $orderBy = $request->orderBy ? explode("_",$request->orderBy) : ['id','desc'];
         $result = Post::with(["subDirection", "variants","teacher","comments", "likes"])->withCount(["comments","likes"])
             ->where('status', 1)
+            ->where('is_deleted', 0)
             ->where('sub_direction_id', $request->user()->sub_direction_id);
 
         if($request->type){

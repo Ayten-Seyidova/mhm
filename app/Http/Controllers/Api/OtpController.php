@@ -53,15 +53,15 @@ class OtpController extends Controller
             'otp_code'=>$otp,
             'deactive_date'=>$deactive_date
         ];
-//        try {
+        try {
             $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
 //            $smsSend = SmsHelper::send($message, $phoneNumber);
             $whatsappSend = WhatsappHelper::send($otp, $phoneNumber);
 
             return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
-//        }catch (\Exception $exception){
-//            return response(['status'=>'error','desc'=>$exception],403);
-//        }
+        }catch (\Exception $exception){
+            return response(['status'=>'error','desc'=>$exception],403);
+        }
     }
 
     /**
