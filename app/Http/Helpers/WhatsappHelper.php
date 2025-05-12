@@ -29,10 +29,13 @@ class WhatsappHelper{
     try{
         $response = $client->request('POST', $endpoint,
             $requestBody);
+dd(['success',$response,$endpoint,$requestBody]);
+        
         $statusCode = $response->getStatusCode();
 
     }catch (ClientException $e) {
         $errorResponse = $e->getResponse()->getBody()->getContents();
+dd(['err',$response,$errorResponse,$endpoint,$requestBody]);
 
         return [
             'error' => true,
