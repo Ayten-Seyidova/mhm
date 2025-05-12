@@ -29,9 +29,9 @@ class WhatsappHelper{
     try{
         $response = $client->request('POST', $endpoint,
             $requestBody);
-dd(['success',$response,$endpoint,$requestBody]);
         
         $statusCode = $response->getStatusCode();
+dd([$response->getResponse()->getBody()->getContents(),$response,$endpoint,$requestBody]);
 
     }catch (ClientException $e) {
         $errorResponse = $e->getResponse()->getBody()->getContents();
