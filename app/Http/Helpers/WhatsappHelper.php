@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 class WhatsappHelper{
 
     private static $templateName = 'otpcheck';
-    private static $broadcastName = 'otpcheck_120520251452';
+    private static $broadcastName = 'otpcheck_120520251527';
     private static $apiToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkZjcyMGU3Yi0yZmMyLTQ5ZDMtYTBjMy0wZTg5NTg1MDRjNmMiLCJ1bmlxdWVfbmFtZSI6ImFtaW4uc2FtZWR6YWRlaEBnbWFpbC5jb20iLCJuYW1laWQiOiJhbWluLnNhbWVkemFkZWhAZ21haWwuY29tIiwiZW1haWwiOiJhbWluLnNhbWVkemFkZWhAZ21haWwuY29tIiwiYXV0aF90aW1lIjoiMDUvMDgvMjAyNSAxODowNToxMCIsInRlbmFudF9pZCI6IjQzNzQ1NiIsImRiX25hbWUiOiJtdC1wcm9kLVRlbmFudHMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBRE1JTklTVFJBVE9SIiwiZXhwIjoyNTM0MDIzMDA4MDAsImlzcyI6IkNsYXJlX0FJIiwiYXVkIjoiQ2xhcmVfQUkifQ.VE8HoKo3c0XhLizNd2M_y9tWC-3m5OHIvStMitgHazU';
 
     public static function send($message,$phoneNumber)
