@@ -31,7 +31,8 @@ class WhatsappHelper{
             $requestBody);
         
         $statusCode = $response->getStatusCode();
-dd([$response->getResponse()->getBody()->getContents(),$response,$endpoint,$requestBody]);
+
+dd([$response->getBody()->getContents(),$response,$endpoint,$requestBody]);
 
     }catch (ClientException $e) {
         $errorResponse = $e->getResponse()->getBody()->getContents();
