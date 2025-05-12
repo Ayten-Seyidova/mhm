@@ -45,7 +45,7 @@ class OtpController extends Controller
         $phoneNumber = $validated['phoneNumber'];
 
         $otp = rand(1000,9999);
-        $message = "OTP code: ".$otp;
+        $message = "MHM tətbiqinə giriş üçün OTP kod: ".$otp;
         $deactive_date = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
         $parameters = [
@@ -56,7 +56,7 @@ class OtpController extends Controller
         // try {
             $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
 //            $smsSend = SmsHelper::send($message, $phoneNumber);
-            $whatsappSend = WhatsappHelper::send($otp, $phoneNumber);
+            $whatsappSend = WhatsappHelper::send($message, $phoneNumber);
 
             return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
         // }catch (\Exception $exception){
