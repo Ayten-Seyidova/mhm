@@ -55,8 +55,8 @@ class OtpController extends Controller
         ];
         // try {
             $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
-//            $smsSend = SmsHelper::send($message, $phoneNumber);
-            $whatsappSend = WhatsappHelper::send($message, $phoneNumber);
+            $smsSend = SmsHelper::send($message, $phoneNumber);
+//            $whatsappSend = WhatsappHelper::send($message, $phoneNumber);
 
             return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
         // }catch (\Exception $exception){
