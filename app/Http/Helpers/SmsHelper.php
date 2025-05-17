@@ -4,9 +4,9 @@ namespace App\Http\Helpers;
 
 class SmsHelper{
 
-    private static $userName = 'advanced_english_api';
-    private static $apiKey = 'aaRSj30W';
-    private static $from = 'TS English';
+    private static $userName = 'mhm_api';
+    private static $apiKey = 'NszsCilq';
+    private static $from = 'MHM TM';
 
     public static function send($message,$phoneNumber)
     {
