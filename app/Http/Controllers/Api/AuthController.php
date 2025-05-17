@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginApiRequest;
 use App\Http\Requests\Api\RegisterRequest;
 use App\Models\Customer;
+use App\Models\Guest;
 use App\Models\Register;
 use App\Models\Group;
 use Illuminate\Http\Request;
@@ -131,6 +132,47 @@ class AuthController extends Controller
                     }
                 }
             }
+
+            $user->tokens()->delete();
+            $token = $user->createToken('token_name')->plainTextToken;
+
+            return response(['status' => 'success', 'payStatus' => true, 'token' => $token, 'user' => $user]);
+
+        } else {
+            return response(['status' => 'error', 'payStatus' => true, 'desc' => 'Giriş məlumatları düzgün deyil!'], 403);
+        }
+
+    }
+
+    public function loginGuest(Request $request){
+        $parameters = $request->validate([
+            'phoneNumber' => 'required',
+            'password'=>'required',
+        ]);
+        $phoneNumber = str_replace(['+','_',''], '',$parameters['phoneNumber']);
+
+        $user = Guest::where("phone",$phoneNumber)->first();
+
+        if ($user && Hash::check($parameters['password'], $user->password)) {
+
+//            $param = [
+//                'deviceId' => $request['deviceId'],
+//                'customerId' => $user['id']
+//            ];
+
+//            if ($user->username !== 'user350') {
+//                $deviceCheck = DB::select("SELECT * FROM device_log WHERE customer_id = :customerId", [
+//                    'customerId' => $user['id']
+//                ]);
+
+//                if (!$deviceCheck) {
+//                    DB::insert("INSERT into device_log (device_id, customer_id) values (:deviceId, :customerId)", $param);
+//                } else {
+//                    if ($deviceCheck[0]->device_id != $request['deviceId']) {
+//                        return response(['status' => 'error', 'desc' => 'Bu istifadəçi başqa bir cihazla artıq daxil olub.'], 403);
+//                    }
+//                }
+//            }
 
             $user->tokens()->delete();
             $token = $user->createToken('token_name')->plainTextToken;
