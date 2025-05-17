@@ -70,6 +70,7 @@ Route::match(['post','put'],'/sendOtp', [OtpController::class, 'sendOtp'])->name
 Route::post('/checkOtpRegister', [OtpController::class, 'checkOtpRegister'])->name('checkOtpRegister');
 Route::put('/checkOtpLogin', [OtpController::class, 'checkOtpLogin'])->name('checkOtpLogin');
 Route::get('/directions', [GuestController::class, 'directions'])->name('directions');
+Route::post('/loginGuest', [AuthController::class, 'loginGuest'])->name('api.loginGuest');
 
 Route::group(['middleware' => ['auth:apiGuest']], function () {
     //auth

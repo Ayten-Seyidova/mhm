@@ -118,29 +118,31 @@ class OtpController extends Controller
     {
         $validated = $request->validate([
             'phoneNumber' => 'required|max:13|unique:guests,phone',
-            'otpCode' => 'required|max:4',
+//            'otpCode' => 'required|max:4',
             'name' => 'required',
+            'password' => 'required',
             'subDirectionId' => 'required',
             'isStudent' => 'required']);
 
         $phoneNumber = str_replace(['+','_',''], '',$validated['phoneNumber']);
-        $otpCode = $validated['otpCode'];
+//        $otpCode = $validated['otpCode'];
 
-        $otpCheck = OtpPhones::where(["phone_number" => $phoneNumber, 'otp_code'=>$otpCode])->where("deactive_date", ">", (string)date("Y-m-d H:i:s"))->first();
-
-        if($otpCheck)
-        {
+//        $otpCheck = OtpPhones::where(["phone_number" => $phoneNumber, 'otp_code'=>$otpCode])->where("deactive_date", ">", (string)date("Y-m-d H:i:s"))->first();
+//
+//        if($otpCheck)
+//        {
             $data['phone'] = $phoneNumber;
+            $data['password'] = Hash::make($validated['password']);
             $data['sub_direction_id'] = $validated['subDirectionId'];
             $data['name'] = $validated['name'];
             $data['is_student'] = $validated['isStudent'];
             $customer = Guest::create($data);
             $token = $customer->createToken('token_name')->plainTextToken;
 
-            return response(['status'=>'success', 'payStatus'  => true, 'token'=>$token, 'user'=>$customer]);
-        }else{
-            return response(['status'=>'error', 'desc'=>'Wrong OTP code'], 403);
-        }
+            return response(['status'=>'success', 'token'=>$token, 'user'=>$customer]);
+//        }else{
+//            return response(['status'=>'error', 'desc'=>'Wrong OTP code'], 403);
+//        }
     }
 
     /**
