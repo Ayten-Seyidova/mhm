@@ -22,4 +22,9 @@ class Guest extends Model
     {
         return config('app.url') . '/' . $value;
     }
+
+    public function getIsStudentAttribute($value)
+    {
+        return  (int)$value;
+    }
 }
