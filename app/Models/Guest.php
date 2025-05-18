@@ -27,4 +27,9 @@ class Guest extends Model
     {
         return  (int)$value;
     }
+
+    public function getSubDirectionIdAttribute($value)
+    {
+        return  (int)$value;
+    }
 }
