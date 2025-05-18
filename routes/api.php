@@ -77,6 +77,7 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::get('/guestDetails', [AuthController::class, 'guestDetails'])->name('guestDetails');
     Route::put('/updateGuestData', [AuthController::class, 'updateGuestData'])->name('api.updateGuestData');
     Route::post('/uploadImageGuest', [AuthController::class, 'uploadImage'])->name('api.uploadImageGuest');
+    Route::put('/updatePassword', [AuthController::class, 'updatePassword'])->name('api.updatePassword');
 
     //posts
     Route::get('/posts', [GuestController::class, 'posts'])->name('posts');
