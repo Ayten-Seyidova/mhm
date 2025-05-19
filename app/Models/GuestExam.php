@@ -23,6 +23,6 @@ class GuestExam extends Model
 
     public function questions()
     {
-        return $this->hasMany(GuestQuestion::class, 'guest_exam_id');
+        return $this->hasMany(GuestQuestion::class, 'guest_exam_id')->where('is_deleted',0);
     }
 }
