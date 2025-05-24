@@ -2,6 +2,7 @@
 
 namespace App\Http\Helpers;
 use App\Models\Customer;
+use App\Models\Guest;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
 
@@ -104,6 +105,36 @@ class FirebaseHelper
                 ]
             ];
             return self::sendFirebaseRequest($data);
+        // }
+
+        return ['status' => 'success'];
+    }
+
+    public static function sendGuest($title, $desc, $userId)
+    {
+        $model = Guest::query();
+
+        $user = $model->with("parameters")->where('id', $userId)->orderBy("id", 'desc')->first();
+        $to = $user->parameters->token;
+
+//        Notification::create([
+//            'title' => $title,
+//            'description' => $desc,
+//            'customer_id' => $userId
+//        ]);
+
+        // if ($user->push_notif) {
+
+        $data = [
+            "message" => [
+                "token" => $to,
+                "notification" => [
+                    "title" => $title,
+                    "body" => $desc
+                ],
+            ]
+        ];
+        return self::sendFirebaseRequest($data);
         // }
 
         return ['status' => 'success'];

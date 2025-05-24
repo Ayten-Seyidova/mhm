@@ -18,6 +18,11 @@ class Guest extends Model
         return $this->hasOne(SubDirection::class, 'id', 'sub_direction_id');
     }
 
+    public function parameters()
+    {
+        return $this->hasOne(NotificationParametersGuest::class, 'user_id', 'id');
+    }
+
     public function getImageAttribute($value)
     {
         return config('app.url') . '/' . $value;

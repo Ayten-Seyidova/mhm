@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\FirebaseHelper;
 use App\Http\Requests\PostRequest;
 use App\Models\Action;
 use App\Models\Direction;
+use App\Models\Guest;
 use App\Models\Post;
 use App\Models\SubDirection;
 use App\Models\TeacherSubDirection;
@@ -136,6 +138,14 @@ class PostController extends Controller
                         'E' => $request->E,
                     ]);
                 }
+            }
+        }
+
+        if (Auth::check()) {
+            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
+
+            foreach ($guests as $guest) {
+                FirebaseHelper::sendGuest('Paylaşım edildi', 'Admin tərəfindən yeni paylaşım edildi', $guest->id);
             }
         }
 
