@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\FirebaseHelper;
 use App\Http\Requests\PostRequest;
+use App\Jobs\SendGuestNotification;
 use App\Models\Action;
 use App\Models\Direction;
 use App\Models\Guest;
@@ -145,7 +146,11 @@ class PostController extends Controller
             $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
 
             foreach ($guests as $guest) {
-                FirebaseHelper::sendGuest('Paylaşım edildi', 'Admin tərəfindən yeni paylaşım edildi', $guest->id);
+                SendGuestNotification::dispatch(
+                    'Paylaşım edildi',
+                    'Admin tərəfindən yeni paylaşım edildi',
+                    $guest->id
+                );
             }
         }
 
