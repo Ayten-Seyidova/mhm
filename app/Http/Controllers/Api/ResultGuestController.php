@@ -38,12 +38,14 @@ class ResultGuestController extends Controller
         $correctCount = $request->correctCount;
         $incorrectCount = $request->incorrectCount;
         $time = $request->time;
+        $point = $request->point;
         $model = GuestResult::class;
 
 
 
         $result = $model::create([
                 'time'=>$time,
+                'point'=>$point,
                 'correct_count'=>$correctCount,
                 'incorrect_count'=>$incorrectCount,
                 'guest_exam_id'=>$examId,
