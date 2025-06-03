@@ -26,7 +26,11 @@ class LoginController extends Controller
         if ($user && Hash::check($password, $user->password) && $user->type == 'admin') {
             Auth::guard('teacher')->logout();
             Auth::guard('admin')->login($user, $remember);
-            return redirect()->route('customer.index');
+            if ($user->id != 44) {
+                return redirect()->route('customer.index');
+            } else {
+                return redirect()->route('guest.index');
+            }
         } elseif ($user && Hash::check($password, $user->password) && $user->type == 'teacher') {
             Auth::guard('admin')->logout();
             Auth::guard('teacher')->login($user, $remember);

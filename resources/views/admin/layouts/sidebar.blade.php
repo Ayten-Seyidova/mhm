@@ -56,51 +56,54 @@
                 </li>
             @endauth
             @auth('admin')
-                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
-                        <i class="fas fa-users" style="width:24px"></i>
-                        <span class="nav-text">İstifadəçilər</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{route('user.index')}}">Admin və müəllimlər</a></li>
-                        <li><a href="{{route('group.index')}}">Qruplar</a></li>
-                        <li><a href="{{route('register.index')}}">Qeydiyyat</a></li>
-                        <li><a href="{{route('customer.index')}}">Tələbələr</a></li>
-                        <li><a href="{{route('action.index')}}">Admin hərəkətləri</a></li>
-                    </ul>
-                </li>
-                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
-                        <i class="flaticon-381-video-clip" style="width:24px"></i>
-                        <span class="nav-text">Kurslar</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{route('video-course.index')}}">Video kurslar</a></li>
-                        <li><a href="{{route('subject.index')}}">Mövzular</a></li>
-                        <li><a href="{{route('video.index')}}">Videolar</a></li>
-                    </ul>
-                </li>
-                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
-                        <i class="fas fa-list-alt" style="width:24px"></i>
-                        <span class="nav-text">Quizlər</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{route('exam.index')}}">Quizlər</a></li>
-                        <li><a href="{{route('question.index')}}">Suallar</a></li>
-                        <li><a href="{{route('result.index')}}">Nəticələr</a></li>
-                    </ul>
-                </li>
-                <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
-                        <i class="fas fa-info-circle" style="width:24px"></i>
-                        <span class="nav-text">Məlumatlar</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{route('slider.index')}}">Slayder</a></li>
-                        <li><a href="{{route('faq.index')}}">Faq</a></li>
-                        <li><a href="{{route('about.index')}}">Kurs haqqında məlumat</a></li>
-                        <li><a href="{{route('our-teacher.index')}}">Müəllimlərimiz</a></li>
-                        <li><a href="{{route('lesson.index')}}">Ödənişli dərslər</a></li>
-                        <li><a href="{{route('book.index')}}">Kitablar</a></li>
-                    </ul>
-                </li>
+                @php($admin = \Illuminate\Support\Facades\Auth::guard('admin')->user())
+                @if($admin->id!=44)
+                    <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                            <i class="fas fa-users" style="width:24px"></i>
+                            <span class="nav-text">İstifadəçilər</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{route('user.index')}}">Admin və müəllimlər</a></li>
+                            <li><a href="{{route('group.index')}}">Qruplar</a></li>
+                            <li><a href="{{route('register.index')}}">Qeydiyyat</a></li>
+                            <li><a href="{{route('customer.index')}}">Tələbələr</a></li>
+                            <li><a href="{{route('action.index')}}">Admin hərəkətləri</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                            <i class="flaticon-381-video-clip" style="width:24px"></i>
+                            <span class="nav-text">Kurslar</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{route('video-course.index')}}">Video kurslar</a></li>
+                            <li><a href="{{route('subject.index')}}">Mövzular</a></li>
+                            <li><a href="{{route('video.index')}}">Videolar</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                            <i class="fas fa-list-alt" style="width:24px"></i>
+                            <span class="nav-text">Quizlər</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{route('exam.index')}}">Quizlər</a></li>
+                            <li><a href="{{route('question.index')}}">Suallar</a></li>
+                            <li><a href="{{route('result.index')}}">Nəticələr</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                            <i class="fas fa-info-circle" style="width:24px"></i>
+                            <span class="nav-text">Məlumatlar</span>
+                        </a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{route('slider.index')}}">Slayder</a></li>
+                            <li><a href="{{route('faq.index')}}">Faq</a></li>
+                            <li><a href="{{route('about.index')}}">Kurs haqqında məlumat</a></li>
+                            <li><a href="{{route('our-teacher.index')}}">Müəllimlərimiz</a></li>
+                            <li><a href="{{route('lesson.index')}}">Ödənişli dərslər</a></li>
+                            <li><a href="{{route('book.index')}}">Kitablar</a></li>
+                        </ul>
+                    </li>
+                @endif
                 <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
                         <i class="fas fa-user-circle" style="width:24px"></i>
                         <span class="nav-text">Qonaqlar</span>
@@ -124,16 +127,18 @@
                         <li><a href="{{route('guest-result.index')}}">Nəticələr</a></li>
                     </ul>
                 </li>
-                <li><a href="{{route("settings.index")}}" class="ai-icon" aria-expanded="false">
-                        <i class="flaticon-381-settings-2" style="width:30px"></i>
-                        <span class="nav-text">Tənzimləmələr</span>
-                    </a>
-                </li>
-                <li><a href="{{route('password')}}" class="ai-icon" aria-expanded="false">
-                        <i class="flaticon-381-settings-4" style="width:30px"></i>
-                        <span class="nav-text">Şifrəni dəyiş</span>
-                    </a>
-                </li>
+                @if($admin->id!=44)
+                    <li><a href="{{route("settings.index")}}" class="ai-icon" aria-expanded="false">
+                            <i class="flaticon-381-settings-2" style="width:30px"></i>
+                            <span class="nav-text">Tənzimləmələr</span>
+                        </a>
+                    </li>
+                    <li><a href="{{route('password')}}" class="ai-icon" aria-expanded="false">
+                            <i class="flaticon-381-settings-4" style="width:30px"></i>
+                            <span class="nav-text">Şifrəni dəyiş</span>
+                        </a>
+                    </li>
+                @endif
             @endauth
         </ul>
         <div class="copyright">
