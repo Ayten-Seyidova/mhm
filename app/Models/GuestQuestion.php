@@ -15,4 +15,9 @@ class GuestQuestion extends Model
     {
         return $this->hasOne(GuestExam::class, 'id', 'guest_exam_id');
     }
+
+    public function getPointAttribute($value)
+    {
+        return (int)$value;
+    }
 }
