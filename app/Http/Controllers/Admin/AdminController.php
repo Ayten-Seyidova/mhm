@@ -33,4 +33,14 @@ class AdminController extends Controller
             }
         }
     }
+
+    public function playVideo(Request $request)
+    {
+        $uid = $request->uid;
+        if ($uid && preg_match('/^[a-zA-Z0-9_-]{11}$/', $uid)) {
+            return view('admin.pages.play-video');
+        } else {
+            abort(404);
+        }
+    }
 }

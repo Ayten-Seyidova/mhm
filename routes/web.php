@@ -44,6 +44,7 @@ use App\Http\Controllers\Admin\BookController;
 |
 */
 Route::get('/payment-notification', [CustomerController::class, 'payment']);
+Route::get('/play-video', [AdminController::class, 'playVideo']);
 
 Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
