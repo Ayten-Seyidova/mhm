@@ -41,7 +41,7 @@
 <div class="video-container">
     <div class="plyr__video-embed" id="player">
         <iframe
-            src="https://www.youtube.com/embed/{{ request()->uid }}?autoplay=1&loop=1&playlist={{ request()->uid }}&rel=0&modestbranding=1&controls=1"
+            src="https://www.youtube.com/embed/{{ request()->uid }}?loop=1&playlist={{ request()->uid }}&rel=0&modestbranding=1&controls=1"
             allowfullscreen
             allowtransparency
             allow="autoplay"
