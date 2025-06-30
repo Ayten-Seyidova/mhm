@@ -41,8 +41,8 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title">Tələbələr</h4>
-                            <span>Aktiv - <span>{{count($countActive)}}</span></span>
-                            <span>Deaktiv - <span>{{count($countDeactive)}}</span></span>
+                            <span>Aktiv - <span>{{ $countActive }}</span></span>
+                            <span>Deaktiv - <span>{{ $countDeactive }}</span></span>
                             <button type="button" class="btn btn-primary btn-rounded mr-2" data-toggle="modal"
                                     data-target="#createModal"><span class="btn-icon-left text-primary"><i
                                         class="fa fa-plus color-info"></i></span>

@@ -109,8 +109,8 @@
                                                      src="{{asset($postItem->image)}}" alt=""></td>
                                             <td>{{$postItem->name}}</td>
                                             <td>
-                                                @php($count = \App\Models\Customer::whereRaw("JSON_CONTAINS(group_ids, '\"$postItem->id\"')")->where('is_deleted', 0)->get())
-                                                {{count($count)}}
+                                                @php($count = \App\Models\Customer::whereRaw("JSON_CONTAINS(group_ids, '\"$postItem->id\"')")->where('is_deleted', 0)->count())
+                                                {{ $count }}
                                             </td>
                                             <td>
                                                 @if(!empty($postItem->teacher))

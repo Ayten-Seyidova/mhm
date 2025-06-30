@@ -58,7 +58,7 @@
                                             <td>{{$postItem->name}}</td>
                                             <td>
                                                 @php($count = \App\Models\Customer::whereRaw("JSON_CONTAINS(group_ids, '\"$postItem->id\"')")->where('is_deleted', 0)->get())
-                                                {{count($count)}}
+                                                {{ count($count) }}
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center justify-content-center">

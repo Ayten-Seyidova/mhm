@@ -53,8 +53,8 @@ class CustomerController extends Controller
             }
         });
 
-        $countActive = (clone $posts)->where('status', 1)->get();
-        $countDeactive = (clone $posts)->where('status', 0)->get();
+        $countActive = (clone $posts)->where('status', 1)->count();
+        $countDeactive = (clone $posts)->where('status', 0)->count();
 
         $posts = $posts->orderBy('status', 'desc')->orderBy($order, 'desc')->paginate(50);
 
