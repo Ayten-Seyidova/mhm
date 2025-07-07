@@ -66,7 +66,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
 
 
-Route::match(['post','put'],'/sendOtp', [OtpController::class, 'sendOtp'])->name('sendOtp');
+Route::match(['post','put'],'/sendOtp', [OtpController::class, 'sendOtpEmail'])->name('sendOtp');
 Route::post('/checkOtpRegister', [OtpController::class, 'checkOtpRegister'])->name('checkOtpRegister');
 Route::put('/checkOtpLogin', [OtpController::class, 'checkOtpLogin'])->name('checkOtpLogin');
 Route::get('/directions', [GuestController::class, 'directions'])->name('directions');

@@ -7,6 +7,7 @@ use App\Http\Helpers\MixHelper;
 use App\Http\Helpers\WhatsappHelper;
 use App\Http\Requests\Api\OtpRequest;
 use App\Models\Api\OtpPhones;
+use App\Models\Api\OtpMails;
 use App\Models\Customer;
 use App\Models\Guest;
 use Illuminate\Http\Request;
@@ -39,6 +40,31 @@ class OtpController extends Controller
      *
      *   )
      */
+    public function sendOtpEmail(OtpRequest $request)
+    {
+        $validated = $request->all();
+        $email = $validated['email'];
+
+        $otp = rand(1000,9999);
+        $message = "MHM tətbiqinə giriş üçün OTP kod: ".$otp;
+        $deactive_date = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+
+        $parameters = [
+            'email'=>$email,
+            'otp_code'=>$otp,
+            'deactive_date'=>$deactive_date
+        ];
+        // try {
+            $saveOtp = OtpMails::updateOrCreate(['email' => $email], $parameters);
+            $smsSend = SmsHelper::sendMail($message, $email);
+//            $whatsappSend = WhatsappHelper::send($message, $phoneNumber);
+
+            return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
+        // }catch (\Exception $exception){
+        //     return response(['status'=>'error','desc'=>$exception],403);
+        // }
+    }
+
     public function sendOtp(OtpRequest $request)
     {
         $validated = $request->all();
@@ -54,11 +80,11 @@ class OtpController extends Controller
             'deactive_date'=>$deactive_date
         ];
         // try {
-            $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
-            $smsSend = SmsHelper::send($message, $phoneNumber);
+        $saveOtp = OtpPhones::updateOrCreate(['phone_number' => $phoneNumber], $parameters);
+        $smsSend = SmsHelper::send($message, $phoneNumber);
 //            $whatsappSend = WhatsappHelper::send($message, $phoneNumber);
 
-            return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
+        return response(['status'=>'success', 'otp'=>$otp, 'deactive_date'=>$deactive_date]);
         // }catch (\Exception $exception){
         //     return response(['status'=>'error','desc'=>$exception],403);
         // }

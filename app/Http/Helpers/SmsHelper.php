@@ -2,6 +2,9 @@
 
 namespace App\Http\Helpers;
 
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+
 class SmsHelper{
 
     private static $userName = 'mhm_api';
@@ -27,4 +30,15 @@ class SmsHelper{
         return $statusCode;
     }
 
+    public static function sendMail($message,$email)
+    {
+
+        $response = Mail::raw($message, function ($message) use ($email) {
+            $message->to($email)
+                ->subject('OTP Code');
+        });
+
+        return $response ? 200 : 500;
+
+    }
 }

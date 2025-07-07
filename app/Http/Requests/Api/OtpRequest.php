@@ -26,12 +26,13 @@ class OtpRequest extends FormRequest
     public function rules()
     {
         $request = [
-            'phoneNumber' => 'required|max:15',
+            'phoneNumber' => 'nullable|max:15',
+            'email' => 'nullable|email',
         ];
 
-        if ($this->method()=="POST") {
-            $request['phoneNumber'] = 'required|max:15|unique:guests,phone';
-        }
+//        if ($this->method()=="POST") {
+//            $request['phoneNumber'] = 'required|max:15|unique:guests,phone';
+//        }
 
         return $request;
     }
@@ -51,13 +52,13 @@ class OtpRequest extends FormRequest
         }
     }
 
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    {
-        throw new HttpResponseException(
-            response()->json(
-                ['message' => 'Access Forbidden'],
-                403
-            )
-        );
-    }
+//    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+//    {
+//        throw new HttpResponseException(
+//            response()->json(
+//                ['message' => 'Access Forbidden'],
+//                403
+//            )
+//        );
+//    }
 }
