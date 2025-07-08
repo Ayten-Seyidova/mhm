@@ -146,6 +146,7 @@ class OtpController extends Controller
             'phoneNumber' => 'required|max:13|unique:guests,phone',
 //            'otpCode' => 'required|max:4',
             'name' => 'required',
+            'email'=>'nullable',                           
             'password' => 'required',
             'subDirectionId' => 'required',
             'isStudent' => 'required']);
@@ -162,6 +163,7 @@ class OtpController extends Controller
             $data['sub_direction_id'] = $validated['subDirectionId'];
             $data['name'] = $validated['name'];
             $data['is_student'] = $validated['isStudent'];
+            $data['email'] = $validated['email'];
             $customer = Guest::create($data);
             $token = $customer->createToken('token_name')->plainTextToken;
 
