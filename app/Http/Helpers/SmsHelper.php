@@ -65,7 +65,7 @@ class SmsHelper{
     {
         $endpoint = "https://send.mhmapp.az/send_email.php";
         
-          $response = Http::withBasicAuth(‘mhmsender’, ‘superSecret727’)
+          $response = Http::withBasicAuth('mhmsender', 'superSecret727')
             ->asForm()
             ->post('https://send.mhmapp.az/send_email.php', [
                 'email' => $email,
