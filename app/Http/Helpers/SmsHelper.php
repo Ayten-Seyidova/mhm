@@ -72,6 +72,8 @@ class SmsHelper{
                 'message' => $message,
             ]);
 
+        dd($response);
+
         return $response->status();
     }
 }
