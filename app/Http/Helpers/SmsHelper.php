@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Mail;
 
 class SmsHelper{
 
-    private static $userName = 'mhm_api';
-    private static $apiKey = 'NszsCilq';
+    private static $userName = 'mhmsender';
+    private static $apiKey = 'superSecret727';
     private static $from = 'MHM TM';
 
     public static function send($message,$phoneNumber)
@@ -30,15 +30,34 @@ class SmsHelper{
         return $statusCode;
     }
 
-    public static function sendMail($message,$email)
+    // public static function sendMail($message,$email)
+    // {
+
+    //     $response = Mail::raw($message, function ($message) use ($email) {
+    //         $message->to($email)
+    //             ->subject('OTP Code');
+    //     });
+
+    //     return $response ? 200 : 500;
+
+    // }
+
+     public static function sendMail($message,$email)
     {
+        $endpoint = "https://send.mhmapp.az/send_email.php";
+        $client = new \GuzzleHttp\Client();
 
-        $response = Mail::raw($message, function ($message) use ($email) {
-            $message->to($email)
-                ->subject('OTP Code');
-        });
+        $response = $client->request('POST', $endpoint, ['query' => [
+            'user' => self::$userName,
+            'password' => self::$apiKey,
+            'email' => $email,
+            'message' => $message,
+            // 'text' => $message,
+        ]]);
 
-        return $response ? 200 : 500;
+        $statusCode = $response->getStatusCode();
+       // $content = $response->getBody();
 
+        return $statusCode;
     }
 }
