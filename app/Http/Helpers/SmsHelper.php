@@ -42,22 +42,36 @@ class SmsHelper{
 
     // }
 
-     public static function sendMail($message,$email)
+    //  public static function sendMail($message,$email)
+    // {
+    //     $endpoint = "https://send.mhmapp.az/send_email.php";
+    //     $client = new \GuzzleHttp\Client();
+
+    //     $response = $client->request('POST', $endpoint, ['query' => [
+    //         'user' => self::$userName,
+    //         'password' => self::$apiKey,
+    //         'email' => $email,
+    //         'message' => $message,
+    //         // 'text' => $message,
+    //     ]]);
+
+    //     $statusCode = $response->getStatusCode();
+    //    // $content = $response->getBody();
+
+    //     return $statusCode;
+    // }
+
+    public static function sendMail($message,$email)
     {
         $endpoint = "https://send.mhmapp.az/send_email.php";
-        $client = new \GuzzleHttp\Client();
+        
+          $response = Http::withBasicAuth(‘mhmsender’, ‘superSecret727’)
+            ->asForm()
+            ->post('https://send.mhmapp.az/send_email.php', [
+                'email' => $email,
+                'message' => 'Sizin OTP kodunuz: '.$message,
+            ]);
 
-        $response = $client->request('POST', $endpoint, ['query' => [
-            'user' => self::$userName,
-            'password' => self::$apiKey,
-            'email' => $email,
-            'message' => $message,
-            // 'text' => $message,
-        ]]);
-
-        $statusCode = $response->getStatusCode();
-       // $content = $response->getBody();
-
-        return $statusCode;
+        return $response->status();
     }
 }
