@@ -69,7 +69,7 @@ class SmsHelper{
             ->asForm()
             ->post('https://send.mhmapp.az/send_email.php', [
                 'email' => $email,
-                'message' => 'Sizin OTP kodunuz: '.$message,
+                'message' => $message,
             ]);
 
         return $response->status();
