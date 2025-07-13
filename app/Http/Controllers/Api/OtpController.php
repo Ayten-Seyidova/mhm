@@ -146,7 +146,7 @@ class OtpController extends Controller
             'phoneNumber' => 'required|max:13|unique:guests,phone',
 //            'otpCode' => 'required|max:4',
             'name' => 'required',
-            'email'=>'nullable',                           
+            'email'=>'nullable',
             'password' => 'required',
             'subDirectionId' => 'required',
             'isStudent' => 'required']);
@@ -250,18 +250,19 @@ class OtpController extends Controller
     public function checkOtpLogin(Request $request)
     {
         $validated = $request->validate([
-            'phoneNumber' => 'required|max:13',
+            'email' => 'required|email',
             'otpCode' => 'required|max:4'
         ]);
 
-        $phoneNumber = str_replace(['+','_',''], '',$validated['phoneNumber']);
+        $email = $validated['email'];
+//        $phoneNumber = str_replace(['+','_',''], '',$validated['phoneNumber']);
         $otpCode = $validated['otpCode'];
 
-        $otpCheck = OtpPhones::where(["phone_number" => $phoneNumber, 'otp_code'=>$otpCode])->where("deactive_date", ">", date("Y-m-d H:i:s"))->first();
+        $otpCheck = OtpMails::where(["email" => $email, 'otp_code'=>$otpCode])->where("deactive_date", ">", date("Y-m-d H:i:s"))->first();
 
         if($otpCheck)
         {
-            $user = Guest::where("phone",$phoneNumber)->first();
+            $user = Guest::where("email",$email)->first();
             if(isset($user->tokens)) $user->tokens()->delete();
             $token = $user->createToken('token_name')->plainTextToken;
             return response(['status'=>'success', 'payStatus'=> true,'token'=>$token, 'user'=>$user]);

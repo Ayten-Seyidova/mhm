@@ -67,11 +67,14 @@ class AuthController extends Controller
         $parameters = $request->validate([
             'name' => 'required',
             'isStudent'=>'required',
-            'subDirectionId'=>'required'
+            'subDirectionId'=>'required',
+            "email"=>'email|required',
         ]);
         $data['sub_direction_id'] = $parameters['subDirectionId'];
         $data['name'] = $parameters['name'];
         $data['is_student'] = $parameters['isStudent'];
+        $data['email'] = $parameters['email'];
+
 
         $result = $request->user()->update($data);
         if ($result){
