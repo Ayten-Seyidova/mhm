@@ -64,15 +64,12 @@ class SmsHelper{
     public static function sendMail($message,$email)
     {
         $endpoint = "https://send.mhmapp.az/send_email.php";
-        
-          $response = Http::withBasicAuth('mhmsender', 'superSecret727')
-            ->asForm()
-            ->post('https://send.mhmapp.az/send_email.php', [
+
+        $response = Http::withBasicAuth('mhmsender', 'superSecret727')
+            ->post($endpoint, [
                 'email' => $email,
                 'message' => $message,
-            ]);
-
-        dd($response);
+        ]);
 
         return $response->status();
     }
