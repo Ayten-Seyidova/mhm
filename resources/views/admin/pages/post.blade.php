@@ -338,6 +338,14 @@
                                                id="status"/>
                                     </div>
                                 </div>
+                                <div class="form-group d-flex mt-4">
+                                    <label for="notification">Bildiriş göndər</label>
+                                    <div class="form-check form-switch ml-4">
+                                        <input class="form-check-input"
+                                               type="checkbox" name="notification"
+                                               id="notification"/>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group img-section d-none">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ExamRequest;
 use App\Models\Exam;
 use App\Models\Group;
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -237,5 +238,47 @@ class ExamController extends Controller
         }
 
         return response()->json(['message' => 'Uğurlu']);
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        $user = null;
+        $examId = $request->exam_id;
+        if (isset($examId) && is_numeric($examId)) {
+            $exam = Exam::find($request->exam_id);
+
+            if (!empty($exam)) {
+                if (Auth::guard('teacher')->check()) {
+                    $user = Auth::guard('teacher')->user();
+                    if ($exam->user_id != $user->id) {
+                        abort(403);
+                    }
+                }
+
+                $posts = Question::where('is_deleted', 0)->where('exam_id', $examId)
+                    ->orderBy('id', 'desc')->get();
+
+                if ($posts->isNotEmpty()) {
+                    $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam'=>$exam]);
+                    $pdfPath = storage_path('app/public/exam.pdf');
+                    $pdf->save($pdfPath);
+
+                    $file = 'exam.pdf';
+
+                    return redirect()->to(asset('storage/' . $file));
+                } else {
+                    alert()->error('Uğurlu', 'İmtahana aid sual tapılmadı')
+                        ->showConfirmButton('Tamam', '#163A76');
+
+                    return redirect()->back();
+                }
+
+                return redirect()->back()->with('error', 'İmtahan tapılmadı.');
+            } else {
+                abort(404);
+            }
+        } else {
+            abort(404);
+        }
     }
 }

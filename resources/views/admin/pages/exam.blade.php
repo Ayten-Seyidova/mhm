@@ -111,6 +111,7 @@
                                         <th>Mövzu</th>
                                         <th>Müddət</th>
                                         <th>Video</th>
+                                        <th>Yüklə</th>
                                         <th>Yaranma tarixi</th>
                                         <th>Status</th>
                                         <th>Əməliyyatlar</th>
@@ -166,6 +167,7 @@
                                                     </div>
                                                 @endif
                                             </td>
+                                            <td><a href="{{route('downloadExam', ['exam_id'=>$postItem->id])}}" target="_blank" class="btn btn-primary btn-xs btn-rounded"><i class="fas fa-download"></i></a></td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)

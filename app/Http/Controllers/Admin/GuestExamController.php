@@ -7,6 +7,7 @@ use App\Http\Requests\GuestExamRequest;
 use App\Http\Requests\GuestRequest;
 use App\Models\GuestExam;
 use App\Models\GuestExamSubDirection;
+use App\Models\GuestQuestion;
 use App\Models\SubDirection;
 use App\Models\TeacherSubDirection;
 use App\Models\User;
@@ -271,5 +272,47 @@ class GuestExamController extends Controller
         }
 
         return response()->json(['message' => 'Uğurlu']);
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        $user = null;
+        $guestExamId = $request->exam_id;
+        if (isset($guestExamId) && is_numeric($guestExamId)) {
+            $exam = GuestExam::find($request->exam_id);
+
+            if (!empty($exam)) {
+                if (Auth::guard('teacher')->check()) {
+                    $user = Auth::guard('teacher')->user();
+                    if ($exam->user_id != $user->id) {
+                        abort(403);
+                    }
+                }
+
+                $posts = GuestQuestion::where('is_deleted', 0)->where('guest_exam_id', $guestExamId)
+                    ->orderBy('type', 'desc')->orderBy('id', 'desc')->get();
+
+                if ($posts->isNotEmpty()) {
+                    $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam'=>$exam]);
+                    $pdfPath = storage_path('app/public/guest-exam.pdf');
+                    $pdf->save($pdfPath);
+
+                    $file = 'guest-exam.pdf';
+
+                    return redirect()->to(asset('storage/' . $file));
+                } else {
+                    alert()->error('Uğurlu', 'İmtahana aid sual tapılmadı')
+                        ->showConfirmButton('Tamam', '#163A76');
+
+                    return redirect()->back();
+                }
+
+                return redirect()->back()->with('error', 'İmtahan tapılmadı.');
+            } else {
+                abort(404);
+            }
+        } else {
+            abort(404);
+        }
     }
 }

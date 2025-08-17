@@ -25,6 +25,18 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title">Nəticələr</h4>
+                            <?php
+                            $queryParams = request()->query();
+
+                            $downloadUrl = route('downloadGuestResult');
+
+                            if (!empty($queryParams)) {
+                                $downloadUrl .= '?' . http_build_query($queryParams);
+                            }
+                            ?>
+                            <a href="{{ $downloadUrl }}"
+                               class="btn btn-primary text-white btn-xs rounded-pill shadow-none"
+                               style="padding: 10px 15px;">Yüklə <i class="fas fa-download"></i></a>
                         </div>
                         <div class="card-body">
                             <form method="get" id="searchForm" class="row justify-content-center" action="">

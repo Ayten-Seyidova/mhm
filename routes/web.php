@@ -72,6 +72,7 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::resource('/guest', GuestController::class);
     Route::post('guest/changeStatus', [GuestController::class, 'changeStatus'])->name('guest.changeStatus');
     Route::post('guest/checked', [GuestController::class, 'checked'])->name('guest.checked');
+    Route::get('download-guest', [GuestController::class, 'download'])->name('downloadGuest');
     Route::resource('/direction', DirectionController::class);
     Route::post('direction/checked', [DirectionController::class, 'checked'])->name('direction.checked');
     Route::resource('/sub-direction', SubDirectionController::class);
@@ -107,6 +108,7 @@ Route::prefix('administrator/mhm')->middleware('is_admin_or_teacher')->group(fun
     Route::resource('/exam', ExamController::class);
     Route::post('exam/changeStatus', [ExamController::class, 'changeStatus'])->name('exam.changeStatus');
     Route::post('exam/checked', [ExamController::class, 'checked'])->name('exam.checked');
+    Route::get('/download-exam-file', [ExamController::class, 'downloadPdf'])->name('downloadExam');
     Route::resource('/question', QuestionController::class);
     Route::post('question/changeStatus', [QuestionController::class, 'changeStatus'])->name('question.changeStatus');
     Route::post('question/checked', [QuestionController::class, 'checked'])->name('question.checked');
@@ -118,10 +120,12 @@ Route::prefix('administrator/mhm')->middleware('is_admin_or_teacher')->group(fun
     Route::resource('/guest-exam', GuestExamController::class);
     Route::post('guest-exam/changeStatus', [GuestExamController::class, 'changeStatus'])->name('guest-exam.changeStatus');
     Route::post('guest-exam/checked', [GuestExamController::class, 'checked'])->name('guest-exam.checked');
+    Route::get('/download-guest-exam-file', [GuestExamController::class, 'downloadPdf'])->name('downloadGuestExam');
     Route::resource('/guest-question', GuestQuestionController::class);
     Route::post('guest-question/changeStatus', [GuestQuestionController::class, 'changeStatus'])->name('guest-question.changeStatus');
     Route::post('guest-question/checked', [GuestQuestionController::class, 'checked'])->name('guest-question.checked');
     Route::resource('/guest-result', GuestResultController::class);
+    Route::get('download-guest-result', [GuestResultController::class, 'download'])->name('downloadGuestResult');
 });
 
 Route::group(['prefix' => 'administrator/mhm'], function () {

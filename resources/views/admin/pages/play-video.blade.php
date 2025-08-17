@@ -78,26 +78,54 @@
             justify-content: center;
             height: 100vh;
         }
+
         .video-container {
             width: 90%;
             max-width: 1000px;
             aspect-ratio: 16 / 9;
             background-color: #000;
+            position: relative;
         }
+
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
+
+        .hidden-div {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 6%;
+            height: 10%;
+            background: gray;
+            z-index: 99999999;
+        }
     </style>
 </head>
 <body>
 <div class="video-container">
+    {{--    <iframe--}}
+    {{--        src="https://www.youtube.com/embed/{{ request()->uid }}?controls=0"--}}
+    {{--        allowfullscreen--}}
+    {{--        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">--}}
+    {{--    </iframe>--}}
+    <div class="hidden-div"></div>
     <iframe
-        src="https://www.youtube.com/embed/{{ request()->uid }}"
+        src="https://www.youtube.com/embed/{{ request()->uid }}?rel=0&modestbranding=1&showinfo=0"
         allowfullscreen
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
     </iframe>
+
+    {{--    <iframe--}}
+    {{--        width="560"--}}
+    {{--        height="315"--}}
+    {{--        src="https://www.youtube.com/embed/YWZAP7bUBzs?controls=0&modestbranding=1&rel=0&autoplay=1&mute=1"--}}
+    {{--        frameborder="0"--}}
+    {{--        allow="autoplay; encrypted-media"--}}
+    {{--        allowfullscreen>--}}
+    {{--    </iframe>--}}
 </div>
 </body>
 </html>

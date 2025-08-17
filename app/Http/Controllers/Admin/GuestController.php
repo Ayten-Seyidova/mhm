@@ -10,6 +10,7 @@ use App\Models\Guest;
 use App\Models\SubDirection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class GuestController extends Controller
 {
@@ -249,5 +250,72 @@ class GuestController extends Controller
         }
 
         return response()->json(['message' => 'Uğurlu']);
+    }
+
+    public function download(Request $request)
+    {
+        $isDeleted = $request->is_deleted;
+
+        if (!isset($isDeleted)) {
+            $isDeleted = 0;
+        }
+
+        $query = Guest::with('subDirection')->where('is_deleted', $isDeleted)->where(function ($query) use ($request) {
+            return $request->search ?
+                $query->from('search')->where('name', 'like', "%$request->search%")->orWhere('phone', 'like', "%$request->search%") : '';
+        })->where(function ($query) use ($request) {
+            return $request->status ?
+                $query->from('status')->where('status', $request->status) : '';
+        })->where(function ($query) use ($request) {
+            return $request->sub_direction_id ?
+                $query->from('sub_direction_id')->where('sub_direction_id', $request->sub_direction_id) : '';
+        })->when($request->direction_id, function ($query) use ($request) {
+            return $query->whereHas('subDirection', function($q) use ($request) {
+                $q->where('direction_id', $request->direction_id);
+            });
+        })->where(function ($query) use ($request) {
+            return $request->is_student ?
+                $query->from('is_student')->where('is_student', $request->is_student) : '';
+        })->orderBy('status', 'desc')->orderBy('id', 'desc');
+
+        $response = new StreamedResponse(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['№', 'Şəkil', 'Ad və soyad', 'Telefon', 'Hazırlıq istiqaməti', 'İstiqamət', 'MHM tələbəsi', 'Status', 'Tarix']);
+
+
+            $query->chunk(500, function ($ads) use ($handle) {
+                foreach ($ads as $key => $parentModel) {
+                    $image = $parentModel->image
+                        ? '=HYPERLINK("' . asset($parentModel->image) . '", "Şəkil")'
+                        : '';
+                    $data = [
+                        $key,
+                        $image,
+                        $parentModel->name,
+                        $parentModel->phone,
+                        optional(optional($parentModel->subDirection)->direction)->title,
+                        optional($parentModel->subDirection)->title,
+                        $parentModel->is_student === 1 ? "Bəli" : ($parentModel->is_student === 0 ? "Xeyr" : ''),
+                        $parentModel->status === 1 ? "Aktiv" : ($parentModel->status === 0 ? "Deaktiv" : ''),
+                        $parentModel->created_at,
+                    ];
+
+                    array_walk($data, function (&$item) {
+                        $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                    });
+
+                    fputcsv($handle, $data);
+                }
+            });
+
+            fclose($handle);
+        });
+
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="guest.csv"');
+
+        return $response;
     }
 }

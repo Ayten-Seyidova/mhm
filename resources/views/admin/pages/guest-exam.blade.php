@@ -129,6 +129,7 @@
                                         <th>Video</th>
                                         <th>Suallar</th>
                                         <th>Faiz</th>
+                                        <th>Yüklə</th>
                                         <th>Yaranma tarixi</th>
                                         <th>Status</th>
                                         <th>Əməliyyatlar</th>
@@ -183,6 +184,7 @@
                                             </td>
                                             <td><a href="{{route('guest-question.index', ['guest_exam_id'=>$postItem->id])}}" class="btn btn-primary btn-xs sharp"><i class="fas fa-question-circle"></i></a></td>
                                             <td>{{$postItem->percent ? $postItem->percent . '%' : ''}}</td>
+                                            <td><a href="{{route('downloadGuestExam', ['exam_id'=>$postItem->id])}}" target="_blank" class="btn btn-primary btn-xs btn-rounded"><i class="fas fa-download"></i></a></td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
