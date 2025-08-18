@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\OurTeacherController;
 use App\Http\Controllers\Admin\LessonController;
 use App\Http\Controllers\Admin\BookController;
+use App\Http\Controllers\Admin\ExamPdfController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,8 @@ use App\Http\Controllers\Admin\BookController;
 */
 Route::get('/payment-notification', [CustomerController::class, 'payment']);
 Route::get('/play-video', [AdminController::class, 'playVideo']);
+Route::get('/mhm/pdf', [ExamPdfController::class, 'pdf'])->name('mhm.pdf');
+
 
 Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
