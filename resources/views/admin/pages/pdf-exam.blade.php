@@ -236,7 +236,7 @@
             <div class="lead">
                 <strong>{{ $name }}</strong>, <strong>{{ $exam }}</strong> adlı sınaqdan aşağıdakı nəticəni əldə etdi.
             </div>
-            <div class="badge">{{ $status }}</div>
+            <div class="badge">Uğurlu</div>
         </div>
         <div class="content">
             <div class="row">
@@ -244,11 +244,12 @@
                     <div class="score-label">Qazanılan bal</div>
                     <div class="score-value">{{ $score }}</div>
                 </div>
+                <br>
                 <div class="mini time">
                     <div class="mini-top">
                         <div class="mini-text">
                             <div class="mini-title">Müddət</div>
-                            <div class="mini-value">{{ $duration }}</div>
+                            <div class="mini-value">{{ $duration }} dəqiqə</div>
                         </div>
                     </div>
                 </div>

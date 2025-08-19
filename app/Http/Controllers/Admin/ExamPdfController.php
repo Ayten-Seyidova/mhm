@@ -3,23 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\GuestExam;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
+use App\Models\Guest;
 
 class ExamPdfController extends Controller
 {
     private function buildData(Request $request): array
     {
-        $name = trim((string)$request->query('name', 'Nail Seyidov'));
-        $exam = trim((string)$request->query('exam', 'XXX'));
+        $guestId = $request->query('guest_id');
+        $examId  = $request->query('guest_exam_id');
+
+        $guest     = $guestId ? Guest::find($guestId) : null;
+        $guestExam = $examId ? GuestExam::find($examId) : null;
+
+        $name = $guest->name ?? (string) $request->query('name', 'John Doe');
+        $exam = $guestExam->name ?? (string) $request->query('exam', 'XXX');
+
         $score = (int)$request->query('score', 5);
         $correct = (int)$request->query('correct', $score);
         $wrong = (int)$request->query('wrong', 0);
-        $duration = trim((string)$request->query('duration', '15 dəqiqə'));
-        $status = trim((string)$request->query('status', 'Uğurlu'));
+        $duration = trim((string)$request->query('duration'));
 
-        return compact('name', 'exam', 'score', 'correct', 'wrong', 'duration', 'status');
+        return compact('name', 'exam', 'score', 'correct', 'wrong', 'duration');
     }
 
     public function preview(Request $request)
