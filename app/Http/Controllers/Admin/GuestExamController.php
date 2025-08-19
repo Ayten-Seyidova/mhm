@@ -276,6 +276,8 @@ class GuestExamController extends Controller
 
     public function downloadPdf(Request $request)
     {
+        ini_set('memory_limit', '4096M');
+        set_time_limit(0);
         $user = null;
         $guestExamId = $request->exam_id;
         if (isset($guestExamId) && is_numeric($guestExamId)) {
@@ -290,7 +292,8 @@ class GuestExamController extends Controller
                 }
 
                 $posts = GuestQuestion::where('is_deleted', 0)->where('guest_exam_id', $guestExamId)
-                    ->orderBy('type', 'desc')->orderBy('id', 'desc')->get();
+                    ->orderBy('type', 'desc')->orderBy('id', 'desc')->select(['id','title','title_type','variant_type','A','B','C','D','E','correct'])
+                    ->lazy();;
 
                 if ($posts->isNotEmpty()) {
                     $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam'=>$exam]);

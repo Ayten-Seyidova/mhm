@@ -242,6 +242,8 @@ class ExamController extends Controller
 
     public function downloadPdf(Request $request)
     {
+        ini_set('memory_limit', '4096M');
+        set_time_limit(0);
         $user = null;
         $examId = $request->exam_id;
         if (isset($examId) && is_numeric($examId)) {
@@ -256,10 +258,12 @@ class ExamController extends Controller
                 }
 
                 $posts = Question::where('is_deleted', 0)->where('exam_id', $examId)
-                    ->orderBy('id', 'desc')->get();
+                    ->orderBy('id', 'desc')->select(['id','title','title_type','variant_type','A','B','C','D','E','correct'])
+                    ->lazy();
 
                 if ($posts->isNotEmpty()) {
-                    $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam'=>$exam]);
+                    $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam'=>$exam])->setPaper('a4','portrait')
+                        ->setWarnings(false);
                     $pdfPath = storage_path('app/public/exam.pdf');
                     $pdf->save($pdfPath);
 
