@@ -253,6 +253,7 @@
                         </div>
                     </div>
                 </div>
+                <br>
                 <div class="mini ok">
                     <div class="mini-top">
                         <div class="mini-text">
