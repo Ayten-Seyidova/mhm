@@ -122,7 +122,7 @@ class AuthController extends Controller
                 'customerId' => $user['id']
             ];
 
-            if ($user->username !== 'user350') {
+            if ($user->username !== 'user1') {
                 $deviceCheck = DB::select("SELECT * FROM device_log WHERE customer_id = :customerId", [
                     'customerId' => $user['id']
                 ]);
@@ -163,7 +163,7 @@ class AuthController extends Controller
 //                'customerId' => $user['id']
 //            ];
 
-//            if ($user->username !== 'user350') {
+//            if ($user->username !== 'user1') {
 //                $deviceCheck = DB::select("SELECT * FROM device_log WHERE customer_id = :customerId", [
 //                    'customerId' => $user['id']
 //                ]);
