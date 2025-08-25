@@ -117,7 +117,9 @@ class GuestController extends Controller
         if($paginate!=null){
             $list = $list->paginate($paginate);
         }else{
-            $now = Carbon::now()->addMinutes(10);
+          //  $now = Carbon::now()->addMinutes(10);
+            $now = Carbon::now()->subHours(5);
+
             $list = $list->where('time',"!=",null)
                 ->where('time', '>', $now)
                 ->orderBy('time', 'asc')->limit(1)->get();
