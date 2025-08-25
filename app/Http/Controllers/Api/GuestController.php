@@ -110,6 +110,8 @@ class GuestController extends Controller
         if($orderBy!=null){
             $orderBy = explode("_",$orderBy);
             $list = $list->orderBy($orderBy[0],$orderBy[1]);
+        }else {
+            $list = $list->orderBy('created_at', 'desc');
         }
 
         if($paginate!=null){
