@@ -27,7 +27,7 @@ class LoginController extends Controller
             Auth::guard('teacher')->logout();
             Auth::guard('admin')->login($user, $remember);
             if ($user->id != 44) {
-                return redirect()->route('customer.index');
+                return redirect()->route('guest.index');
             } else {
                 return redirect()->route('guest.index');
             }
