@@ -73,6 +73,7 @@ class GuestController extends Controller
             'image' => $image ? uploadImg($image) : 'postImage/noUser.png',
             'name' => $request->name,
             'phone' => $request->phone,
+          //  'password' => bcrypt('12345678'),
             'is_student' => isset($request->is_student) ? 1 : 0,
             'status' => isset($request->status) ? 1 : 0,
             'sub_direction_id' => $request->sub_direction_id,
