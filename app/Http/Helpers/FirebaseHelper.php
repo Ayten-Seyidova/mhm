@@ -117,11 +117,11 @@ class FirebaseHelper
         $user = $model->with("parameters")->where('id', $userId)->orderBy("id", 'desc')->first();
         $to = $user->parameters->token;
 
-//        Notification::create([
-//            'title' => $title,
-//            'description' => $desc,
-//            'customer_id' => $userId
-//        ]);
+        Notification::create([
+            'title' => $title,
+            'description' => $desc,
+            'customer_id' => $userId
+        ]);
 
         // if ($user->push_notif) {
 

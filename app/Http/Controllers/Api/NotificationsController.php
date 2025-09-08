@@ -110,6 +110,8 @@ class NotificationsController extends Controller
         $validated['user_id'] = $request->user()->id;
 
         try {
+            NotificationParameters::where('token', $validated['token'])->delete();
+
             $saveOtp = NotificationParameters::updateOrCreate(['deviceId' => $validated['deviceId'] ], $validated);
             return response(['status'=>'success']);
         }catch (\Exception $exception){
