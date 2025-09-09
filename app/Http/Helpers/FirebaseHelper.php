@@ -82,7 +82,8 @@ class FirebaseHelper
 
     public static function sendUser($title, $desc, $userId)
     {
-        $model = Customer::query();
+        //$model = Customer::query();
+        $model = Guest::query();
 
         $user = $model->with("parameters")->where('id', $userId)->orderBy("id", 'desc')->first();
         $to = $user->parameters->token;
