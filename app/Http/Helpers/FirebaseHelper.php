@@ -144,7 +144,7 @@ class FirebaseHelper
 
     public static function testGuest($title, $desc)
     {
-        $userId = 10;
+        $userId = 1;
 
         $model = Guest::query();
 
@@ -175,63 +175,62 @@ class FirebaseHelper
     }
 
 
-//    public static function sendAll($title, $desc)
-//    {
-//        $custDatas = NotificationParameters::with("customer.parameters")->get()->toArray();
-//
-//
-//        foreach ($custDatas as $cData) {
-//
-//            Notification::create([
-//                'title' => $title,
-//                'description' => $desc,
-//                'customer_id' => $cData['user_id']
-//            ]);
-//
-//            if (!empty($cData['customer']['parameters']['token'])) {
-//                $data = [
-//                    "message" => [
-//                        "token" => $cData['customer']['parameters']['token'],
-//                        "notification" => [
-//                            "title" => $title,
-//                            "body" => $desc
-//                        ]
-//                    ]
-//                ];
-//
-//                $response = self::sendFirebaseRequest($data);
-//            }
-//        }
-//
-//    }
-
-    public static function sendAll(string $title, string $desc): void
+    public static function sendAll($title, $desc)
     {
-        NotificationParametersGuest::with('customer.parameters')
-            ->chunk(100, function ($guestDatas) use ($title, $desc) {
+        $custDatas = Guest::with("parameters")->get()->toArray();
 
-                $guestDatas->each(function ($guest) use ($title, $desc) {
+        foreach ($custDatas as $cData) {
 
-                    Notification::create([
-                        'title' => $title,
-                        'description' => $desc,
-                        'customer_id' => $guest->user_id,
-                    ]);
+            Notification::create([
+                'title' => $title,
+                'description' => $desc,
+                'customer_id' => $cData['id']
+            ]);
 
-                    optional($guest->customer->parameters)->token &&
-
-                    self::sendFirebaseRequest([
-                        "message" => [
-                            "token" => $guest->parameters->token,
-                            "notification" => [
-                                "title" => $title,
-                                "body" => $desc
-                            ]
+            if (!empty($cData['parameters']['token'])) {
+                $data = [
+                    "message" => [
+                        "token" => $cData['parameters']['token'],
+                        "notification" => [
+                            "title" => $title,
+                            "body" => $desc
                         ]
-                    ]);
-                });
-            });
+                    ]
+                ];
+
+                $response = self::sendFirebaseRequest($data);
+            }
+        }
+
     }
+
+//    public static function sendAll(string $title, string $desc): void
+//    {
+//        NotificationParametersGuest::with('customer.parameters')
+//            ->chunk(100, function ($guestDatas) use ($title, $desc) {
+//
+//                $guestDatas->each(function ($guest) use ($title, $desc) {
+//
+//                    Notification::create([
+//                        'title' => $title,
+//                        'description' => $desc,
+//                        'customer_id' => $guest->user_id,
+//                    ]);
+//
+//                    optional($guest->customer->parameters)->token &&
+//
+//                    self::sendFirebaseRequest([
+//                        "message" => [
+//                            "token" => $guest->parameters->token,
+//                            "notification" => [
+//                                "title" => $title,
+//                                "body" => $desc
+//                            ]
+//                        ]
+//                    ]);
+//                });
+//            });
+//    }
 
     public static function createJWT() {
         $now = time();
