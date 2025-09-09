@@ -144,7 +144,6 @@ class PostController extends Controller
 
 //        if (Auth::check()) {
         if (isset($request->notification)) {
-
             SendGuestNotification::dispatch(
                 'Paylaşım edildi',
                 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
