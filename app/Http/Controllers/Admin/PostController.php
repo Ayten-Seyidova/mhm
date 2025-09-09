@@ -144,15 +144,20 @@ class PostController extends Controller
 
 //        if (Auth::check()) {
         if (isset($request->notification)) {
-            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
 
-            foreach ($guests as $guest) {
-                SendGuestNotification::dispatch(
-                    'Paylaşım edildi',
-                    'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
-                    $guest->id
-                );
-            }
+            SendGuestNotification::dispatch(
+                'Paylaşım edildi',
+                'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+            );
+//            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
+//
+//            foreach ($guests as $guest) {
+//                SendGuestNotification::dispatch(
+//                    'Paylaşım edildi',
+//                    'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+//                    $guest->id
+//                );
+//            }
         }
 //            }
 
