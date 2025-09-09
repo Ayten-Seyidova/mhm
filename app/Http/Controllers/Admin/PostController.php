@@ -147,10 +147,11 @@ class PostController extends Controller
         Log::info($request->all());
         if (isset($request->notification)) {
             Log::info('if notification');;
-            SendGuestNotification::dispatch(
-                'Paylaşım edildi',
-                'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
-            );
+            FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
+//            SendGuestNotification::dispatch(
+//                'Paylaşım edildi',
+//                'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+//            );
 //            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
 //
 //            foreach ($guests as $guest) {
