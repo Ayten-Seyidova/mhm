@@ -5,6 +5,7 @@ use App\Models\Customer;
 use App\Models\Guest;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
+use App\Models\NotificationParametersGuest;
 
 
 class FirebaseHelper
@@ -141,36 +142,63 @@ class FirebaseHelper
         return ['status' => 'success'];
     }
 
-    public static function sendAll($title, $desc)
+//    public static function sendAll($title, $desc)
+//    {
+//        $custDatas = NotificationParameters::with("customer.parameters")->get()->toArray();
+//
+//
+//        foreach ($custDatas as $cData) {
+//
+//            Notification::create([
+//                'title' => $title,
+//                'description' => $desc,
+//                'customer_id' => $cData['user_id']
+//            ]);
+//
+//            if (!empty($cData['customer']['parameters']['token'])) {
+//                $data = [
+//                    "message" => [
+//                        "token" => $cData['customer']['parameters']['token'],
+//                        "notification" => [
+//                            "title" => $title,
+//                            "body" => $desc
+//                        ]
+//                    ]
+//                ];
+//
+//                $response = self::sendFirebaseRequest($data);
+//            }
+//        }
+//
+//    }
+
+    public static function sendAll(string $title, string $desc): void
     {
-        $custDatas = NotificationParameters::with("customer.parameters")->get()->toArray();
+        NotificationParametersGuest::with('customer.parameters')
+            ->chunk(100, function ($guestDatas) use ($title, $desc) {
 
+                $guestDatas->each(function ($guest) use ($title, $desc) {
 
-        foreach ($custDatas as $cData) {
+                    Notification::create([
+                        'title' => $title,
+                        'description' => $desc,
+                        'customer_id' => $guest->user_id,
+                    ]);
 
-            Notification::create([
-                'title' => $title,
-                'description' => $desc,
-                'customer_id' => $cData['user_id']
-            ]);
+                    optional($guest->customer->parameters)->token &&
 
-            if (!empty($cData['customer']['parameters']['token'])) {
-                $data = [
-                    "message" => [
-                        "token" => $cData['customer']['parameters']['token'],
-                        "notification" => [
-                            "title" => $title,
-                            "body" => $desc
+                    self::sendFirebaseRequest([
+                        "message" => [
+                            "token" => $guest->parameters->token,
+                            "notification" => [
+                                "title" => $title,
+                                "body" => $desc
+                            ]
                         ]
-                    ]
-                ];
-
-                $response = self::sendFirebaseRequest($data);
-            }
-        }
-
+                    ]);
+                });
+            });
     }
-
 
     public static function createJWT() {
         $now = time();
