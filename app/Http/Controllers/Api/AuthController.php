@@ -153,6 +153,8 @@ class AuthController extends Controller
             'phoneNumber' => 'required',
             'password'=>'required',
         ]);
+        Log::info($parameters['phoneNumber']);;
+
         $phoneNumber = str_replace(['+','_',''], '',$parameters['phoneNumber']);
         Log::info($phoneNumber);
         $user = Guest::where("phone",$phoneNumber)->first();
