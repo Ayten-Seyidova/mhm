@@ -6,6 +6,7 @@ use App\Models\Guest;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
 use App\Models\NotificationParametersGuest;
+use Illuminate\Support\Facades\Log;
 
 
 class FirebaseHelper
@@ -177,6 +178,7 @@ class FirebaseHelper
 
     public static function sendAll($title, $desc)
     {
+        Log::info("sendAll function called");
         $custDatas = Guest::with("parameters")->get()->toArray();
 
         foreach ($custDatas as $cData) {
