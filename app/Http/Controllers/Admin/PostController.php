@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -143,7 +144,9 @@ class PostController extends Controller
         }
 
 //        if (Auth::check()) {
+        Log::info($request->all());
         if (isset($request->notification)) {
+            Log::info('if notification');;
             SendGuestNotification::dispatch(
                 'Paylaşım edildi',
                 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',

@@ -34,6 +34,7 @@ class SendGuestNotification implements ShouldQueue
     {
        // FirebaseHelper::sendGuest($this->title, $this->desc, $this->guestId);
         Log::info('send guest notification job called');
+        var_dump($this->title);
         FirebaseHelper::sendAll($this->title, $this->desc);
 //        FirebaseHelper::testGuest($this->title, $this->desc);
     }
