@@ -3,6 +3,7 @@
 namespace App\Http\Helpers;
 use App\Models\Customer;
 use App\Models\Guest;
+use App\Models\GuestNotification;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
 use App\Models\NotificationParametersGuest;
@@ -26,6 +27,8 @@ class FirebaseHelper
 
     public static function sendFirebaseRequest($data)
     {
+        Log::debug(self::getAccessToken());
+        Log::debug($data);
         $headers = [
             'Content-Type: application/json',
             'Authorization: Bearer ' . self::getAccessToken()
@@ -183,10 +186,10 @@ class FirebaseHelper
 
         foreach ($custDatas as $cData) {
 
-            Notification::create([
+            GuestNotification::create([
                 'title' => $title,
                 'description' => $desc,
-                'customer_id' => $cData['id']
+                'guest_id' => $cData['id']
             ]);
 
             if (!empty($cData['parameters']['token'])) {
