@@ -88,6 +88,7 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
+        dd($request->all());
         $image = $request->file('image');
 
         $uploadedImg = $image ? uploadImg($image) : 'postImage/noPhoto.png';
