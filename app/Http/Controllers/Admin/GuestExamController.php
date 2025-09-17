@@ -292,11 +292,17 @@ class GuestExamController extends Controller
                 }
 
                 $posts = GuestQuestion::where('is_deleted', 0)->where('guest_exam_id', $guestExamId)
-                    ->orderBy('type', 'desc')->orderBy('id', 'desc')->select(['id','title','title_type','variant_type','A','B','C','D','E','correct'])
+                    ->orderBy('type', 'desc')->orderBy('id', 'desc')->select(['id', 'title', 'title_type', 'variant_type', 'A', 'B', 'C', 'D', 'E', 'correct'])
                     ->lazy();;
 
                 if ($posts->isNotEmpty()) {
-                    $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam'=>$exam]);
+                    $pdf = \PDF::loadView('admin.pages.guest-exam-pdf', ['posts' => $posts, 'exam' => $exam])->setPaper('a4', 'portrait')
+                        ->setOptions([
+                            'isHtml5ParserEnabled' => true,
+                            'isRemoteEnabled' => true,
+                            'defaultFont' => 'DejaVu Sans',
+                        ])
+                        ->setWarnings(false);;
                     $pdfPath = storage_path('app/public/guest-exam.pdf');
                     $pdf->save($pdfPath);
 

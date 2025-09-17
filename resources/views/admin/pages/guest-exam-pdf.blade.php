@@ -7,7 +7,11 @@
     <title>{{$exam->name}}</title>
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: "DejaVu Sans", sans-serif !important;
+        }
+
+        * {
+            font-family: "DejaVu Sans", sans-serif !important;
         }
     </style>
 </head>
