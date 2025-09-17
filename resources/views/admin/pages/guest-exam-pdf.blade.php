@@ -42,7 +42,7 @@
                                                             {!! $post->title !!}
                                                         @else
                                                             <img src="{{ $post->title }}" alt=""
-                                                                 style="max-width:200px; height:auto;">
+                                                                 style="width:100%; height:auto;">
                                                         @endif
                                                     </td>
                                                 </tr>
