@@ -356,7 +356,7 @@ class GuestExamController extends Controller
             ->orderBy('type', 'desc')
             ->orderBy('id', 'desc')
             ->select(['id','title','title_type','variant_type','A','B','C','D','E','correct'])
-            ->get(); // <- lazy() yerinə get() (PDF üçün hamısını yükləmək daha problemsizdir)
+            ->get();
 
         if ($posts->isEmpty()) {
             alert()->error('Uğursuz', 'İmtahana aid sual tapılmadı')
@@ -376,15 +376,9 @@ class GuestExamController extends Controller
             ])->setWarnings(false);
 
         $pdf->setBasePath(public_path());
+        $content = $pdf->output();
 
-        // Unikal ad (imtahan id + timestamp + uuid)
-        $fileName = 'guest-exam-' . $guestExamId . '-' . time() . '-' . Str::uuid() . '.pdf';
-        $relativePath = 'public/' . $fileName; // storage/app/public/...
-        Storage::put($relativePath, $pdf->output());
-
-        $absolutePath = storage_path('app/' . $relativePath);
-
-        return response($pdf->output(), 200, [
+        return response($content, 200, [
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'inline; filename="guest-exam-'.$guestExamId.'.pdf"',
             'Cache-Control'       => 'no-store, no-cache, must-revalidate, max-age=0',
@@ -392,5 +386,4 @@ class GuestExamController extends Controller
             'Expires'             => '0',
         ]);
     }
-
 }
