@@ -301,8 +301,10 @@ class GuestExamController extends Controller
                             'isHtml5ParserEnabled' => true,
                             'isRemoteEnabled' => true,
                             'defaultFont' => 'DejaVu Sans',
+                            'chroot' => public_path(),
                         ])
-                        ->setWarnings(false);;
+                        ->setWarnings(false);
+                    $pdf->setBasePath(public_path());
                     $pdfPath = storage_path('app/public/guest-exam.pdf');
                     $pdf->save($pdfPath);
 

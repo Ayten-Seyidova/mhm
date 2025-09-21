@@ -62,7 +62,7 @@
                                                                 {!! $post->A !!}
                                                             @else
                                                                 <img src="{{ $post->A }}" alt=""
-                                                                     style="max-width:200px; height:auto;">
+                                                                     style="width:100%; height:auto;">
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -77,7 +77,7 @@
                                                                 {!! $post->B !!}
                                                             @else
                                                                 <img src="{{ $post->B }}" alt=""
-                                                                     style="max-width:200px; height:auto;">
+                                                                     style="width:100%; height:auto;">
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -92,7 +92,7 @@
                                                                 {!! $post->C !!}
                                                             @else
                                                                 <img src="{{ $post->C }}" alt=""
-                                                                     style="max-width:200px; height:auto;">
+                                                                     style="width:100%; height:auto;">
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -107,7 +107,7 @@
                                                                 {!! $post->D !!}
                                                             @else
                                                                 <img src="{{ $post->D }}" alt=""
-                                                                     style="max-width:200px; height:auto;">
+                                                                     style="width:100%; height:auto;">
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -122,7 +122,7 @@
                                                                 {!! $post->E !!}
                                                             @else
                                                                 <img src="{{ $post->E }}" alt=""
-                                                                     style="max-width:200px; height:auto;">
+                                                                     style="width:100%; height:auto;">
                                                             @endif
                                                         </td>
                                                     </tr>
