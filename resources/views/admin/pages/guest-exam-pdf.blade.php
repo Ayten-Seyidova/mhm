@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, shrink-to-fit=9">
     <title>{{$exam->name}}</title>
     <style>
-        /*body {*/
-        /*    font-family: "DejaVu Sans", sans-serif !important;*/
-        /*}*/
+        body {
+            font-family: "DejaVu Sans", sans-serif !important;
+        }
 
-        /** {*/
-        /*    font-family: "DejaVu Sans", sans-serif !important;*/
-        /*}*/
+        * {
+            font-family: "DejaVu Sans", sans-serif !important;
+        }
     </style>
 </head>
 <body class="d-flex flex-column h-100">
