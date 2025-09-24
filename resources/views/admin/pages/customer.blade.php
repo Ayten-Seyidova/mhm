@@ -1122,33 +1122,33 @@
 
 
 
-                                                                                                                                                                                                                                                                                                                                                                            ;
-                                                                                                                                                                                                                                                                                                                                                                                    dateDivEdit.append(dateHtml);
-                                                                                                                                                                                                                                                                                                                                                                                });
-                                                                                                                                                                                                                                                                                                                                                                            } else {
-                                                                                                                                                                                                                                                                                                                                                                                dateDivEdit.addClass('d-none').removeClass('d-block'); // Boşsa gizle
-                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                            });
-                                                                                                                                                                                                                                                                                                                                                                                        }
+                                ;
+                                dateDivEdit.append(dateHtml);
+                            });
+                        } else {
+                            dateDivEdit.addClass('d-none').removeClass('d-block'); // Boşsa gizle
+                        }
+                    }
+                });
+            }
 
-                                                                                                                                                                                                                                                                                                                                                                                        let searchParams = new URLSearchParams(window.location.search)
-                                                                                                                                                                                                                                                                                                                                                                                        if (searchParams.has('customer_id')) {
-                                                                                                                                                                                                                                                                                                                                                                                            let dataId = searchParams.get('customer_id');
-                                                                                                                                                                                                                                                                                                                                                                                            $('#editModal').modal('show');
-                                                                                                                                                                                                                                                                                                                                                                                            editUser(dataId);
-                                                                                                                                                                                                                                                                                                                                                                                        }
+            let searchParams = new URLSearchParams(window.location.search)
+            if (searchParams.has('customer_id')) {
+                let dataId = searchParams.get('customer_id');
+                $('#editModal').modal('show');
+                editUser(dataId);
+            }
 
-                                                                                                                                                                                                                                                                                                                                                                                        $('.editModal').click(function () {
-                                                                                                                                                                                                                                                                                                                                                                                            let dataID = $(this).data('id');
-                                                                                                                                                                                                                                                                                                                                                                                            editUser(dataID);
-                                                                                                                                                                                                                                                                                                                                                                                        });
+            $('.editModal').click(function () {
+                let dataID = $(this).data('id');
+                editUser(dataID);
+            });
 
-                                                                                                                                                                                                                                                                                                                                                                                        $('.clear-btn').click(function () {
-                                                                                                                                                                                                                                                                                                                                                                                            $('#searchForm input').val('');
-                                                                                                                                                                                                                                                                                                                                                                                            $('#searchForm select').val('');
-                                                                                                                                                                                                                                                                                                                                                                                        })
-                                                                                                                                                                                                                                                                                                                                                                                    })
-                                                                                                                                                                                                                                                                                                                                                                                    ;
-</script>
+            $('.clear-btn').click(function () {
+                $('#searchForm input').val('');
+                $('#searchForm select').val('');
+            })
+        })
+        ;
+    </script>
 @endsection
