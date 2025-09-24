@@ -192,27 +192,37 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $customer = Customer::find($id);
-        if ($customer->is_deleted == 0) {
-            $customer->is_deleted = 1;
+        $customer = Customer::find($request->id);
+        if ($request->type == 'delete') {
+            $customer->delete();
             if (Auth::guard('admin')->check()) {
                 $user = Auth::guard('admin')->user();
                 Action::create([
-                    'title' => $user->name . ' "' . $customer->username . '" adlı tələbəni sildi.'
+                    'title' => $user->name . ' "' . $customer->username . '" adlı tələbəni qalıcı olaraq sildi.'
                 ]);
             }
         } else {
-            $customer->is_deleted = 0;
-            if (Auth::guard('admin')->check()) {
-                $user = Auth::guard('admin')->user();
-                Action::create([
-                    'title' => $user->name . ' "' . $customer->username . '" adlı silinmiş tələbəni bərpa etdi.'
-                ]);
+            if ($customer->is_deleted == 0) {
+                $customer->is_deleted = 1;
+                if (Auth::guard('admin')->check()) {
+                    $user = Auth::guard('admin')->user();
+                    Action::create([
+                        'title' => $user->name . ' "' . $customer->username . '" adlı tələbəni sildi.'
+                    ]);
+                }
+            } else {
+                $customer->is_deleted = 0;
+                if (Auth::guard('admin')->check()) {
+                    $user = Auth::guard('admin')->user();
+                    Action::create([
+                        'title' => $user->name . ' "' . $customer->username . '" adlı silinmiş tələbəni bərpa etdi.'
+                    ]);
+                }
             }
+            $customer->save();
         }
-        $customer->save();
         return response()->json(['message' => 'Uğurlu']);
     }
 
@@ -311,6 +321,12 @@ class CustomerController extends Controller
                 $title = $request->title;
                 $message = $request->text;
                 FirebaseHelper::sendUser($title, $message, $id);
+            }
+        }
+        if ($request->val == 5) {
+            foreach ($arr as $id) {
+                $post = Customer::find($id);
+                $post->delete();
             }
         }
 

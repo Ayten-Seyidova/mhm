@@ -133,15 +133,20 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $customer = User::find($id);
-        if ($customer->is_deleted == 0) {
-            $customer->is_deleted = 1;
+        $post = User::find($request->id);
+        if ($request->type == 'delete') {
+            $post->delete();
         } else {
-            $customer->is_deleted = 0;
+            if ($post->is_deleted == 0) {
+                $post->is_deleted = 1;
+            } else {
+                $post->is_deleted = 0;
+            }
+            $post->save();
         }
-        $customer->save();
+
         return response()->json(['message' => 'Uğurlu']);
     }
 
@@ -165,27 +170,20 @@ class UserController extends Controller
     {
         $arr = $request->arr;
 
-        if ($request->val == 0) {
+        if ($request->val == 3) {
             foreach ($arr as $id) {
                 $post = User::find($id);
-                $post->status = 0;
-                $post->save();
-            }
-        } else if ($request->val == 1) {
-            foreach ($arr as $id) {
-                $post = User::find($id);
-                $post->status = 1;
-                $post->save();
+                $post->delete();
             }
         } else {
             foreach ($arr as $id) {
-                $customer = User::find($id);
-                if ($customer->is_deleted == 0) {
-                    $customer->is_deleted = 1;
+                $post = User::find($id);
+                if ($post->is_deleted == 0) {
+                    $post->is_deleted = 1;
                 } else {
-                    $customer->is_deleted = 0;
+                    $post->is_deleted = 0;
                 }
-                $customer->save();
+                $post->save();
             }
         }
 

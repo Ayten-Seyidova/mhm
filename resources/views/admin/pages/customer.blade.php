@@ -230,10 +230,13 @@
                                                        data-toggle="modal"
                                                        class="btn btn-primary shadow btn-xs sharp mr-1 editModal"><i
                                                             class="fa fa-pencil"></i></a>
-                                                    @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
+                                                    @if(request('is_deleted') == 1)
                                                         <a data-id="{{$postItem->id}}"
-                                                           class="btn btn-success shadow btn-xs sharp deleteItem"><i
+                                                           class="btn btn-success shadow btn-xs sharp mr-1 deleteItem"><i
                                                                 class="fa fa-reply"></i></a>
+                                                        <a data-id="{{$postItem->id}}"
+                                                           class="btn btn-danger shadow btn-xs sharp delete-permanent"><i
+                                                                class="fa fa-trash"></i></a>
                                                     @else
                                                         <a data-id="{{$postItem->id}}"
                                                            class="btn btn-danger shadow btn-xs sharp deleteItem"><i
@@ -253,8 +256,9 @@
                                         <button class="checkedBtn btn-primary btn mr-3" value="1">SEÇİLƏNLƏRİ AKTİV ET
                                         </button>
                                         @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
-                                            <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ BƏRPA
-                                                ET
+                                            <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ BƏRPA ET
+                                            </button>
+                                            <button class="checkedBtn btn-primary btn mr-3" value="5">QALICI OLARAQ SİL
                                             </button>
                                         @else
                                             <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ SİL
@@ -761,7 +765,10 @@
                         } else if (currentVal == '2') {
                             text = 'Əminsinizmi?';
                             resultText = 'Uğurlu';
-                        } else {
+                        }  else if (currentVal == '5') {
+                            text = 'Seçilənləri qalıcı olaraq silmək istədiyinizə əminsiniz?';
+                            resultText = 'Silindi';
+                        }else {
                             text = 'Ödəniş bildirişi göndərmək istədiyinizə əminsinizmi?';
                             resultText = 'Uğurlu';
                         }
@@ -798,6 +805,10 @@
                                             for (let i of checkedArr) {
                                                 $('#row' + i).remove();
                                             }
+                                        } else if (currentVal == '5') {
+                                            for (let i of checkedArr) {
+                                                $('#row' + i).remove();
+                                            }
                                         }
 
                                         $('.checkedItem').prop('checked', false);
@@ -823,6 +834,45 @@
                         confirmButtonText: 'Tamam'
                     })
                 }
+            });
+
+            $('.delete-permanent').click(function () {
+                let dataID = $(this).data('id');
+                let route = '{{route('customer.destroy', ['customer'=>'id'])}}';
+                route = route.replace('id', dataID);
+                Swal.fire({
+                    title: 'Xəbərdarlıq',
+                    text: 'Qalıcı olaraq silmək istədiyinizə əminsinizmi?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#163A76',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Bəli',
+                    cancelButtonText: 'Xeyr'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: route,
+                            method: 'DELETE',
+                            data: {
+                                id: dataID,
+                                type: 'delete',
+                            },
+                            async: false,
+                            success: function (response) {
+                                $('#row' + dataID).remove();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Xəbərdarlıq',
+                                    text: "Uğurlu",
+                                    confirmButtonColor: '#163A76',
+                                    confirmButtonText: 'Tamam'
+                                })
+                            }
+                        })
+                    }
+                })
             });
 
             $('#sendPost').on('click', function () {

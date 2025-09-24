@@ -147,10 +147,13 @@
                                                        data-toggle="modal"
                                                        class="btn btn-primary shadow btn-xs sharp mr-1 editModal"><i
                                                             class="fa fa-pencil"></i></a>
-                                                    @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
+                                                    @if(request('is_deleted') == 1)
                                                         <a data-id="{{$postItem->id}}"
-                                                           class="btn btn-success shadow btn-xs sharp deleteItem"><i
+                                                           class="btn btn-success shadow btn-xs sharp mr-1 deleteItem"><i
                                                                 class="fa fa-reply"></i></a>
+                                                        <a data-id="{{$postItem->id}}"
+                                                           class="btn btn-danger shadow btn-xs sharp delete-permanent"><i
+                                                                class="fa fa-trash"></i></a>
                                                     @else
                                                         <a data-id="{{$postItem->id}}"
                                                            class="btn btn-danger shadow btn-xs sharp deleteItem"><i
@@ -170,7 +173,9 @@
                                         <button class="checkedBtn btn-primary btn mr-3" value="1">SEÇİLƏNLƏRİ AKTİV ET
                                         </button>
                                         @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
-                                            <button class="checkedBtn btn-primary btn" value="2">SEÇİLƏNLƏRİ BƏRPA ET
+                                            <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ BƏRPA ET
+                                            </button>
+                                            <button class="checkedBtn btn-primary btn mr-3" value="3">QALICI OLARAQ SİL
                                             </button>
                                         @else
                                             <button class="checkedBtn btn-primary btn" value="2">SEÇİLƏNLƏRİ SİL
@@ -517,7 +522,6 @@
             })
 
             $('.checkedBtn').click(function () {
-
                 if (checkedArr.length != 0) {
                     let route = '{{route('user.checked')}}';
                     let currentVal = $(this).val();
@@ -531,6 +535,9 @@
                     } else if (currentVal == '1') {
                         text = 'Seçilənləri aktiv etmək istədiyinizə əminsiniz?';
                         resultText = 'Aktiv edildi';
+                    } else if (currentVal == '3') {
+                        text = 'Seçilənləri qalıcı olaraq silmək istədiyinizə əminsiniz?';
+                        resultText = 'Silindi';
                     } else {
                         text = 'Əminsinizmi?';
                         resultText = 'Uğurlu';
@@ -592,6 +599,45 @@
                     })
                 }
 
+            });
+
+            $('.delete-permanent').click(function () {
+                let dataID = $(this).data('id');
+                let route = '{{route('user.destroy', ['user'=>'delete'])}}';
+                route = route.replace('delete', dataID);
+                Swal.fire({
+                    title: 'Xəbərdarlıq',
+                    text: 'Qalıcı olaraq silmək istədiyinizə əminsinizmi?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#163A76',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Bəli',
+                    cancelButtonText: 'Xeyr'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: route,
+                            method: 'DELETE',
+                            data: {
+                                id: dataID,
+                                type: 'delete',
+                            },
+                            async: false,
+                            success: function (response) {
+                                $('#row' + dataID).remove();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Xəbərdarlıq',
+                                    text: "Uğurlu",
+                                    confirmButtonColor: '#163A76',
+                                    confirmButtonText: 'Tamam'
+                                })
+                            }
+                        })
+                    }
+                })
             });
 
             $('.deleteItem').click(function () {
