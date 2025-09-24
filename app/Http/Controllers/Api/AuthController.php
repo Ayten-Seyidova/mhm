@@ -12,6 +12,7 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -152,10 +153,12 @@ class AuthController extends Controller
             'phoneNumber' => 'required',
             'password'=>'required',
         ]);
+        Log::info($parameters['phoneNumber']);;
+
         $phoneNumber = str_replace(['+','_',''], '',$parameters['phoneNumber']);
-
+        Log::info($phoneNumber);
         $user = Guest::where("phone",$phoneNumber)->first();
-
+        Log::info($user);
         if ($user && Hash::check($parameters['password'], $user->password)) {
 
 //            $param = [

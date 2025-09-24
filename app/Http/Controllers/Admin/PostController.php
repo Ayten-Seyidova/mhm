@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -143,16 +144,23 @@ class PostController extends Controller
         }
 
 //        if (Auth::check()) {
+        Log::info($request->all());
         if (isset($request->notification)) {
-            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
-
-            foreach ($guests as $guest) {
-                SendGuestNotification::dispatch(
-                    'Paylaşım edildi',
-                    'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
-                    $guest->id
-                );
-            }
+            Log::info('if notification');;
+     //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
+            SendGuestNotification::dispatch(
+                'Paylaşım edildi',
+                'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+            );
+//            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
+//
+//            foreach ($guests as $guest) {
+//                SendGuestNotification::dispatch(
+//                    'Paylaşım edildi',
+//                    'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+//                    $guest->id
+//                );
+//            }
         }
 //            }
 

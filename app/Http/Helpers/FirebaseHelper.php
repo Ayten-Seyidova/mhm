@@ -3,8 +3,11 @@
 namespace App\Http\Helpers;
 use App\Models\Customer;
 use App\Models\Guest;
+use App\Models\GuestNotification;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
+use App\Models\NotificationParametersGuest;
+use Illuminate\Support\Facades\Log;
 
 
 class FirebaseHelper
@@ -24,6 +27,8 @@ class FirebaseHelper
 
     public static function sendFirebaseRequest($data)
     {
+        Log::debug(self::getAccessToken());
+        Log::debug($data);
         $headers = [
             'Content-Type: application/json',
             'Authorization: Bearer ' . self::getAccessToken()
@@ -37,6 +42,8 @@ class FirebaseHelper
 
         $response = curl_exec($ch);
         curl_close($ch);
+
+        Log::debug($response);
 
         return $response;
     }
@@ -82,7 +89,8 @@ class FirebaseHelper
 
     public static function sendUser($title, $desc, $userId)
     {
-        $model = Customer::query();
+        //$model = Customer::query();
+        $model = Guest::query();
 
         $user = $model->with("parameters")->where('id', $userId)->orderBy("id", 'desc')->first();
         $to = $user->parameters->token;
@@ -117,11 +125,11 @@ class FirebaseHelper
         $user = $model->with("parameters")->where('id', $userId)->orderBy("id", 'desc')->first();
         $to = $user->parameters->token;
 
-//        Notification::create([
-//            'title' => $title,
-//            'description' => $desc,
-//            'customer_id' => $userId
-//        ]);
+        Notification::create([
+            'title' => $title,
+            'description' => $desc,
+            'customer_id' => $userId
+        ]);
 
         // if ($user->push_notif) {
 
@@ -140,23 +148,56 @@ class FirebaseHelper
         return ['status' => 'success'];
     }
 
+    public static function testGuest($title, $desc)
+    {
+        $userId = 1;
+
+        $model = Guest::query();
+
+        $user = $model->with("parameters")->where('id', $userId)->orderBy("id", 'desc')->first();
+        $to = $user->parameters->token;
+
+        Notification::create([
+            'title' => $title,
+            'description' => $desc,
+            'customer_id' => $userId
+        ]);
+
+        // if ($user->push_notif) {
+
+        $data = [
+            "message" => [
+                "token" => $to,
+                "notification" => [
+                    "title" => $title,
+                    "body" => $desc
+                ],
+            ]
+        ];
+        return self::sendFirebaseRequest($data);
+        // }
+
+        return ['status' => 'success'];
+    }
+
+
     public static function sendAll($title, $desc)
     {
-        $custDatas = NotificationParameters::with("customer.parameters")->get()->toArray();
-
+        Log::info("sendAll function called");
+        $custDatas = Guest::with("parameters")->get()->toArray();
 
         foreach ($custDatas as $cData) {
 
-            Notification::create([
+            GuestNotification::create([
                 'title' => $title,
                 'description' => $desc,
-                'customer_id' => $cData['user_id']
+                'guest_id' => $cData['id']
             ]);
 
-            if (!empty($cData['customer']['parameters']['token'])) {
+            if (!empty($cData['parameters']['token'])) {
                 $data = [
                     "message" => [
-                        "token" => $cData['customer']['parameters']['token'],
+                        "token" => $cData['parameters']['token'],
                         "notification" => [
                             "title" => $title,
                             "body" => $desc
@@ -170,6 +211,33 @@ class FirebaseHelper
 
     }
 
+//    public static function sendAll(string $title, string $desc): void
+//    {
+//        NotificationParametersGuest::with('customer.parameters')
+//            ->chunk(100, function ($guestDatas) use ($title, $desc) {
+//
+//                $guestDatas->each(function ($guest) use ($title, $desc) {
+//
+//                    Notification::create([
+//                        'title' => $title,
+//                        'description' => $desc,
+//                        'customer_id' => $guest->user_id,
+//                    ]);
+//
+//                    optional($guest->customer->parameters)->token &&
+//
+//                    self::sendFirebaseRequest([
+//                        "message" => [
+//                            "token" => $guest->parameters->token,
+//                            "notification" => [
+//                                "title" => $title,
+//                                "body" => $desc
+//                            ]
+//                        ]
+//                    ]);
+//                });
+//            });
+//    }
 
     public static function createJWT() {
         $now = time();

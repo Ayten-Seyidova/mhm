@@ -110,12 +110,16 @@ class GuestController extends Controller
         if($orderBy!=null){
             $orderBy = explode("_",$orderBy);
             $list = $list->orderBy($orderBy[0],$orderBy[1]);
+        }else {
+            $list = $list->orderBy('created_at', 'desc');
         }
 
         if($paginate!=null){
             $list = $list->paginate($paginate);
         }else{
-            $now = Carbon::now()->addMinutes(10);
+          //  $now = Carbon::now()->addMinutes(10);
+            $now = Carbon::now()->subHours(5);
+
             $list = $list->where('time',"!=",null)
                 ->where('time', '>', $now)
                 ->orderBy('time', 'asc')->limit(1)->get();

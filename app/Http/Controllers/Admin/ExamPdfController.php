@@ -38,13 +38,31 @@ class ExamPdfController extends Controller
 
     public function pdf(Request $request)
     {
+//        $data = $this->buildData($request);
+//        $html = View::make('admin.pages.pdf-exam', $data)->render();
+//
+//        return Pdf::loadView('admin.pages.pdf-exam', $data)
+//            ->setPaper('a4')
+//            ->stream('imtahan-neticesi.pdf');
+//
+//        return view('admin.pages.pdf-exam', $data);
+
         $data = $this->buildData($request);
-        $html = View::make('admin.pages.pdf-exam', $data)->render();
 
-        return Pdf::loadView('admin.pages.pdf-exam', $data)
-            ->setPaper('a4')
-            ->stream('imtahan-neticesi.pdf');
+        $pdf = Pdf::loadView('admin.pages.pdf-exam', $data)
+            ->setPaper('a4');
 
-        return view('admin.pages.pdf-exam', $data);
+        $fileName = 'imtahan-neticesi-' . time() . '.pdf';
+        $filePath = public_path('pdf/' . $fileName);
+
+        if (!file_exists(public_path('pdf'))) {
+            mkdir(public_path('pdf'), 0777, true);
+        }
+
+        $pdf->save($filePath);
+
+        return response()->json([
+            'file' => asset('pdf/' . $fileName)
+        ]);
     }
 }

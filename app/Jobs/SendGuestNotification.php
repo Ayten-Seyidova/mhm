@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendGuestNotification implements ShouldQueue
 {
@@ -17,16 +18,24 @@ class SendGuestNotification implements ShouldQueue
     public $desc;
     public $guestId;
 
-    public function __construct($title, $desc, $guestId)
+//    public function __construct($title, $desc, $guestId)
+//    {
+//        $this->title = $title;
+//        $this->desc = $desc;
+//        $this->guestId = $guestId;
+//    }
+    public function __construct($title, $desc)
     {
         $this->title = $title;
         $this->desc = $desc;
-        $this->guestId = $guestId;
     }
 
     public function handle()
     {
-        FirebaseHelper::sendGuest($this->title, $this->desc, $this->guestId);
+       // FirebaseHelper::sendGuest($this->title, $this->desc, $this->guestId);
+        Log::info('send guest notification job called');
+        FirebaseHelper::sendAll($this->title, $this->desc);
+//        FirebaseHelper::testGuest($this->title, $this->desc);
     }
 }
 
