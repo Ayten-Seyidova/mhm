@@ -12,6 +12,11 @@ class AdminController extends Controller
         return redirect()->route('user.index');
     }
 
+    public function home()
+    {
+        return view('front.home');
+    }
+
     public function upload(Request $request)
     {
         if ($request->hasFile("upload")) {

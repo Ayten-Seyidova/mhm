@@ -49,6 +49,7 @@ Route::get('/play-video', [AdminController::class, 'playVideo']);
 Route::get('/mhm/pdf', [ExamPdfController::class, 'pdf'])->name('mhm.pdf');
 
 
+Route::get('/', [AdminController::class, 'home']);
 Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::post('/editor/upload', [AdminController::class, 'upload'])->name('editor.upload');
