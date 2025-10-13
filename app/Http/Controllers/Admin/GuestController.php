@@ -44,7 +44,7 @@ class GuestController extends Controller
             return $request->sub_direction_id ?
                 $query->from('sub_direction_id')->where('sub_direction_id', $request->sub_direction_id) : '';
         })->when($request->direction_id, function ($query) use ($request) {
-            return $query->whereHas('subDirection', function($q) use ($request) {
+            return $query->whereHas('subDirection', function ($q) use ($request) {
                 $q->where('direction_id', $request->direction_id);
             });
         })->where(function ($query) use ($request) {
@@ -73,7 +73,7 @@ class GuestController extends Controller
             'image' => $image ? uploadImg($image) : 'postImage/noUser.png',
             'name' => $request->name,
             'phone' => $request->phone,
-          //  'password' => bcrypt('12345678'),
+            //  'password' => bcrypt('12345678'),
             'is_student' => isset($request->is_student) ? 1 : 0,
             'status' => isset($request->status) ? 1 : 0,
             'sub_direction_id' => $request->sub_direction_id,
@@ -141,10 +141,18 @@ class GuestController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $customer = Guest::find($id);
-        if ($customer->is_deleted == 0) {
+        $customer = Guest::find($request->id);
+        if ($request->type == 'delete') {
+            $customer->delete();
+            if (Auth::guard('admin')->check()) {
+                $user = Auth::guard('admin')->user();
+                Action::create([
+                    'title' => $user->name . ' "' . $customer->name . '" adlı qonağı qalıcı olaraq sildi.'
+                ]);
+            }
+        } else if ($customer->is_deleted == 0) {
             $customer->is_deleted = 1;
             if (Auth::guard('admin')->check()) {
                 $user = Auth::guard('admin')->user();
@@ -202,7 +210,18 @@ class GuestController extends Controller
     {
         $arr = $request->arr;
 
-        if ($request->val == 0) {
+        if ($request->val == 5) {
+            foreach ($arr as $id) {
+                $post = Guest::find($id);
+                $post->delete();
+                if (Auth::guard('admin')->check()) {
+                    $user = Auth::guard('admin')->user();
+                    Action::create([
+                        'title' => $user->name . ' "' . $post->name . '" adlı qonağı qalıcı olaraq sildi.'
+                    ]);
+                }
+            }
+        } else if ($request->val == 0) {
             foreach ($arr as $id) {
                 $post = Guest::find($id);
                 $post->status = 0;
@@ -271,7 +290,7 @@ class GuestController extends Controller
             return $request->sub_direction_id ?
                 $query->from('sub_direction_id')->where('sub_direction_id', $request->sub_direction_id) : '';
         })->when($request->direction_id, function ($query) use ($request) {
-            return $query->whereHas('subDirection', function($q) use ($request) {
+            return $query->whereHas('subDirection', function ($q) use ($request) {
                 $q->where('direction_id', $request->direction_id);
             });
         })->where(function ($query) use ($request) {

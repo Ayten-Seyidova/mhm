@@ -190,8 +190,11 @@
                                                             class="fa fa-pencil"></i></a>
                                                     @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
                                                         <a data-id="{{$postItem->id}}"
-                                                           class="btn btn-success shadow btn-xs sharp deleteItem"><i
+                                                           class="btn btn-success shadow btn-xs sharp mr-1 deleteItem"><i
                                                                 class="fa fa-reply"></i></a>
+                                                        <a data-id="{{$postItem->id}}"
+                                                           class="btn btn-danger shadow btn-xs sharp delete-permanent"><i
+                                                                class="fa fa-trash"></i></a>
                                                     @else
                                                         <a data-id="{{$postItem->id}}"
                                                            class="btn btn-danger shadow btn-xs sharp deleteItem"><i
@@ -211,8 +214,9 @@
                                         <button class="checkedBtn btn-primary btn mr-3" value="1">SEÇİLƏNLƏRİ AKTİV ET
                                         </button>
                                         @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
-                                            <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ BƏRPA
-                                                ET
+                                            <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ BƏRPA ET
+                                            </button>
+                                            <button class="checkedBtn btn-primary btn mr-3" value="5">QALICI OLARAQ SİL
                                             </button>
                                         @else
                                             <button class="checkedBtn btn-primary btn mr-3" value="2">SEÇİLƏNLƏRİ SİL
@@ -542,6 +546,9 @@
                         } else if (currentVal == '1') {
                             text = 'Seçilənləri aktiv etmək istədiyinizə əminsiniz?';
                             resultText = 'Aktiv edildi';
+                        }else if (currentVal == '5') {
+                            text = 'Seçilənləri qalıcı olaraq silmək istədiyinizə əminsiniz?';
+                            resultText = 'Silindi';
                         } else if (currentVal == '2') {
                             text = 'Əminsinizmi?';
                             resultText = 'Uğurlu';
@@ -576,6 +583,10 @@
                                                 $('.checkStatus' + i).attr('checked', true);
                                             }
                                         } else if (currentVal == '2') {
+                                            for (let i of checkedArr) {
+                                                $('#row' + i).remove();
+                                            }
+                                        } else if (currentVal == '5') {
                                             for (let i of checkedArr) {
                                                 $('#row' + i).remove();
                                             }
