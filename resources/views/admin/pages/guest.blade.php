@@ -26,11 +26,11 @@
                             <a href="{{ $downloadUrl }}"
                                class="btn btn-primary text-white btn-xs rounded-pill shadow-none"
                                style="padding: 10px 15px;">Yüklə <i class="fas fa-download"></i></a>
-                            <button type="button" class="btn btn-primary btn-rounded mr-2" data-toggle="modal"
-                                    data-target="#createModal"><span class="btn-icon-left text-primary"><i
-                                        class="fa fa-plus color-info"></i></span>
-                                Əlavə et
-                            </button>
+{{--                            <button type="button" class="btn btn-primary btn-rounded mr-2" data-toggle="modal"--}}
+{{--                                    data-target="#createModal"><span class="btn-icon-left text-primary"><i--}}
+{{--                                        class="fa fa-plus color-info"></i></span>--}}
+{{--                                Əlavə et--}}
+{{--                            </button>--}}
                         </div>
                         <div class="card-body">
                             <form method="get" id="searchForm" class="row justify-content-center" action="">
