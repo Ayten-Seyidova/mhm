@@ -617,6 +617,45 @@
                 }
             });
 
+            $('.delete-permanent').click(function () {
+                let dataID = $(this).data('id');
+                let route = '{{route('guest.destroy', ['guest'=>'id'])}}';
+                route = route.replace('id', dataID);
+                Swal.fire({
+                    title: 'Xəbərdarlıq',
+                    text: 'Qalıcı olaraq silmək istədiyinizə əminsinizmi?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#163A76',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Bəli',
+                    cancelButtonText: 'Xeyr'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: route,
+                            method: 'DELETE',
+                            data: {
+                                id: dataID,
+                                type: 'delete',
+                            },
+                            async: false,
+                            success: function (response) {
+                                $('#row' + dataID).remove();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Xəbərdarlıq',
+                                    text: "Uğurlu",
+                                    confirmButtonColor: '#163A76',
+                                    confirmButtonText: 'Tamam'
+                                })
+                            }
+                        })
+                    }
+                })
+            });
+
             $('.deleteItem').click(function () {
                 let dataID = $(this).data('id');
                 let route = '{{route('guest.destroy', ['guest'=>'id'])}}';
