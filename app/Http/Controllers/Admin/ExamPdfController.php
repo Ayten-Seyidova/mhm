@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\GuestExam;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
 use App\Models\Guest;
 
 class ExamPdfController extends Controller

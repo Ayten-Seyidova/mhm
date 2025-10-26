@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\OurTeacherController;
 use App\Http\Controllers\Admin\LessonController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\ExamPdfController;
+use App\Http\Controllers\Admin\PostCommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +119,7 @@ Route::prefix('administrator/mhm')->middleware('is_admin_or_teacher')->group(fun
     Route::post('question/checked', [QuestionController::class, 'checked'])->name('question.checked');
     Route::resource('/result', ResultController::class);
     Route::resource('/post', PostController::class);
+    Route::resource('/postComment', PostCommentController::class);
     Route::post('post/changeStatus', [PostController::class, 'changeStatus'])->name('post.changeStatus');
     Route::post('post/checked', [PostController::class, 'checked'])->name('post.checked');
     Route::resource('/answer', AnswerController::class);

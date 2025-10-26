@@ -126,6 +126,8 @@
                                             <th>Müəllim</th>
                                         @endauth
                                         <th>İstiqamət</th>
+                                        <th>Rəylər</th>
+                                        <th>Like</th>
                                         <th>Status</th>
                                         <th>Əməliyyatlar</th>
                                     </tr>
@@ -205,6 +207,13 @@
                                                 <td>{{$postItem->teacher ? $postItem->teacher->name : ''}}</td>
                                             @endauth
                                             <td>{{$postItem->subDirection ? $postItem->subDirection->title.($postItem->subDirection->direction ? ' ('.$postItem->subDirection->direction->title.')' : '') : ''}}</td>
+                                            <td><a class="btn btn-sharp btn-xs btn-primary"
+                                                   href="{{route('postComment.index', ['post_id'=>$postItem->id])}}"
+                                                   target="_blank"><i class="fas fa-comment"></i></a></td>
+                                            <td>
+                                                @php($like = \App\Models\PostLike::where('post_id', $postItem->id)->count())
+                                                {{$like}}
+                                            </td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
                                                     <div class="form-check form-switch">
@@ -320,7 +329,8 @@
                                 @endauth
                                 <div class="form-group">
                                     <label for="subDirectionId">İstiqamət</label>
-                                    <select name="sub_direction_id[]" multiple required class="form-control search-select"
+                                    <select name="sub_direction_id[]" multiple required
+                                            class="form-control search-select"
                                             id="subDirectionId">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
