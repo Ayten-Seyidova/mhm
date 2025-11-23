@@ -94,7 +94,8 @@
                                     </button>
                                 </div>
                                 <div class="col-1">
-                                    <button class="filter-search-btn btn btn-secondary clear-btn"><i class="fas fa-eraser"></i></button>
+                                    <button class="filter-search-btn btn btn-secondary clear-btn"><i
+                                            class="fas fa-eraser"></i></button>
                                 </div>
                                 @if(isset($_GET['is_deleted']) && $_GET['is_deleted'] == 1)
                                     <div class="col-1">
@@ -160,8 +161,9 @@
                                             <td>{{$postItem->duration}}</td>
                                             <td>{{$postItem->time ? \Carbon\Carbon::parse($postItem->time)->format('d.m.Y H:i') : ''}}</td>
                                             <td>
-                                                @if($postItem->desc_video)
-                                                    <button class="btn btn-secondary btn-sm text-nowrap" data-toggle="modal"
+                                                @if($postItem->desc_video || $postItem->desc_video2)
+                                                    <button class="btn btn-secondary btn-sm text-nowrap"
+                                                            data-toggle="modal"
                                                             data-target="#videoModal{{$key}}">Videoya bax
                                                     </button>
                                                     <div class="modal fade" id="videoModal{{$key}}" tabindex="-1"
@@ -170,21 +172,38 @@
                                                         <div class="modal-dialog modal-md" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-body p-2">
-                                                                    <iframe width="480" height="315"
-                                                                            src="https://www.youtube.com/embed/{{$postItem->desc_video}}"
-                                                                            title="YouTube video player" frameborder="0"
-                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                                            referrerpolicy="strict-origin-when-cross-origin"
-                                                                            allowfullscreen></iframe>
+                                                                    @if($postItem->desc_video)
+                                                                        <iframe width="480" height="315"
+                                                                                src="https://www.youtube.com/embed/{{$postItem->desc_video}}"
+                                                                                title="YouTube video player"
+                                                                                frameborder="0"
+                                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                                referrerpolicy="strict-origin-when-cross-origin"
+                                                                                allowfullscreen></iframe>
+                                                                    @endif
+                                                                    @if($postItem->desc_video2)
+                                                                        <iframe width="480" height="315" class="mt-3"
+                                                                                src="https://www.youtube.com/embed/{{$postItem->desc_video2}}"
+                                                                                title="YouTube video player"
+                                                                                frameborder="0"
+                                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                                referrerpolicy="strict-origin-when-cross-origin"
+                                                                                allowfullscreen></iframe>
+                                                                    @endif
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 @endif
                                             </td>
-                                            <td><a href="{{route('guest-question.index', ['guest_exam_id'=>$postItem->id])}}" class="btn btn-primary btn-xs sharp"><i class="fas fa-question-circle"></i></a></td>
+                                            <td>
+                                                <a href="{{route('guest-question.index', ['guest_exam_id'=>$postItem->id])}}"
+                                                   class="btn btn-primary btn-xs sharp"><i
+                                                        class="fas fa-question-circle"></i></a></td>
                                             <td>{{$postItem->percent ? $postItem->percent . '%' : ''}}</td>
-                                            <td><a href="{{route('downloadGuestExam', ['exam_id'=>$postItem->id])}}" target="_blank" class="btn btn-primary btn-xs btn-rounded"><i class="fas fa-download"></i></a></td>
+                                            <td><a href="{{route('downloadGuestExam', ['exam_id'=>$postItem->id])}}"
+                                                   target="_blank" class="btn btn-primary btn-xs btn-rounded"><i
+                                                        class="fas fa-download"></i></a></td>
                                             <td>{{$postItem->created_at ? $postItem->created_at->translatedFormat('d.m.Y H:i') : ''}}</td>
                                             <td class="m-auto text-center">
                                                 @if($postItem->status)
@@ -290,10 +309,16 @@
                                            name="name" id="name"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="desc_video">Video</label>
+                                    <label for="desc_video">Video 1</label>
                                     <input class="form-control" value="{{old('desc_video')}}"
                                            type="text" maxlength="190"
                                            name="desc_video" id="desc_video"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="desc_video2">Video 2</label>
+                                    <input class="form-control" value="{{old('desc_video2')}}"
+                                           type="text" maxlength="190"
+                                           name="desc_video2" id="desc_video2"/>
                                 </div>
                                 <div class="form-group">
                                     <label for="subject">Mövzu</label>
@@ -324,7 +349,8 @@
                                             id="subDirectionId">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
-                                                <option value="{{$subDirection->id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
+                                                <option
+                                                    value="{{$subDirection->id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -401,10 +427,16 @@
                                            name="name" id="nameEdit"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="videoDescEdit">Video</label>
+                                    <label for="videoDescEdit">Video 1</label>
                                     <input class="form-control"
                                            type="text" maxlength="190"
                                            name="desc_video" id="videoDescEdit"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="videoDescEdit2">Video 2</label>
+                                    <input class="form-control"
+                                           type="text" maxlength="190"
+                                           name="desc_video2" id="videoDescEdit2"/>
                                 </div>
                                 <div class="form-group">
                                     <label for="subjectEdit">Mövzu</label>
@@ -435,7 +467,8 @@
                                             id="subDirectionIdEdit">
                                         @if(!empty($subDirections[0]))
                                             @foreach($subDirections as $subDirection)
-                                                <option value="{{$subDirection->id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
+                                                <option
+                                                    value="{{$subDirection->id}}">{{$subDirection->title.($subDirection->direction ? ' ('.$subDirection->direction->title.')' :'')}}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -658,6 +691,7 @@
                 let statusEdit = $('#statusEdit');
                 let imageEdit = $('#previewImage');
                 let videoDescEdit = $('#videoDescEdit');
+                let videoDescEdit2 = $('#videoDescEdit2');
                 let descriptionEdit = $('#descriptionEdit');
                 let subDirectionIdEdit = $('#subDirectionIdEdit');
                 let timeEdit = $('#timeEdit');
@@ -701,6 +735,7 @@
                         subjectEdit.val(post.subject);
                         imageEdit.attr("src", ('/' + post.image));
                         videoDescEdit.val(post.desc_video);
+                        videoDescEdit2.val(post.desc_video2);
                         timeEdit.val(timeLocale(post.time));
 
                         if (subDirections) {

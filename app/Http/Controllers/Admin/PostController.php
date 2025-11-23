@@ -147,10 +147,10 @@ class PostController extends Controller
         Log::info($request->all());
         if (isset($request->notification)) {
             Log::info('if notification');;
-     //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
+            //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
             SendGuestNotification::dispatch(
                 'Paylaşım edildi',
-                'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+                'Admin tərəfindən ' . $request->content . ' başlıqlı paylaşım edildi',
             );
 //            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
 //
@@ -173,8 +173,7 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public
-    function show(string $id)
+    public function show(string $id)
     {
         //
     }
@@ -182,8 +181,7 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public
-    function edit(string $id)
+    public function edit(string $id)
     {
         $post = Post::with('subDirection')->find($id);
         $variant = Variant::where('post_id', $post->id)->first();
@@ -193,8 +191,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public
-    function update(PostRequest $request, string $id)
+    public function update(PostRequest $request, string $id)
     {
         $postUpdate = Post::find($id);
 
@@ -261,8 +258,7 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public
-    function destroy($id)
+    public function destroy($id)
     {
         $customer = Post::find($id);
         if ($customer->is_deleted == 0) {
@@ -274,8 +270,7 @@ class PostController extends Controller
         return response()->json(['message' => 'Uğurlu']);
     }
 
-    public
-    function changeStatus(Request $request)
+    public function changeStatus(Request $request)
     {
         try {
             $postID = $request->id;
@@ -290,8 +285,7 @@ class PostController extends Controller
         }
     }
 
-    public
-    function checked(Request $request)
+    public function checked(Request $request)
     {
         $arr = $request->arr;
 

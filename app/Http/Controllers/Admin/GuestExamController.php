@@ -106,11 +106,29 @@ class GuestExamController extends Controller
             }
         }
 
+        $url2 = $request->desc_video2;
+        $position2 = strpos($url2, '=');
+
+        if ($position2 !== false) {
+            $parsedUrl2 = parse_url($url2);
+
+            parse_str($parsedUrl2['query'] ?? '', $queryParams2);
+
+            $videoId2 = $queryParams2['v'] ?? null;
+
+            if ($videoId2) {
+                $url2 = $videoId2;
+            } else {
+                $url2 = '';
+            }
+        }
+
         $post = GuestExam::create([
             'image' => $image ? uploadImg($image) : 'postImage/noPhoto.png',
             'description' => $request->description,
             'time' => $request->time ? $request->time : null,
             'desc_video' => $url,
+            'desc_video2' => $url2,
             'user_id' => $userId,
             'status' => isset($request->status) ? 1 : 0,
             'name' => $request->name,
@@ -183,7 +201,24 @@ class GuestExamController extends Controller
             }
         }
 
+
+        $url2 = $request->desc_video2;
+        $position2 = strpos($url2, '=');
+
+        if ($position2 !== false) {
+            $parsedUrl2 = parse_url($url2);
+
+            parse_str($parsedUrl2['query'] ?? '', $queryParams2);
+
+            $videoId2 = $queryParams2['v'] ?? null;
+
+            if ($videoId2) {
+                $url2 = $videoId2;
+            }
+        }
+
         $postUpdate->desc_video = $url;
+        $postUpdate->desc_video2 = $url2;
         $postUpdate->name = $request->name;
         $postUpdate->time = $request->time;
         $postUpdate->description = $request->description;

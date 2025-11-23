@@ -207,9 +207,11 @@
                                                 <td>{{$postItem->teacher ? $postItem->teacher->name : ''}}</td>
                                             @endauth
                                             <td>{{$postItem->subDirection ? $postItem->subDirection->title.($postItem->subDirection->direction ? ' ('.$postItem->subDirection->direction->title.')' : '') : ''}}</td>
-                                            <td><a class="btn btn-sharp btn-xs btn-primary"
+                                            <td>
+                                                @php($commentCount = \App\Models\GuestComment::where('post_id', $postItem->id)->count())
+                                                <a class="btn btn-sharp btn-xs btn-primary"
                                                    href="{{route('postComment.index', ['post_id'=>$postItem->id])}}"
-                                                   target="_blank"><i class="fas fa-comment"></i></a></td>
+                                                   target="_blank">{{$commentCount}}</a></td>
                                             <td>
                                                 @php($like = \App\Models\PostLike::where('post_id', $postItem->id)->count())
                                                 {{$like}}
