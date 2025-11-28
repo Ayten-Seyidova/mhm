@@ -107,7 +107,7 @@ class GuestController extends Controller
                 $q->where('sub_direction_id', $request->user()->sub_direction_id);
             })
         ;
-//dd($request->user()->sub_direction_id);
+dd($request->user()->sub_direction_id);
        // dd($request->user());
 
         if($orderBy!=null){
