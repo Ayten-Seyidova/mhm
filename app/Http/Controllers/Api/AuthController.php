@@ -197,12 +197,14 @@ class AuthController extends Controller
             'userName' => 'required',
             'email'=>'required|email',
             'class'=>'required',
+            'password'=>'required',
             'lesson'=>'required'
         ]);
 
         $result = Register::create([
             'username'=>$request['userName'],
             'email'=>$request['email'],
+            'password'=>Hash::make($request['password']),
             'class'=>$request['class'],
             'lesson'=>$request['lesson']
         ]);
