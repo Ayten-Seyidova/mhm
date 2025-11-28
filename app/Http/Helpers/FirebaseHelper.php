@@ -27,8 +27,8 @@ class FirebaseHelper
 
     public static function sendFirebaseRequest($data)
     {
-        Log::debug(self::getAccessToken());
-        Log::debug($data);
+//        Log::debug(self::getAccessToken());
+//        Log::debug($data);
         $headers = [
             'Content-Type: application/json',
             'Authorization: Bearer ' . self::getAccessToken()
