@@ -104,11 +104,10 @@ class GuestController extends Controller
             ->where("is_deleted",0)
             ->where('user_id', $teacherId)
             ->whereHas('guestExamSubDirections',function($q) use($request){
-                $q->where('sub_direction_id', 2);
+                $q->where('sub_direction_id', $request->user()->sub_direction_id);
             })
         ;
-//dd($request->user()->sub_direction_id);
-       // dd($request->user());
+
 
         if($orderBy!=null){
             $orderBy = explode("_",$orderBy);
