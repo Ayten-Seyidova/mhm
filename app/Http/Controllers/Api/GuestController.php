@@ -95,7 +95,7 @@ class GuestController extends Controller
     }
 
     public function guestExam(Request $request){
-        $paginate = $request->limit ?? null;
+        $paginate = $request->limit ?? 20;
         $orderBy = $request->orderBy ?? null;
         $teacherId = $request-> teacherId ?? null;
         $list = GuestExam::with('questions')
