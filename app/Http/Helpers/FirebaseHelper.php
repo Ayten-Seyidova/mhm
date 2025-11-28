@@ -183,7 +183,7 @@ class FirebaseHelper
 
     public static function sendAll($title, $desc)
     {
-        Log::info("sendAll function called");
+       // Log::info("sendAll function called");
         $custDatas = Guest::with("parameters")->get()->toArray();
 
         foreach ($custDatas as $cData) {
