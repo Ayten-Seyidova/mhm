@@ -103,9 +103,9 @@ class GuestController extends Controller
             ->where('status',1)
             ->where("is_deleted",0)
             ->where('user_id', $teacherId)
-            ->whereHas('guestExamSubDirections',function($q) use($request){
-                $q->where('sub_direction_id', $request->user()->sub_direction_id);
-            })
+//            ->whereHas('guestExamSubDirections',function($q) use($request){
+//                $q->where('sub_direction_id', $request->user()->sub_direction_id);
+//            })
         ;
 //dd($request->user()->sub_direction_id);
        // dd($request->user());
