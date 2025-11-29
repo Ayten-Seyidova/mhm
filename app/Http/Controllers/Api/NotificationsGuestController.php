@@ -10,69 +10,30 @@ use Illuminate\Http\Request;
 
 class NotificationsGuestController extends Controller
 {
-//    public function index(Request $request)
-//    {
-//        $paginate = $_GET['limit'] ?? null;
-//        \Log::error('1');
-//
-//        $orderBy = $_GET['orderBy'] ?? null;
-//        \Log::error('2');
-//        //$user_id = $request->user()->id;
-//        // $list = GuestNotification::where("guest_id", $user_id);
-//        $list = GuestNotification::where("read_status", 0);
-//        \Log::error('3');
-//
-//        //$count = count($list->get());
-//        $count = 5;
-//        \Log::error('4');
-//
-//        if ($orderBy != null) {
-//            \Log::error('5');
-//            $orderBy = explode("_", $orderBy);
-//            $list = $list->orderBy($orderBy[0], $orderBy[1]);
-//        }
-//
-//        if ($paginate != null) {
-//            \Log::error('6');
-//            $list = $list->paginate($paginate);
-//        } else {
-//            \Log::error('7');
-//            $list = $list->get();
-//        }
-//        \Log::error('8');
-//
-//        return response(['status' => 'success', 'count' => $count, 'notification' => $list]);
-//    }
-
     public function index(Request $request)
     {
-        \Log::error('A');
-        $paginate = $request->query('limit');
-        $orderBy  = $request->query('orderBy');
+        $paginate = $_GET['limit'] ?? null;
 
-        \Log::error('B');
-        $list = GuestNotification::where("read_status", 0);
+        $orderBy = $_GET['orderBy'] ?? null;
+        //$user_id = $request->user()->id;
+        // $list = GuestNotification::where("guest_id", $user_id);
+        $list = GuestNotification::where("all", true);
 
-        \Log::error('C');
-        $count = $list->count();
+        $count = count($list->get());
 
-        \Log::error('D'); // Bura gəlibsə problem count-da deyil
-
-        if ($paginate) {
-            $result = $list->paginate($paginate);
-            \Log::error('E paginate');
-        } else {
-            \Log::error('E get öncəsi');
-            $result = $list->get();
-            \Log::error('F get sonrası');
+        if ($orderBy != null) {
+            $orderBy = explode("_", $orderBy);
+            $list = $list->orderBy($orderBy[0], $orderBy[1]);
         }
 
-        return response([
-            'status' => 'success',
-            'count' => $count,
-            'notification' => $result
-        ]);
+        if ($paginate != null) {
+            $list = $list->paginate($paginate);
+        } else {
+            $list = $list->get();
+        }
+        return response(['status' => 'success', 'count' => $count, 'notification' => $list]);
     }
+
 
     public function update(Request $request)
     {
