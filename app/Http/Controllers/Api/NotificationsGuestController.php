@@ -12,6 +12,7 @@ class NotificationsGuestController extends Controller
 {
     public function index(Request $request)
     {
+        dd($request->all());
         $paginate = $_GET['limit'] ?? null;
         $orderBy = $_GET['orderBy'] ?? null;
         $user_id = $request->user()->id;
