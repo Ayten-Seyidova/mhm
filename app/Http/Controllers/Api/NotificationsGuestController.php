@@ -23,7 +23,8 @@ class NotificationsGuestController extends Controller
         \Log::error('3');
         \Log::error($list->get());
 
-        $count = count($list->get());
+        //$count = count($list->get());
+        $count = 5;
         \Log::error('4');
 
         if ($orderBy != null) {
