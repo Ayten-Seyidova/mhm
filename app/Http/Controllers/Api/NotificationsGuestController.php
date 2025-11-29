@@ -15,35 +15,38 @@ class NotificationsGuestController extends Controller
         $paginate = $_GET['limit'] ?? null;
         $orderBy = $_GET['orderBy'] ?? null;
         $user_id = $request->user()->id;
-        $list = GuestNotification::where("guest_id", $user_id);
+        // $list = GuestNotification::where("guest_id", $user_id);
+        $list = GuestNotification::where("all", true);
         $count = count($list->get());
 
-        if($orderBy!=null){
-            $orderBy = explode("_",$orderBy);
-            $list = $list->orderBy($orderBy[0],$orderBy[1]);
+        if ($orderBy != null) {
+            $orderBy = explode("_", $orderBy);
+            $list = $list->orderBy($orderBy[0], $orderBy[1]);
         }
 
-        if($paginate!=null){
+        if ($paginate != null) {
             $list = $list->paginate($paginate);
-        }else{
+        } else {
             $list = $list->get();
         }
 
-        return response(['status'=>'success', 'count'=>$count, 'notification'=>$list]);
+        return response(['status' => 'success', 'count' => $count, 'notification' => $list]);
     }
 
-    public function update(Request $request){
-        $user_id = $request->user()->id;
-        GuestNotification::where("guest_id", $user_id)->update(['read_status'=>1]);
+    public function update(Request $request)
+    {
+      //  $user_id = $request->user()->id;
+       // GuestNotification::where("guest_id", $user_id)->update(['read_status' => 1]);
 
-        return response(['status'=>'success']);
+        return response(['status' => 'success']);
     }
 
-    public function delete(Request $request){
+    public function delete(Request $request)
+    {
         $user_id = $request->user()->id;
         GuestNotification::where("guest_id", $user_id)->delete();
 
-        return response(['status'=>'success']);
+        return response(['status' => 'success']);
     }
 
     public function setParam(Request $request)
@@ -59,10 +62,10 @@ class NotificationsGuestController extends Controller
         try {
             NotificationParametersGuest::where('token', $validated['token'])->delete();
 
-            $saveOtp = NotificationParametersGuest::updateOrCreate(['deviceId' => $validated['deviceId'] ], $validated);
-            return response(['status'=>'success']);
-        }catch (\Exception $exception){
-            return response(['status'=>'error','desc'=>$exception]);
+            $saveOtp = NotificationParametersGuest::updateOrCreate(['deviceId' => $validated['deviceId']], $validated);
+            return response(['status' => 'success']);
+        } catch (\Exception $exception) {
+            return response(['status' => 'error', 'desc' => $exception]);
         }
     }
 
@@ -75,9 +78,9 @@ class NotificationsGuestController extends Controller
 
         try {
             $saveOtp = NotificationParametersGuest::where('deviceId', $validated['deviceId'])->delete();
-            return response(['status'=>'success']);
-        }catch (\Exception $exception){
-            return response(['status'=>'error','desc'=>$exception]);
+            return response(['status' => 'success']);
+        } catch (\Exception $exception) {
+            return response(['status' => 'error', 'desc' => $exception]);
         }
     }
 }

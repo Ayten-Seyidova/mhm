@@ -185,14 +185,18 @@ class FirebaseHelper
     {
        // Log::info("sendAll function called");
         $custDatas = Guest::with("parameters")->get()->toArray();
-
+        GuestNotification::create([
+            'title' => $title,
+            'description' => $desc,
+            'all' => true
+        ]);
         foreach ($custDatas as $cData) {
 
-            GuestNotification::create([
-                'title' => $title,
-                'description' => $desc,
-                'guest_id' => $cData['id']
-            ]);
+//            GuestNotification::create([
+//                'title' => $title,
+//                'description' => $desc,
+//                'guest_id' => $cData['id']
+//            ]);
 
             if (!empty($cData['parameters']['token'])) {
                 $data = [
