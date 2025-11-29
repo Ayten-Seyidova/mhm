@@ -16,7 +16,7 @@ class NotificationsGuestController extends Controller
         $orderBy = $_GET['orderBy'] ?? null;
         //$user_id = $request->user()->id;
         // $list = GuestNotification::where("guest_id", $user_id);
-        $list = GuestNotification::where("all", true);
+        $list = GuestNotification::where("read_status", 0);
         \Log::error($list->get());
 
         $count = count($list->get());
