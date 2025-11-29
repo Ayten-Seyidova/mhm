@@ -16,8 +16,7 @@ class NotificationsGuestController extends Controller
         $orderBy = $_GET['orderBy'] ?? null;
         $user_id = $request->user()->id;
         // $list = GuestNotification::where("guest_id", $user_id);
-        $list = GuestNotification::all();
-        dd($list);
+        $list = GuestNotification::where("all", true);
         $count = count($list->get());
 
         if ($orderBy != null) {
@@ -30,7 +29,6 @@ class NotificationsGuestController extends Controller
         } else {
             $list = $list->get();
         }
-dd($list);
         return response(['status' => 'success', 'count' => $count, 'notification' => $list]);
     }
 
