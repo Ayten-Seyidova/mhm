@@ -29,7 +29,7 @@ class NotificationsGuestController extends Controller
         } else {
             $list = $list->get();
         }
-
+dd($list);
         return response(['status' => 'success', 'count' => $count, 'notification' => $list]);
     }
 
