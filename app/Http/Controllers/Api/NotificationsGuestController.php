@@ -46,34 +46,31 @@ class NotificationsGuestController extends Controller
 
     public function index(Request $request)
     {
-        // Request parametrləri adam kimi alınır
+        \Log::error('A');
         $paginate = $request->query('limit');
         $orderBy  = $request->query('orderBy');
 
-        // Base query
-        $query = GuestNotification::where('read_status', 0);
+        \Log::error('B');
+        $list = GuestNotification::where("read_status", 0);
 
-        $totalCount = $query->count();
+        \Log::error('C');
+        $count = $list->count();
 
-        if ($orderBy) {
-            $parts = explode("_", $orderBy);
+        \Log::error('D'); // Bura gəlibsə problem count-da deyil
 
-            if (count($parts) === 2) {
-                $column = $parts[0];
-                $direction = strtolower($parts[1]) === 'desc' ? 'desc' : 'asc';
-
-                $query->orderBy($column, $direction);
-            }
+        if ($paginate) {
+            $result = $list->paginate($paginate);
+            \Log::error('E paginate');
+        } else {
+            \Log::error('E get öncəsi');
+            $result = $list->get();
+            \Log::error('F get sonrası');
         }
 
-        $notifications = $paginate
-            ? $query->paginate($paginate)
-            : $query->get();
-
         return response([
-            'status'        => 'success',
-            'count'         => $totalCount,
-            'notification'  => $notifications
+            'status' => 'success',
+            'count' => $count,
+            'notification' => $result
         ]);
     }
 
