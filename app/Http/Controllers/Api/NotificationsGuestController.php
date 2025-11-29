@@ -21,7 +21,6 @@ class NotificationsGuestController extends Controller
         // $list = GuestNotification::where("guest_id", $user_id);
         $list = GuestNotification::where("read_status", 0);
         \Log::error('3');
-        \Log::error($list->get());
 
         //$count = count($list->get());
         $count = 5;
