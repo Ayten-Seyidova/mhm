@@ -13,24 +13,33 @@ class NotificationsGuestController extends Controller
     public function index(Request $request)
     {
         $paginate = $_GET['limit'] ?? null;
+        \Log::error('1');
+
         $orderBy = $_GET['orderBy'] ?? null;
+        \Log::error('2');
         //$user_id = $request->user()->id;
         // $list = GuestNotification::where("guest_id", $user_id);
         $list = GuestNotification::where("read_status", 0);
+        \Log::error('3');
         \Log::error($list->get());
 
         $count = count($list->get());
+        \Log::error('4');
 
         if ($orderBy != null) {
+            \Log::error('5');
             $orderBy = explode("_", $orderBy);
             $list = $list->orderBy($orderBy[0], $orderBy[1]);
         }
 
         if ($paginate != null) {
+            \Log::error('6');
             $list = $list->paginate($paginate);
         } else {
+            \Log::error('7');
             $list = $list->get();
         }
+        \Log::error('8');
 
         return response(['status' => 'success', 'count' => $count, 'notification' => $list]);
     }
