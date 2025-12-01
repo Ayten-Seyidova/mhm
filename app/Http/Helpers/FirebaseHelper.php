@@ -43,8 +43,6 @@ class FirebaseHelper
         $response = curl_exec($ch);
         curl_close($ch);
 
-        Log::debug($response);
-
         return $response;
     }
 
