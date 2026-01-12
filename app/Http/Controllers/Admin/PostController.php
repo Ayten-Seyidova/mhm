@@ -89,7 +89,8 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
-        dd(auth()->user());
+        dd(Auth::guard('teacher')->user(),Auth::guard('admin')->user(),Auth::guard('adminTeacher')->user()
+    );
 
 
         $image = $request->file('image');
