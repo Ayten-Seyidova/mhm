@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Http\Helpers;
+
 use App\Models\Customer;
 use App\Models\Guest;
 use App\Models\GuestNotification;
 use App\Models\NotificationParameters;
 use App\Models\Notification;
 use App\Models\NotificationParametersGuest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 
@@ -19,10 +21,10 @@ class FirebaseHelper
 
 
     private static $notifications = [
-        'sendOffer' => ['title'=>'Xəbərdarlıq','content'=>'Hörmətli X0, Sizin X1 nömrəli sifarişiniz üzrə təklif hazırdır. Sifarişlərim bölməsinə nəzər yetirməyinizi xahiş edirik.'],
-        'canceledOffer' => ['title'=>'Sifariş ləğv edildi','content'=>'Hörmətli X0, Sizin X1 nömrəli sifarişiniz X2 səbəbdən admin tərəfindən ləğv edildi.'],
-        'completedOffer' => ['title'=>'Sifarişiniz tamamlandı','content'=>'Hörmətli X0, Sizin X1 nömrəli sifarişiniz tamamlandı.'],
-        'newMessage'   => ['title'=>'Yeni mesaj','content'=>'Hörmətli X0, sizə admindən yeni mesaj var.'],
+        'sendOffer' => ['title' => 'Xəbərdarlıq', 'content' => 'Hörmətli X0, Sizin X1 nömrəli sifarişiniz üzrə təklif hazırdır. Sifarişlərim bölməsinə nəzər yetirməyinizi xahiş edirik.'],
+        'canceledOffer' => ['title' => 'Sifariş ləğv edildi', 'content' => 'Hörmətli X0, Sizin X1 nömrəli sifarişiniz X2 səbəbdən admin tərəfindən ləğv edildi.'],
+        'completedOffer' => ['title' => 'Sifarişiniz tamamlandı', 'content' => 'Hörmətli X0, Sizin X1 nömrəli sifarişiniz tamamlandı.'],
+        'newMessage' => ['title' => 'Yeni mesaj', 'content' => 'Hörmətli X0, sizə admindən yeni mesaj var.'],
     ];
 
     public static function sendFirebaseRequest($data)
@@ -70,16 +72,16 @@ class FirebaseHelper
         Notification::create($message);
 
         // if ($user->push_notif) {
-            $data = [
-                "message" => [
-                    "token" => $to,
-                    "notification" => [
-                        "title" => $message['title'],
-                        "body" => $message['content']
-                    ],
-                ]
-            ];
-            return self::sendFirebaseRequest($data);
+        $data = [
+            "message" => [
+                "token" => $to,
+                "notification" => [
+                    "title" => $message['title'],
+                    "body" => $message['content']
+                ],
+            ]
+        ];
+        return self::sendFirebaseRequest($data);
         // }
 
         return ['status' => 'success'];
@@ -101,16 +103,16 @@ class FirebaseHelper
 
         // if ($user->push_notif) {
 
-            $data = [
-                "message" => [
-                    "token" => $to,
-                    "notification" => [
-                        "title" => $title,
-                        "body" => $desc
-                    ],
-                ]
-            ];
-            return self::sendFirebaseRequest($data);
+        $data = [
+            "message" => [
+                "token" => $to,
+                "notification" => [
+                    "title" => $title,
+                    "body" => $desc
+                ],
+            ]
+        ];
+        return self::sendFirebaseRequest($data);
         // }
 
         return ['status' => 'success'];
@@ -178,11 +180,27 @@ class FirebaseHelper
         return ['status' => 'success'];
     }
 
-
-    public static function sendAll($title, $desc)
+    public static function subdirectionIds()
     {
-       // Log::info("sendAll function called");
-        $custDatas = Guest::with("parameters")->get()->toArray();
+        $user = Auth::guard('teacher')->user();
+
+        if (!$user) return [];
+
+        return $user->subDirection
+            ->map(fn($tsd) => $tsd->subDirection?->id)
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public static function sendAll($title, $desc, $subdirectionIds = [])
+    {
+
+        if (empty($subdirectionIds)) return [];
+
+        $custDatas = Guest::whereIn('sub_direction_id', $subdirectionIds)
+            ->with("parameters")->get()->toArray();
+
         GuestNotification::create([
             'title' => $title,
             'description' => $desc,
@@ -241,7 +259,8 @@ class FirebaseHelper
 //            });
 //    }
 
-    public static function createJWT() {
+    public static function createJWT()
+    {
         $now = time();
         $header = ['alg' => 'RS256', 'typ' => 'JWT'];
         $payload = [
@@ -264,7 +283,8 @@ class FirebaseHelper
     }
 
 
-    public static function getAccessToken() {
+    public static function getAccessToken()
+    {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, 'https://oauth2.googleapis.com/token');
@@ -285,7 +305,6 @@ class FirebaseHelper
 
         return $data['access_token'] ?? null;
     }
-
 
 
 }

@@ -17,6 +17,7 @@ class SendGuestNotification implements ShouldQueue
     public $title;
     public $desc;
     public $guestId;
+    public $subdirectionIds;
 
 //    public function __construct($title, $desc, $guestId)
 //    {
@@ -24,17 +25,17 @@ class SendGuestNotification implements ShouldQueue
 //        $this->desc = $desc;
 //        $this->guestId = $guestId;
 //    }
-    public function __construct($title, $desc)
+    public function __construct($title, $desc, $subdirectionIds = [])
     {
         $this->title = $title;
         $this->desc = $desc;
+        $this->subdirectionIds = $subdirectionIds;
     }
 
     public function handle()
     {
-       // FirebaseHelper::sendGuest($this->title, $this->desc, $this->guestId);
-       // Log::info('send guest notification job called');
-        FirebaseHelper::sendAll($this->title, $this->desc);
+        // FirebaseHelper::sendGuest($this->title, $this->desc, $this->guestId);
+        FirebaseHelper::sendAll($this->title, $this->desc, $this->subdirectionIds);
 //        FirebaseHelper::testGuest($this->title, $this->desc);
     }
 }

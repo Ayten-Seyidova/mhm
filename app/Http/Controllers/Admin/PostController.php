@@ -89,9 +89,6 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
-        dd(Auth::guard('teacher')->user(),Auth::guard('admin')->user(),Auth::guard('adminTeacher')->user()
-    );
-
 
         $image = $request->file('image');
         $uploadedImg = $image ? uploadImg($image) : 'postImage/noPhoto.png';
@@ -152,6 +149,7 @@ class PostController extends Controller
             SendGuestNotification::dispatch(
                 'Paylaşım edildi',
                 'Admin tərəfindən ' . $request->content . ' başlıqlı paylaşım edildi',
+                $subDirectionIds
             );
 //            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
 //
@@ -178,6 +176,7 @@ class PostController extends Controller
     {
         //
     }
+
 
     /**
      * Show the form for editing the specified resource.
