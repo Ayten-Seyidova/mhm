@@ -89,6 +89,9 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
+        dd(auth()->user());
+
+
         $image = $request->file('image');
         $uploadedImg = $image ? uploadImg($image) : 'postImage/noPhoto.png';
 
@@ -143,9 +146,7 @@ class PostController extends Controller
         }
 
 //        if (Auth::check()) {
-        Log::info($request->all());
         if (isset($request->notification)) {
-            Log::info('if notification');;
             //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
             SendGuestNotification::dispatch(
                 'Paylaşım edildi',
