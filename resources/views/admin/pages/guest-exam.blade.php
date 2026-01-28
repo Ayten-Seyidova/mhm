@@ -321,6 +321,12 @@
                                            name="desc_video2" id="desc_video2"/>
                                 </div>
                                 <div class="form-group">
+                                    <label for="desc_video3">Video 3</label>
+                                    <input class="form-control" value="{{old('desc_video3')}}"
+                                           type="text" maxlength="190"
+                                           name="desc_video3" id="desc_video3"/>
+                                </div>
+                                <div class="form-group">
                                     <label for="subject">Mövzu</label>
                                     <input class="form-control" value="{{old('subject')}}"
                                            type="text" required maxlength="190"
@@ -342,6 +348,21 @@
                                 </div>
                             </div>
                             <div class="col-8">
+                                <div class="form-group">
+                                    <label for="name_video1">Video adı 1</label>
+                                    <input class="form-control" value="{{old('name_video1')}}"
+                                           type="text" name="name_video1" id="name_video1"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name_video2">Video adı 2</label>
+                                    <input class="form-control" value="{{old('name_video2')}}"
+                                           type="text" name="name_video2" id="name_video2"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name_video3">Video adı 3</label>
+                                    <input class="form-control" value="{{old('name_video3')}}"
+                                           type="text" name="name_video3" id="name_video3"/>
+                                </div>
                                 <div class="form-group">
                                     <label for="subDirectionId">İstiqamət</label>
                                     <select name="sub_direction_ids[]" multiple required
@@ -439,6 +460,12 @@
                                            name="desc_video2" id="videoDescEdit2"/>
                                 </div>
                                 <div class="form-group">
+                                    <label for="videoDescEdit3">Video 3</label>
+                                    <input class="form-control"
+                                           type="text" maxlength="190"
+                                           name="desc_video3" id="videoDescEdit3"/>
+                                </div>
+                                <div class="form-group">
                                     <label for="subjectEdit">Mövzu</label>
                                     <input class="form-control"
                                            type="text" required maxlength="190"
@@ -460,6 +487,21 @@
                                 </div>
                             </div>
                             <div class="col-8">
+                                <div class="form-group">
+                                    <label for="name_videoEdit1">Video adı 1</label>
+                                    <input class="form-control"
+                                           type="text" name="name_video1" id="name_videoEdit1"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name_videoEdit2">Video adı 2</label>
+                                    <input class="form-control"
+                                           type="text" name="name_video2" id="name_videoEdit2"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name_videoEdit3">Video adı 3</label>
+                                    <input class="form-control"
+                                           type="text" name="name_video3" id="name_videoEdit3"/>
+                                </div>
                                 <div class="form-group">
                                     <label for="subDirectionIdEdit">İstiqamət</label>
                                     <select name="sub_direction_ids[]" multiple required
@@ -692,6 +734,10 @@
                 let imageEdit = $('#previewImage');
                 let videoDescEdit = $('#videoDescEdit');
                 let videoDescEdit2 = $('#videoDescEdit2');
+                let videoDescEdit3 = $('#videoDescEdit3');
+                let name_videoEdit1 = $('#name_videoEdit1');
+                let name_videoEdit2 = $('#name_videoEdit2');
+                let name_videoEdit3 = $('#name_videoEdit3');
                 let descriptionEdit = $('#descriptionEdit');
                 let subDirectionIdEdit = $('#subDirectionIdEdit');
                 let timeEdit = $('#timeEdit');
@@ -736,6 +782,10 @@
                         imageEdit.attr("src", ('/' + post.image));
                         videoDescEdit.val(post.desc_video);
                         videoDescEdit2.val(post.desc_video2);
+                        videoDescEdit3.val(post.desc_video3);
+                        name_videoEdit1.val(post.name_video1);
+                        name_videoEdit2.val(post.name_video2);
+                        name_videoEdit3.val(post.name_video3);
                         timeEdit.val(timeLocale(post.time));
 
                         if (subDirections) {

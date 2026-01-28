@@ -123,12 +123,33 @@ class GuestExamController extends Controller
             }
         }
 
+        $url3 = $request->desc_video3;
+        $position3 = strpos($url3, '=');
+
+        if ($position3 !== false) {
+            $parsedUrl3 = parse_url($url3);
+
+            parse_str($parsedUrl3['query'] ?? '', $queryParams3);
+
+            $videoId3 = $queryParams3['v'] ?? null;
+
+            if ($videoId3) {
+                $url3 = $videoId3;
+            } else {
+                $url3 = '';
+            }
+        }
+
         $post = GuestExam::create([
             'image' => $image ? uploadImg($image) : 'postImage/noPhoto.png',
             'description' => $request->description,
             'time' => $request->time ? $request->time : null,
             'desc_video' => $url,
             'desc_video2' => $url2,
+            'desc_video3' => $url3,
+            'name_video1' => $request->name_video1,
+            'name_video2' => $request->name_video2,
+            'name_video3' => $request->name_video3,
             'user_id' => $userId,
             'status' => isset($request->status) ? 1 : 0,
             'name' => $request->name,
@@ -217,8 +238,27 @@ class GuestExamController extends Controller
             }
         }
 
+        $url3 = $request->desc_video3;
+        $position3 = strpos($url3, '=');
+
+        if ($position3 !== false) {
+            $parsedUrl3 = parse_url($url3);
+
+            parse_str($parsedUrl3['query'] ?? '', $queryParams3);
+
+            $videoId3 = $queryParams3['v'] ?? null;
+
+            if ($videoId3) {
+                $url3 = $videoId3;
+            }
+        }
+
         $postUpdate->desc_video = $url;
         $postUpdate->desc_video2 = $url2;
+        $postUpdate->desc_video3 = $url3;
+        $postUpdate->name_video1 = $request->name_video1;
+        $postUpdate->name_video2 = $request->name_video2;
+        $postUpdate->name_video3 = $request->name_video3;
         $postUpdate->name = $request->name;
         $postUpdate->time = $request->time;
         $postUpdate->description = $request->description;
