@@ -143,28 +143,40 @@ class PostController extends Controller
             }
         }
 
-//        if (Auth::check()) {
-        if (isset($request->notification)) {
-            $subDirectionIds = (array)$subDirectionIds;
-            $subDirectionIds = array_map('intval', $subDirectionIds);
 
-            //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
-            SendGuestNotification::dispatch(
-                'Paylaşım edildi',
-                'Admin tərəfindən ' . $request->content . ' başlıqlı paylaşım edildi',
-                $subDirectionIds
-            );
-//            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
-//
-//            foreach ($guests as $guest) {
-//                SendGuestNotification::dispatch(
-//                    'Paylaşım edildi',
-//                    'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
-//                    $guest->id
-//                );
-//            }
+
+        if ($request->has('notification')) {
+            $ids = (array) $request->sub_direction_id;
+            $ids = array_map('intval', $ids);
+
+            $title = 'Paylaşım edildi';
+            $body = 'Admin tərəfindən ' . $request->content . ' başlıqlı paylaşım edildi';
+            FirebaseHelper::sendAll($title, $body, $ids);
+
         }
-//            }
+
+////        if (Auth::check()) {
+//        if (isset($request->notification)) {
+//            $subDirectionIds = (array)$subDirectionIds;
+//            $subDirectionIds = array_map('intval', $subDirectionIds);
+//
+//            //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
+//            SendGuestNotification::dispatch(
+//                'Paylaşım edildi',
+//                'Admin tərəfindən ' . $request->content . ' başlıqlı paylaşım edildi',
+//                $subDirectionIds
+//            );
+////            $guests = Guest::whereIn('sub_direction_id', $subDirectionIds)->where('is_deleted', 0)->where('status', 1)->get();
+////
+////            foreach ($guests as $guest) {
+////                SendGuestNotification::dispatch(
+////                    'Paylaşım edildi',
+////                    'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi',
+////                    $guest->id
+////                );
+////            }
+//        }
+////            }
 
         alert()->success('Uğurlu', 'Əlavə olundu')
             ->showConfirmButton('Tamam', '#163A76');
