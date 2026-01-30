@@ -151,8 +151,11 @@ class PostController extends Controller
 
             $title = 'Paylaşım edildi';
             $body = 'Admin tərəfindən ' . $request->content . ' başlıqlı paylaşım edildi';
-            FirebaseHelper::sendAll($title, $body, $ids);
-
+            SendGuestNotification::dispatch(
+                $title,
+                $body,
+                $ids
+            );
         }
 
 ////        if (Auth::check()) {
