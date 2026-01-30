@@ -26,6 +26,8 @@ class NotificationsGuestController extends Controller
             $list = $list->orderBy($orderBy[0], $orderBy[1]);
         }
 
+        $list = $list->orderBy('created_at', 'desc');
+
         if ($paginate != null) {
             $list = $list->paginate($paginate);
         } else {
