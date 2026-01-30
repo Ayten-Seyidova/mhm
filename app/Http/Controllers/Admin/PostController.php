@@ -145,6 +145,9 @@ class PostController extends Controller
 
 //        if (Auth::check()) {
         if (isset($request->notification)) {
+            $subDirectionIds = (array)$subDirectionIds;
+            $subDirectionIds = array_map('intval', $subDirectionIds);
+
             //       FirebaseHelper::sendAll('Paylaşım edildi', 'Admin tərəfindən '.$request->content.' başlıqlı paylaşım edildi');
             SendGuestNotification::dispatch(
                 'Paylaşım edildi',
