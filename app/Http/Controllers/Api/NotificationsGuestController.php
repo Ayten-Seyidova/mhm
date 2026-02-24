@@ -69,7 +69,7 @@ class NotificationsGuestController extends Controller
         try {
             NotificationParametersGuest::where('token', $validated['token'])->delete();
 
-            $saveOtp = NotificationParametersGuest::updateOrCreate(['deviceId' => $validated['deviceId']], $validated);
+            $saveOtp = NotificationParametersGuest::updateOrCreate(['user_id' => $validated['user_id']], $validated);
             return response(['status' => 'success']);
         } catch (\Exception $exception) {
             return response(['status' => 'error', 'desc' => $exception]);
