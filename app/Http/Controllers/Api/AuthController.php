@@ -112,6 +112,7 @@ class AuthController extends Controller
      *   )
      */
     public function login(LoginApiRequest $request){
+        \Log::error("called default login");
         $request = $request->validated();
 
         $user = Customer::where("username",$request['userName'])->first();
@@ -149,6 +150,9 @@ class AuthController extends Controller
     }
 
     public function loginGuest(Request $request){
+        \Log::error("called guest login");
+
+
         $parameters = $request->validate([
             'phoneNumber' => 'required',
             'password'=>'required',
