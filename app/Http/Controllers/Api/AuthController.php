@@ -157,10 +157,18 @@ class AuthController extends Controller
             'phoneNumber' => 'required',
             'password'=>'required',
         ]);
+
+
+
         Log::info($parameters['phoneNumber']);;
 
         $phoneNumber = str_replace(['+','_',''], '',$parameters['phoneNumber']);
         Log::info($phoneNumber);
+
+        \Log::error($parameters['phoneNumber']);
+        \Log::error($parameters['password']);
+
+
         $user = Guest::where("phone",$phoneNumber)->first();
         Log::info($user);
         if ($user && Hash::check($parameters['password'], $user->password)) {
