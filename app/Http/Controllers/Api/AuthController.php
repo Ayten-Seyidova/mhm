@@ -166,6 +166,7 @@ class AuthController extends Controller
         Log::info($phoneNumber);
 
         \Log::error($parameters['phoneNumber']);
+        \Log::error($phoneNumber);
         \Log::error($parameters['password']);
 
 
