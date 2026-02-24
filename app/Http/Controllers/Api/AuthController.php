@@ -159,19 +159,19 @@ class AuthController extends Controller
         ]);
 
 
-
-        Log::info($parameters['phoneNumber']);;
-
         $phoneNumber = str_replace(['+','_',''], '',$parameters['phoneNumber']);
-        Log::info($phoneNumber);
-
-        \Log::error($parameters['phoneNumber']);
-        \Log::error($phoneNumber);
-        \Log::error($parameters['password']);
 
 
         $user = Guest::where("phone",$phoneNumber)->first();
-        Log::info($user);
+
+        if (!$user){
+            if (str_starts_with($phoneNumber, '994')) {
+                $phoneNumberWithoutCode = substr($phoneNumber, 3);
+
+                $user = Guest::where("phone", $phoneNumberWithoutCode)->first();
+            }
+        }
+
         if ($user && Hash::check($parameters['password'], $user->password)) {
 
 //            $param = [
