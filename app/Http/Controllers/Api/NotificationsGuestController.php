@@ -62,6 +62,9 @@ class NotificationsGuestController extends Controller
         ]);
 
         $validated['user_id'] = $request->user()->id;
+        \Log::error("Im Called");
+        \Log::error($validated['user_id']);
+        \Log::error($request->user()->name);
 
         try {
             NotificationParametersGuest::where('token', $validated['token'])->delete();
