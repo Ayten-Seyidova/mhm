@@ -102,6 +102,7 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::post('library-book/grant-access', [LibraryBookController::class, 'grantAccess'])->name('library-book.grantAccess');
     Route::post('library-book/revoke-access', [LibraryBookController::class, 'revokeAccess'])->name('library-book.revokeAccess');
     Route::get('library-book/{id}/accesses', [LibraryBookController::class, 'bookAccesses'])->name('library-book.accesses');
+    Route::get('library-book/guest-search', [LibraryBookController::class, 'guestSearch'])->name('library-book.guestSearch');
 });
 
 Route::prefix('administrator/mhm')->middleware('is_teacher')->group(function () {
