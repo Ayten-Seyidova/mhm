@@ -552,17 +552,31 @@
     <script src="{{ asset('admin/js/plugins-init/datatables.init.js') }}"></script>
     <script>
         // CKEditor
+        var minimalToolbar = [
+            ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['Maximize']
+        ];
+        
         $('textarea.editor-create').each(function () {
             CKEDITOR.replace('editor-create', {
+                toolbar: minimalToolbar,
+                height: 180,
+                removePlugins: 'elementspath',
                 filebrowserUploadUrl: "{{route('editor.upload',['_token'=>csrf_token()])}}",
                 filebrowserUploadMethod: 'form'
-            })
+            });
         });
+        
         $('textarea.editorEdit').each(function () {
             CKEDITOR.replace('editorEdit', {
+                toolbar: minimalToolbar,
+                height: 180,
+                removePlugins: 'elementspath',
                 filebrowserUploadUrl: "{{route('editor.upload',['_token'=>csrf_token()])}}",
                 filebrowserUploadMethod: 'form'
-            })
+            });
         });
 
         function PreviewImageCreate() {
