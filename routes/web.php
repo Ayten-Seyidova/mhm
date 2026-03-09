@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\OurTeacherController;
 use App\Http\Controllers\Admin\LessonController;
 use App\Http\Controllers\Admin\BookController;
+use App\Http\Controllers\Admin\LibraryBookController;
 use App\Http\Controllers\Admin\ExamPdfController;
 use App\Http\Controllers\Admin\PostCommentController;
 
@@ -95,6 +96,12 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::resource('/book', BookController::class);
     Route::post('book/changeStatus', [BookController::class, 'changeStatus'])->name('book.changeStatus');
     Route::post('book/checked', [BookController::class, 'checked'])->name('book.checked');
+    Route::resource('/library-book', LibraryBookController::class);
+    Route::post('library-book/changeStatus', [LibraryBookController::class, 'changeStatus'])->name('library-book.changeStatus');
+    Route::post('library-book/checked', [LibraryBookController::class, 'checked'])->name('library-book.checked');
+    Route::post('library-book/grant-access', [LibraryBookController::class, 'grantAccess'])->name('library-book.grantAccess');
+    Route::post('library-book/revoke-access', [LibraryBookController::class, 'revokeAccess'])->name('library-book.revokeAccess');
+    Route::get('library-book/{id}/accesses', [LibraryBookController::class, 'bookAccesses'])->name('library-book.accesses');
 });
 
 Route::prefix('administrator/mhm')->middleware('is_teacher')->group(function () {
