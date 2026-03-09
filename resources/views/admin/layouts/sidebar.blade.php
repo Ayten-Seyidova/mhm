@@ -100,7 +100,8 @@
                             <li><a href="{{route('about.index')}}">Kurs haqqında məlumat</a></li>
                             <li><a href="{{route('our-teacher.index')}}">Müəllimlərimiz</a></li>
                             <li><a href="{{route('lesson.index')}}">Ödənişli dərslər</a></li>
-                            <li><a href="{{route('book.index')}}">Kitablar</a></li>
+                            <li><a href="{{route('library-book.index')}}">Kitab satışı</a></li>
+                            <li><a href="{{route('book.index')}}">Kitablar (Məlumat - köhnə)</a></li>
                         </ul>
                     </li>
                 @endif
