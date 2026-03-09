@@ -241,6 +241,7 @@
 
         .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .inline-fields-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .modal-title { color: #fff !important; }
     </style>
 
     {{-- CREATE MODAL --}}
