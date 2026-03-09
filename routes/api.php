@@ -13,6 +13,7 @@ use \App\Http\Controllers\Api\OtpController;
 use \App\Http\Controllers\Api\GuestController;
 use \App\Http\Controllers\Api\AboutController;
 use \App\Http\Controllers\Api\NotificationsGuestController;
+use App\Http\Controllers\Api\LibraryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,11 @@ Route::group(['middleware' => ['auth:apiGuest']], function () {
     Route::get('/getCommentsByPost', [GuestController::class, 'getCommentsByPost'])->name('getCommentsByPost');
     Route::delete('/deleteComment', [GuestController::class, 'deleteComment'])->name('deleteComment');
     Route::post('/setLikeByPost', [GuestController::class, 'setLikeByPost'])->name('setLikeByPost');
+
+    //Library paid
+    Route::get('/libraryBooks', [LibraryController::class, 'index'])->name('libraryBooks');
+    Route::get('/libraryBook/{id}', [LibraryController::class, 'show'])->name('libraryBook');
+    Route::get('/libraryBookOrder/{id}', [LibraryController::class, 'orderWhatsapp'])->name('libraryBookOrder');
 
     //notificationsGuest
     Route::get('/notificationsGuest', [NotificationsGuestController::class, 'index'])->name('notifications-guest');
