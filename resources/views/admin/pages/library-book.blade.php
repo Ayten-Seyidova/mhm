@@ -134,91 +134,245 @@
         </div>
     </div>
 
+    <style>
+        .lib-modal .modal-header {
+            background: linear-gradient(135deg, #163A76 0%, #1e4f9f 100%);
+            color: #fff;
+            border-radius: 8px 8px 0 0;
+            padding: 16px 24px;
+        }
+        .lib-modal .modal-header .close { color: #fff; opacity: .8; }
+        .lib-modal .modal-header .close:hover { opacity: 1; }
+        .lib-modal .modal-content { border-radius: 8px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,.18); }
+        .lib-modal .modal-body { padding: 24px; background: #f8f9fc; }
+        .lib-modal .modal-footer { background: #fff; border-top: 1px solid #e9ecef; padding: 14px 24px; border-radius: 0 0 8px 8px; }
+
+        .lib-section-card {
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .lib-section-card .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #163A76;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .lib-modal label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .lib-modal .form-control {
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-size: 13px;
+            padding: 8px 12px;
+            transition: border-color .2s;
+        }
+        .lib-modal .form-control:focus { border-color: #163A76; box-shadow: 0 0 0 3px rgba(22,58,118,.1); }
+
+        .lib-cover-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: #f0f2f8;
+            border-radius: 8px;
+            border: 2px dashed #c5cfe8;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color .2s;
+        }
+        .lib-cover-box:hover { border-color: #163A76; }
+        .lib-cover-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .lib-cover-box .cover-placeholder {
+            text-align: center;
+            color: #adb5bd;
+            pointer-events: none;
+        }
+        .lib-cover-box .cover-placeholder i { font-size: 32px; display: block; margin-bottom: 6px; }
+        .lib-cover-box .cover-placeholder span { font-size: 11px; }
+        .lib-cover-box input[type=file] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .lib-cover-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .lib-cover-actions .btn { flex: 1; font-size: 11px; padding: 5px; }
+
+        .lib-pdf-upload {
+            background: #f8f9fc;
+            border: 1.5px dashed #c5cfe8;
+            border-radius: 8px;
+            padding: 14px 16px;
+            transition: border-color .2s, background .2s;
+        }
+        .lib-pdf-upload:hover { border-color: #163A76; background: #f0f4ff; }
+        .lib-pdf-upload .pdf-label {
+            font-size: 12px; font-weight: 700; color: #163A76; margin-bottom: 4px; display: block;
+        }
+        .lib-pdf-upload .pdf-sub {
+            font-size: 11px; color: #6c757d; margin-bottom: 8px; display: block;
+        }
+        .lib-pdf-upload .pdf-status {
+            font-size: 11px; margin-bottom: 6px;
+        }
+        .lib-pdf-upload .pdf-status.has-file { color: #28a745; }
+        .lib-pdf-upload .pdf-status.no-file { color: #adb5bd; }
+        .lib-pdf-upload input[type=file] { font-size: 12px; }
+
+        .lib-toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px;
+            background: #f8f9fc;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 8px;
+        }
+        .lib-toggle-row label { margin: 0; font-size: 13px; font-weight: 600; color: #343a40; }
+
+        .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .inline-fields-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    </style>
+
     {{-- CREATE MODAL --}}
-    <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade lib-modal" id="createModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Əlavə et</h5>
+                    <h5 class="modal-title"><i class="fa fa-plus mr-2"></i>Yeni kitab əlavə et</h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="formCreate" action="{{route('library-book.store')}}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="modal-body pb-0 pt-2">
+                    <div class="modal-body">
                         <div class="row">
-                            <div class="col-4">
-                                <div class="form-group img-section">
-                                    <label>Üz qabığı (şəkil)</label>
-                                    <div class="img-input d-flex justify-content-between mb-2">
-                                        <input id="uploadImage-create" type="file" name="image" class="form-control-file"
+
+                            {{-- SOL SÜTUN: Üz qabığı --}}
+                            <div class="col-xl-3 col-lg-3">
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-image mr-1"></i>Üz qabığı</div>
+                                    <div class="lib-cover-box" id="coverBoxCreate">
+                                        <div class="cover-placeholder" id="coverPlaceholderCreate">
+                                            <i class="fa fa-upload"></i>
+                                            <span>Şəkil yüklə</span>
+                                        </div>
+                                        <img id='previewImage-create' src="" style="display:none;" alt="">
+                                        <input id="uploadImage-create" type="file" name="image" accept="image/*"
                                                onchange="PreviewImageCreate();">
-                                        <div class="delete-img c-pointer" onclick="deleteImageCreate();">
-                                            <i class="fas fa-trash"></i>
+                                    </div>
+                                    <div class="lib-cover-actions">
+                                        <button type="button" class="btn btn-outline-danger btn-xs" onclick="deleteImageCreate()">
+                                            <i class="fa fa-trash mr-1"></i>Sil
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-toggle-on mr-1"></i>Parametrlər</div>
+                                    <div class="lib-toggle-row">
+                                        <label for="isFeaturedCreate">Seçilmiş (Featured)</label>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" name="is_featured" id="isFeaturedCreate"/>
                                         </div>
                                     </div>
-                                    <img class="preview-img" id='previewImage-create'
-                                         src="{{asset('admin/images/noPhoto.png')}}" style="width: 100%;" alt="">
-                                </div>
-                                <div class="form-group">
-                                    <label>Başlıq *</label>
-                                    <input class="form-control" type="text" maxlength="190" required name="title"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Müəllif</label>
-                                    <input class="form-control" type="text" maxlength="190" name="author"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Nəşriyyat</label>
-                                    <input class="form-control" type="text" maxlength="190" name="publisher"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Dil</label>
-                                    <input class="form-control" type="text" maxlength="100" name="language" placeholder="Azərbaycan"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Səhifə sayı</label>
-                                    <input class="form-control" type="number" name="page_count"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>İl</label>
-                                    <input class="form-control" type="text" maxlength="10" name="year" placeholder="2024"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Qiymət (AZN) *</label>
-                                    <input class="form-control" type="number" step="0.01" required name="price"/>
-                                </div>
-                                <div class="form-group d-flex mt-2">
-                                    <label class="mr-3">Seçilmiş (Featured)</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" name="is_featured"/>
-                                    </div>
-                                </div>
-                                <div class="form-group d-flex mt-2">
-                                    <label class="mr-3">Status</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" checked name="status"/>
+                                    <div class="lib-toggle-row">
+                                        <label for="statusCreate">Status (Aktiv)</label>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" checked name="status" id="statusCreate"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-8">
-                                <div class="form-group">
-                                    <label>Haqqında</label>
-                                    <textarea name="description" class="editor-create" id="editor-create" cols="30" rows="8"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Demo PDF <small class="text-muted">(pulsuz, bir neçə səhifə)</small></label>
-                                    <input type="file" name="demo_pdf" class="form-control-file" accept=".pdf"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Tam PDF <small class="text-muted">(ödənişli, access verdikdən sonra açılır)</small></label>
-                                    <input type="file" name="full_pdf" class="form-control-file" accept=".pdf"/>
+
+                            {{-- ORTA SÜTUN: Kitab məlumatları --}}
+                            <div class="col-xl-5 col-lg-5">
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-book mr-1"></i>Kitab məlumatları</div>
+
+                                    <div class="form-group">
+                                        <label>Başlıq <span class="text-danger">*</span></label>
+                                        <input class="form-control" type="text" maxlength="190" required name="title" placeholder="Kitabın adı"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Müəllif</label>
+                                        <input class="form-control" type="text" maxlength="190" name="author" placeholder="Müəllifin adı"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nəşriyyat</label>
+                                        <input class="form-control" type="text" maxlength="190" name="publisher" placeholder="Nəşriyyat adı"/>
+                                    </div>
+
+                                    <div class="inline-fields-3">
+                                        <div class="form-group">
+                                            <label>Dil</label>
+                                            <input class="form-control" type="text" maxlength="100" name="language" placeholder="Azərbaycan"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>İl</label>
+                                            <input class="form-control" type="text" maxlength="10" name="year" placeholder="2024"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Səhifə sayı</label>
+                                            <input class="form-control" type="number" name="page_count" placeholder="342"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Qiymət (AZN) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input class="form-control" type="number" step="0.01" required name="price" placeholder="0.00"/>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" style="background:#163A76;color:#fff;border-color:#163A76;font-size:12px;font-weight:700;">AZN</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            {{-- SAĞ SÜTUN: Məzmun + PDF --}}
+                            <div class="col-xl-4 col-lg-4">
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-align-left mr-1"></i>Haqqında</div>
+                                    <div class="form-group mb-0">
+                                        <textarea name="description" class="editor-create" id="editor-create" cols="30" rows="6"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-file-pdf-o mr-1"></i>PDF Fayllar</div>
+
+                                    <div class="lib-pdf-upload mb-3">
+                                        <span class="pdf-label"><i class="fa fa-eye mr-1"></i>Demo PDF</span>
+                                        <span class="pdf-sub">Pulsuz, bir neçə nümunə səhifə</span>
+                                        <input type="file" name="demo_pdf" class="form-control-file" accept=".pdf"/>
+                                    </div>
+
+                                    <div class="lib-pdf-upload">
+                                        <span class="pdf-label"><i class="fa fa-lock mr-1"></i>Tam PDF</span>
+                                        <span class="pdf-sub">Ödənişli — access verdikdən sonra açılır</span>
+                                        <input type="file" name="full_pdf" class="form-control-file" accept=".pdf"/>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Ləğv et</button>
-                        <button type="submit" class="btn btn-sm btn-primary">Yadda saxla</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                            <i class="fa fa-times mr-1"></i>Ləğv et
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">
+                            <i class="fa fa-save mr-1"></i>Yadda saxla
+                        </button>
                     </div>
                 </form>
             </div>
@@ -226,96 +380,138 @@
     </div>
 
     {{-- EDIT MODAL --}}
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade lib-modal" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Redaktə et</h5>
+                    <h5 class="modal-title"><i class="fa fa-pencil mr-2"></i>Kitabı redaktə et</h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <form id="formEdit" action="" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input id="hiddenInput" type="hidden" name="hidden" value="1">
-                    <div class="modal-body pb-0 pt-2">
+                    <div class="modal-body">
                         <div class="row">
-                            <div class="col-4">
-                                <div class="form-group img-sectionEdit">
-                                    <label>Üz qabığı (şəkil)</label>
-                                    <div class="img-input d-flex justify-content-between mb-2">
-                                        <input id="uploadImage" type="file" name="image" class="form-control-file"
+
+                            <div class="col-xl-3 col-lg-3">
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-image mr-1"></i>Üz qabığı</div>
+                                    <div class="lib-cover-box" id="coverBoxEdit">
+                                        <div class="cover-placeholder" id="coverPlaceholderEdit">
+                                            <i class="fa fa-upload"></i>
+                                            <span>Şəkil yüklə</span>
+                                        </div>
+                                        <img id='previewImage' src="" style="display:none;" alt="">
+                                        <input id="uploadImage" type="file" name="image" accept="image/*"
                                                onchange="PreviewImage();">
-                                        <div class="delete-img c-pointer" onclick="deleteImage();">
-                                            <i class="fas fa-trash"></i>
+                                    </div>
+                                    <div class="lib-cover-actions">
+                                        <button type="button" class="btn btn-outline-danger btn-xs" onclick="deleteImage()">
+                                            <i class="fa fa-trash mr-1"></i>Sil
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-toggle-on mr-1"></i>Parametrlər</div>
+                                    <div class="lib-toggle-row">
+                                        <label for="isFeaturedEdit">Seçilmiş (Featured)</label>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" name="is_featured" id="isFeaturedEdit"/>
                                         </div>
                                     </div>
-                                    <img class="preview-img" id='previewImage'
-                                         src="{{asset('admin/images/noPhoto.png')}}" style="width: 100%;" alt="">
-                                </div>
-                                <div class="form-group">
-                                    <label>Başlıq *</label>
-                                    <input class="form-control" type="text" maxlength="190" required name="title" id="titleEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Müəllif</label>
-                                    <input class="form-control" type="text" maxlength="190" name="author" id="authorEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Nəşriyyat</label>
-                                    <input class="form-control" type="text" maxlength="190" name="publisher" id="publisherEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Dil</label>
-                                    <input class="form-control" type="text" maxlength="100" name="language" id="languageEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Səhifə sayı</label>
-                                    <input class="form-control" type="number" name="page_count" id="pageCountEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>İl</label>
-                                    <input class="form-control" type="text" maxlength="10" name="year" id="yearEdit"/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Qiymət (AZN) *</label>
-                                    <input class="form-control" type="number" step="0.01" required name="price" id="priceEdit"/>
-                                </div>
-                                <div class="form-group d-flex mt-2">
-                                    <label class="mr-3">Seçilmiş (Featured)</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" name="is_featured" id="isFeaturedEdit"/>
-                                    </div>
-                                </div>
-                                <div class="form-group d-flex mt-2">
-                                    <label class="mr-3">Status</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" name="status" id="statusEdit"/>
+                                    <div class="lib-toggle-row">
+                                        <label for="statusEdit">Status (Aktiv)</label>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" name="status" id="statusEdit"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-8">
-                                <div class="form-group">
-                                    <label>Haqqında</label>
-                                    <textarea name="description" class="editorEdit" id="editorEdit" cols="30" rows="8"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>Demo PDF</label>
-                                    <div id="demoPdfCurrent" class="mb-1 text-muted small"></div>
-                                    <input type="file" name="demo_pdf" class="form-control-file" accept=".pdf"/>
-                                    <small class="text-muted">Yeni fayl seçsəniz köhnəsi əvəz olunacaq</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Tam PDF</label>
-                                    <div id="fullPdfCurrent" class="mb-1 text-muted small"></div>
-                                    <input type="file" name="full_pdf" class="form-control-file" accept=".pdf"/>
-                                    <small class="text-muted">Yeni fayl seçsəniz köhnəsi əvəz olunacaq</small>
+
+                            <div class="col-xl-5 col-lg-5">
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-book mr-1"></i>Kitab məlumatları</div>
+
+                                    <div class="form-group">
+                                        <label>Başlıq <span class="text-danger">*</span></label>
+                                        <input class="form-control" type="text" maxlength="190" required name="title" id="titleEdit"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Müəllif</label>
+                                        <input class="form-control" type="text" maxlength="190" name="author" id="authorEdit"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nəşriyyat</label>
+                                        <input class="form-control" type="text" maxlength="190" name="publisher" id="publisherEdit"/>
+                                    </div>
+
+                                    <div class="inline-fields-3">
+                                        <div class="form-group">
+                                            <label>Dil</label>
+                                            <input class="form-control" type="text" maxlength="100" name="language" id="languageEdit"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>İl</label>
+                                            <input class="form-control" type="text" maxlength="10" name="year" id="yearEdit"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Səhifə sayı</label>
+                                            <input class="form-control" type="number" name="page_count" id="pageCountEdit"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Qiymət (AZN) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input class="form-control" type="number" step="0.01" required name="price" id="priceEdit"/>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" style="background:#163A76;color:#fff;border-color:#163A76;font-size:12px;font-weight:700;">AZN</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="col-xl-4 col-lg-4">
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-align-left mr-1"></i>Haqqında</div>
+                                    <div class="form-group mb-0">
+                                        <textarea name="description" class="editorEdit" id="editorEdit" cols="30" rows="6"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="lib-section-card">
+                                    <div class="section-title"><i class="fa fa-file-pdf-o mr-1"></i>PDF Fayllar</div>
+
+                                    <div class="lib-pdf-upload mb-3">
+                                        <span class="pdf-label"><i class="fa fa-eye mr-1"></i>Demo PDF</span>
+                                        <span class="pdf-sub">Pulsuz nümunə</span>
+                                        <div id="demoPdfCurrent" class="pdf-status mb-2"></div>
+                                        <input type="file" name="demo_pdf" class="form-control-file" accept=".pdf"/>
+                                        <small class="text-muted" style="font-size:10px;">Yeni seçsəniz köhnəsi əvəz olunur</small>
+                                    </div>
+
+                                    <div class="lib-pdf-upload">
+                                        <span class="pdf-label"><i class="fa fa-lock mr-1"></i>Tam PDF</span>
+                                        <span class="pdf-sub">Access verdikdən sonra açılır</span>
+                                        <div id="fullPdfCurrent" class="pdf-status mb-2"></div>
+                                        <input type="file" name="full_pdf" class="form-control-file" accept=".pdf"/>
+                                        <small class="text-muted" style="font-size:10px;">Yeni seçsəniz köhnəsi əvəz olunur</small>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Ləğv et</button>
-                        <button type="submit" class="btn btn-sm btn-primary">Yadda saxla</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                            <i class="fa fa-times mr-1"></i>Ləğv et
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">
+                            <i class="fa fa-save mr-1"></i>Yadda saxla
+                        </button>
                     </div>
                 </form>
             </div>
@@ -369,29 +565,45 @@
         });
 
         function PreviewImageCreate() {
+            var file = document.getElementById("uploadImage-create").files[0];
+            if (!file) return;
             var oFReader = new FileReader();
-            oFReader.readAsDataURL(document.getElementById("uploadImage-create").files[0]);
+            oFReader.readAsDataURL(file);
             oFReader.onload = function (oFREvent) {
-                document.getElementById("previewImage-create").src = oFREvent.target.result;
+                var img = document.getElementById("previewImage-create");
+                img.src = oFREvent.target.result;
+                img.style.display = 'block';
+                document.getElementById("coverPlaceholderCreate").style.display = 'none';
             };
         }
 
         function deleteImageCreate() {
-            document.getElementById("previewImage-create").src = '{{asset('admin/images/noPhoto.png')}}';
+            var img = document.getElementById("previewImage-create");
+            img.src = '';
+            img.style.display = 'none';
+            document.getElementById("coverPlaceholderCreate").style.display = 'block';
             document.getElementById("uploadImage-create").value = '';
         }
 
         function PreviewImage() {
             document.getElementById('hiddenInput').value = '1';
+            var file = document.getElementById("uploadImage").files[0];
+            if (!file) return;
             var oFReader = new FileReader();
-            oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
+            oFReader.readAsDataURL(file);
             oFReader.onload = function (oFREvent) {
-                document.getElementById("previewImage").src = oFREvent.target.result;
+                var img = document.getElementById("previewImage");
+                img.src = oFREvent.target.result;
+                img.style.display = 'block';
+                document.getElementById("coverPlaceholderEdit").style.display = 'none';
             };
         }
 
         function deleteImage() {
-            document.getElementById("previewImage").src = '{{asset('admin/images/noPhoto.png')}}';
+            var img = document.getElementById("previewImage");
+            img.src = '';
+            img.style.display = 'none';
+            document.getElementById("coverPlaceholderEdit").style.display = 'block';
             document.getElementById('hiddenInput').value = '0';
         }
 
@@ -499,9 +711,19 @@
                         $('#priceEdit').val(post.price);
                         $('#isFeaturedEdit').prop('checked', post.is_featured == 1);
                         $('#statusEdit').prop('checked', post.status == 1);
-                        $('#previewImage').attr('src', post.cover ?? '{{asset('admin/images/noPhoto.png')}}');
-                        $('#demoPdfCurrent').html(post.demo_pdf_url ? '✓ Demo PDF mövcuddur' : 'Demo PDF yoxdur');
-                        $('#fullPdfCurrent').html(post.full_pdf_url ? '✓ Tam PDF mövcuddur' : 'Tam PDF yoxdur');
+                        if (post.cover) {
+                            $('#previewImage').attr('src', post.cover).show();
+                            $('#coverPlaceholderEdit').hide();
+                        } else {
+                            $('#previewImage').hide();
+                            $('#coverPlaceholderEdit').show();
+                        }
+                        $('#demoPdfCurrent').html(post.demo_pdf_url
+                            ? '<span class="has-file">✓ Demo PDF mövcuddur</span>'
+                            : '<span class="no-file">— Demo PDF yoxdur</span>');
+                        $('#fullPdfCurrent').html(post.full_pdf_url
+                            ? '<span class="has-file">✓ Tam PDF mövcuddur</span>'
+                            : '<span class="no-file">— Tam PDF yoxdur</span>');
                         CKEDITOR.instances['editorEdit'].setData(post.description ?? '');
                     }
                 });
