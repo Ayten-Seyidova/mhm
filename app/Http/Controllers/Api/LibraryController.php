@@ -16,18 +16,24 @@ class LibraryController extends Controller
      */
     public function index(Request $request)
     {
-        $books = LibraryBook::where('status', 1)
-            ->orderByDesc('is_featured')
-            ->orderByDesc('id')
-            ->get();
-
-        $featured = $books->where('is_featured', 1)->values();
-        $all      = $books->values();
-
-        return response(['status' => 'success', 'data' => [
-            'featured' => $featured,
-            'all'      => $all,
-        ]]);
+        $guest = auth('api_guest')->user();
+    
+        if ($request->my == 1) {
+            $bookIds = LibraryBookAccess::where('guest_id', $guest->id)
+                ->pluck('library_book_id');
+    
+            $books = LibraryBook::whereIn('id', $bookIds)
+                ->where('status', 1)
+                ->get();
+    
+            return response()->json(['status' => true, 'data' => $books]);
+        }
+    
+        // mövcud kod...
+        $featured = LibraryBook::where('is_featured', 1)->where('status', 1)->get();
+        $all = LibraryBook::where('status', 1)->get();
+    
+        return response()->json(['status' => true, 'data' => compact('featured', 'all')]);
     }
 
     /**
