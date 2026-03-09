@@ -520,25 +520,32 @@
     </div>
 
     {{-- ACCESS MODAL --}}
-    <div class="modal fade" id="accessModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade lib-modal" id="accessModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Kitab Accessi — <span id="accessBookTitle"></span></h5>
+                    <h5 class="modal-title"><i class="fa fa-key mr-2"></i>Kitab Accessi — <span id="accessBookTitle"></span></h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6">
-                            <h6>Access ver</h6>
-                            <select id="guestSelect" class="form-control mb-2">
-                                <option value="">İstifadəçi seç</option>
-                            </select>
-                            <button class="btn btn-success btn-sm" id="grantAccessBtn">Access ver</button>
+                            <div class="lib-section-card">
+                                <div class="section-title"><i class="fa fa-search mr-1"></i>İstifadəçi axtar</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" id="guestSearchInput" class="form-control" placeholder="Ad və ya telefon nömrəsi..."/>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" id="guestSearchBtn"><i class="fa fa-search"></i></button>
+                                    </div>
+                                </div>
+                                <div id="guestSearchResults"></div>
+                            </div>
                         </div>
                         <div class="col-6">
-                            <h6>Mövcud accesslər</h6>
-                            <div id="accessList"></div>
+                            <div class="lib-section-card">
+                                <div class="section-title"><i class="fa fa-users mr-1"></i>Mövcud accesslər</div>
+                                <div id="accessList"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -558,7 +565,7 @@
             ['Link', 'Unlink'],
             ['Maximize']
         ];
-        
+
         $('textarea.editor-create').each(function () {
             CKEDITOR.replace('editor-create', {
                 toolbar: minimalToolbar,
@@ -568,7 +575,7 @@
                 filebrowserUploadMethod: 'form'
             });
         });
-        
+
         $('textarea.editorEdit').each(function () {
             CKEDITOR.replace('editorEdit', {
                 toolbar: minimalToolbar,
@@ -751,39 +758,26 @@
             // Access modal
             let currentBookId = null;
 
-            $('.accessModal').click(function () {
-                currentBookId = $(this).data('id');
+            function refreshAccessList() {
                 let route = '{{route('library-book.accesses', ['id'=>'bookid'])}}';
                 route = route.replace('bookid', currentBookId);
-
-                $.ajax({
-                    url: route, method: 'GET', async: false,
-                    success: function (response) {
-                        $('#accessBookTitle').text(response.book.title);
-
-                        // Guest select
-                        let guestOpts = '<option value="">İstifadəçi seç</option>';
-                        response.guests.forEach(function (g) {
-                            guestOpts += '<option value="' + g.id + '">' + g.name + ' (' + g.phone + ')</option>';
-                        });
-                        $('#guestSelect').html(guestOpts);
-
-                        // Access list
-                        renderAccessList(response.accesses);
-                    }
+                $.get(route, function (response) {
+                    renderAccessList(response.accesses);
                 });
-            });
+            }
 
             function renderAccessList(accesses) {
                 if (accesses.length === 0) {
-                    $('#accessList').html('<p class="text-muted">Heç bir istifadəçiyə access verilməyib</p>');
+                    $('#accessList').html('<p class="text-muted small">Heç bir istifadəçiyə access verilməyib</p>');
                     return;
                 }
                 let html = '<ul class="list-group">';
                 accesses.forEach(function (a) {
-                    let name = a.guest ? a.guest.name : 'İstifadəçi #' + a.guest_id;
-                    html += '<li class="list-group-item d-flex justify-content-between align-items-center">' +
-                        name +
+                    let name = a.guest
+                        ? '<b>' + a.guest.name + '</b><br><small class="text-muted">' + (a.guest.phone ?? '') + '</small>'
+                        : 'İstifadəçi #' + a.guest_id;
+                    html += '<li class="list-group-item d-flex justify-content-between align-items-center py-2">' +
+                        '<span style="font-size:13px;">' + name + '</span>' +
                         '<button class="btn btn-danger btn-xs revokeBtn" data-guestid="' + a.guest_id + '">Sil</button>' +
                         '</li>';
                 });
@@ -791,23 +785,57 @@
                 $('#accessList').html(html);
             }
 
-            $('#grantAccessBtn').click(function () {
-                let guestId = $('#guestSelect').val();
-                if (!guestId) {
-                    Swal.fire({icon: 'warning', text: 'İstifadəçi seçin', confirmButtonColor: '#163A76'});
+            function doGuestSearch() {
+                let q = $('#guestSearchInput').val().trim();
+                if (q.length < 2) {
+                    $('#guestSearchResults').html('<p class="text-muted small">Ən az 2 simvol daxil edin</p>');
                     return;
                 }
+                $.ajax({
+                    url: '{{route('library-book.guestSearch')}}',
+                    method: 'GET',
+                    data: {q: q},
+                    success: function (response) {
+                        if (response.guests.length === 0) {
+                            $('#guestSearchResults').html('<p class="text-muted small">Nəticə tapılmadı</p>');
+                            return;
+                        }
+                        let html = '<ul class="list-group">';
+                        response.guests.forEach(function (g) {
+                            html += '<li class="list-group-item d-flex justify-content-between align-items-center py-2">' +
+                                '<span style="font-size:13px;"><b>' + g.name + '</b><br><small class="text-muted">' + (g.phone ?? '') + '</small></span>' +
+                                '<button class="btn btn-success btn-xs grantBtn" data-guestid="' + g.id + '">Access ver</button>' +
+                                '</li>';
+                        });
+                        html += '</ul>';
+                        $('#guestSearchResults').html(html);
+                    }
+                });
+            }
+
+            $('.accessModal').click(function () {
+                currentBookId = $(this).data('id');
+                $('#guestSearchInput').val('');
+                $('#guestSearchResults').html('');
+                let route = '{{route('library-book.accesses', ['id'=>'bookid'])}}';
+                route = route.replace('bookid', currentBookId);
+                $.get(route, function (response) {
+                    $('#accessBookTitle').text(response.book.title);
+                    renderAccessList(response.accesses);
+                });
+            });
+
+            $('#guestSearchBtn').click(function () { doGuestSearch(); });
+            $('#guestSearchInput').keypress(function (e) { if (e.which == 13) doGuestSearch(); });
+
+            $(document).on('click', '.grantBtn', function () {
+                let guestId = $(this).data('guestid');
                 $.ajax({
                     url: '{{route('library-book.grantAccess')}}',
                     method: 'POST',
                     data: {library_book_id: currentBookId, guest_id: guestId},
                     success: function () {
-                        // Refresh access list
-                        let route = '{{route('library-book.accesses', ['id'=>'bookid'])}}';
-                        route = route.replace('bookid', currentBookId);
-                        $.get(route, function (response) {
-                            renderAccessList(response.accesses);
-                        });
+                        refreshAccessList();
                         Swal.fire({icon: 'success', text: 'Access verildi', confirmButtonColor: '#163A76', timer: 1500, showConfirmButton: false});
                     }
                 });
@@ -818,14 +846,8 @@
                 $.ajax({
                     url: '{{route('library-book.revokeAccess')}}',
                     method: 'POST',
-                    data: {library_book_id: currentBookId, guest_id: guestId, _method: 'POST'},
-                    success: function () {
-                        let route = '{{route('library-book.accesses', ['id'=>'bookid'])}}';
-                        route = route.replace('bookid', currentBookId);
-                        $.get(route, function (response) {
-                            renderAccessList(response.accesses);
-                        });
-                    }
+                    data: {library_book_id: currentBookId, guest_id: guestId},
+                    success: function () { refreshAccessList(); }
                 });
             });
 
