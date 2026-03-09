@@ -229,4 +229,17 @@ class LibraryBookController extends Controller
             'guests'  => $guests,
         ]);
     }
+    public function guestSearch(Request $request)
+    {
+        $q = $request->q;
+        $guests = Guest::where('status', 1)
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('phone', 'like', "%{$q}%");
+            })
+            ->limit(10)
+            ->get(['id', 'name', 'phone']);
+    
+        return response()->json(['guests' => $guests]);
+    }
 }
