@@ -96,13 +96,13 @@ Route::prefix('administrator/mhm')->middleware('is_admin')->group(function () {
     Route::resource('/book', BookController::class);
     Route::post('book/changeStatus', [BookController::class, 'changeStatus'])->name('book.changeStatus');
     Route::post('book/checked', [BookController::class, 'checked'])->name('book.checked');
+    Route::get('library-book/guest-search', [LibraryBookController::class, 'guestSearch'])->name('library-book.guestSearch');
     Route::resource('/library-book', LibraryBookController::class);
     Route::post('library-book/changeStatus', [LibraryBookController::class, 'changeStatus'])->name('library-book.changeStatus');
     Route::post('library-book/checked', [LibraryBookController::class, 'checked'])->name('library-book.checked');
     Route::post('library-book/grant-access', [LibraryBookController::class, 'grantAccess'])->name('library-book.grantAccess');
     Route::post('library-book/revoke-access', [LibraryBookController::class, 'revokeAccess'])->name('library-book.revokeAccess');
     Route::get('library-book/{id}/accesses', [LibraryBookController::class, 'bookAccesses'])->name('library-book.accesses');
-    Route::get('library-book/guest-search', [LibraryBookController::class, 'guestSearch'])->name('library-book.guestSearch');
 });
 
 Route::prefix('administrator/mhm')->middleware('is_teacher')->group(function () {
