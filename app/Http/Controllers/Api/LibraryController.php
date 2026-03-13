@@ -1,39 +1,43 @@
 <?php
-
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\LibraryBook;
 use App\Models\LibraryBookAccess;
 use App\Models\Setting;
 use Illuminate\Http\Request;
-
 class LibraryController extends Controller
 {
     /**
      * Bütün aktiv kitabların siyahısı.
-     * Featured kitablar ayrıca `featured` key-i ilə qaytarılır.
+     * my=1 parametri ilə yalnız access verilmiş kitablar qaytarılır.
      */
     public function index(Request $request)
     {
-        $guest = auth('api_guest')->user();
-    
+        $guest = $request->user();
+
         if ($request->my == 1) {
             $bookIds = LibraryBookAccess::where('guest_id', $guest->id)
                 ->pluck('library_book_id');
-    
+
             $books = LibraryBook::whereIn('id', $bookIds)
                 ->where('status', 1)
+                ->orderByDesc('id')
                 ->get();
-    
-            return response()->json(['status' => true, 'data' => $books]);
+
+            return response(['status' => 'success', 'data' => $books]);
         }
-    
-        // mövcud kod...
-        $featured = LibraryBook::where('is_featured', 1)->where('status', 1)->get();
-        $all = LibraryBook::where('status', 1)->get();
-    
-        return response()->json(['status' => true, 'data' => compact('featured', 'all')]);
+
+        $books    = LibraryBook::where('status', 1)
+            ->orderByDesc('is_featured')
+            ->orderByDesc('id')
+            ->get();
+        $featured = $books->where('is_featured', 1)->values();
+        $all      = $books->values();
+
+        return response(['status' => 'success', 'data' => [
+            'featured' => $featured,
+            'all'      => $all,
+        ]]);
     }
 
     /**
@@ -44,16 +48,15 @@ class LibraryController extends Controller
     public function show(Request $request, int $id)
     {
         $book = LibraryBook::where('status', 1)->findOrFail($id);
-
-        $guestId  = $request->user()->id;
+        $guestId   = $request->user()->id;
         $hasAccess = LibraryBookAccess::where([
             'library_book_id' => $id,
             'guest_id'        => $guestId,
         ])->exists();
 
         $data = $book->toArray();
-        $data['has_access']    = $hasAccess;
-        $data['full_pdf_url']  = $hasAccess ? $book->full_pdf_url : null;
+        $data['has_access']   = $hasAccess;
+        $data['full_pdf_url'] = $hasAccess ? $book->full_pdf_url : null;
 
         return response(['status' => 'success', 'data' => $data]);
     }
@@ -69,8 +72,6 @@ class LibraryController extends Controller
         $setting = Setting::first();
 
         $whatsappNumber = $setting->whatsapp ?? null;
-
-        // Mesaj mətni
         $message = "Salam! Mən {$guest->name} sistemdəki \"{$book->title}\" adlı kitabı almaq istəyirəm.";
 
         return response(['status' => 'success', 'data' => [
