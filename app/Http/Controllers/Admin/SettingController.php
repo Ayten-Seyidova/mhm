@@ -66,6 +66,7 @@ class SettingController extends Controller
         $settings->security = str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->security);
         $settings->terms = str_replace(['<iframe', '&#39;'], ['<iframe allowfullscreen', "'"], $request->terms);
         $settings->whatsapp = $request->whatsapp;
+        $settings->library_purchase_info = $request->library_purchase_info;
         $settings->save();
 
         alert()->success('Uğurlu', 'Tənzimləmələr redaktə olundu')
