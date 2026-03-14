@@ -38,6 +38,11 @@
                                            value="{{$setting->whatsapp}}" maxlength="190"
                                            id="whatsapp" placeholder="+994501234567">
                                 </div>
+                                <div class="form-group col-12">
+                                    <label for="library_purchase_info">Kitab alış məlumatı (PDF olmayan kitablar üçün)</label>
+                                    <textarea name="library_purchase_info" class="form-control" rows="4"
+                                              id="library_purchase_info" placeholder="Kitabı aşağıdakı yerlərdən ala bilərsiniz...">{{$setting->library_purchase_info}}</textarea>
+                                </div>
                                 <div class="form-group col-4">
                                     <label for="customer_service">Müştəri xidmətləri</label>
                                     <input type="text" name="customer_service" class="form-control"
