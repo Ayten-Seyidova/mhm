@@ -221,7 +221,7 @@ class LibraryBookController extends Controller
     public function bookAccesses(Request $request, string $id)
     {
         $book = LibraryBook::findOrFail($id);
-    
+
         $accesses = LibraryBookAccess::with('guest')
             ->where('library_book_id', $id)
             ->when($request->q, function ($query) use ($request) {
@@ -232,27 +232,13 @@ class LibraryBookController extends Controller
             })
             ->orderBy('id', 'desc')
             ->paginate(20);
-    
+
         return response()->json([
-            'book'     => $book,
-            'accesses' => $accesses->items(),
-            'total'    => $accesses->total(),
-            'pages'    => $accesses->lastPage(),
-            'current'  => $accesses->currentPage(),
+            'book'    => $book,
+            'accesses'=> $accesses->items(),
+            'total'   => $accesses->total(),
+            'pages'   => $accesses->lastPage(),
+            'current' => $accesses->currentPage(),
         ]);
-    }
-    
-    public function guestSearch(Request $request)
-    {
-        $q = $request->q;
-        $guests = Guest::where('status', 1)
-            ->where(function ($query) use ($q) {
-                $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('phone', 'like', "%{$q}%");
-            })
-            ->limit(10)
-            ->get(['id', 'name', 'phone']);
-    
-        return response()->json(['guests' => $guests]);
     }
 }
