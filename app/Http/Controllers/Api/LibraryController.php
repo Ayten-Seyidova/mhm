@@ -75,12 +75,14 @@ class LibraryController extends Controller
         $message = "Salam! Mən {$guest->name} sistemdəki \"{$book->title}\" adlı kitabı almaq istəyirəm.";
 
         return response(['status' => 'success', 'data' => [
-            'whatsapp_number' => $whatsappNumber,
-            'message'         => $message,
-            'book'            => [
-                'id'    => $book->id,
-                'title' => $book->title,
-                'price' => $book->price,
+            'whatsapp_number'      => $whatsappNumber,
+            'message'              => $message,
+            'library_purchase_info'=> $setting->library_purchase_info ?? null,
+            'book'                 => [
+                'id'           => $book->id,
+                'title'        => $book->title,
+                'price'        => $book->price,
+                'has_full_pdf' => !is_null($book->full_pdf_url),
             ],
         ]]);
     }
