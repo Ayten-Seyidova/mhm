@@ -231,7 +231,7 @@ class LibraryBookController extends Controller
                 });
             })
             ->orderBy('id', 'desc')
-            ->paginate(20);
+            ->paginate(10);
     
         return response()->json([
             'book'     => $book,
