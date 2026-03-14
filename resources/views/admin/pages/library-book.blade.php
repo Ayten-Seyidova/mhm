@@ -543,8 +543,21 @@
                         </div>
                         <div class="col-6">
                             <div class="lib-section-card">
-                                <div class="section-title"><i class="fa fa-users mr-1"></i>Mövcud accesslər</div>
+                                <div class="section-title">
+                                    <i class="fa fa-users mr-1"></i>Mövcud accesslər
+                                    <span id="accessTotal" class="text-muted" style="font-weight:400;font-size:11px;"></span>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <input type="text" id="accessSearchInput" class="form-control form-control-sm"
+                                           placeholder="Ad və ya telefon..."/>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary btn-sm" id="accessSearchBtn">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div id="accessList"></div>
+                                <div id="accessPagination" class="d-flex justify-content-center mt-2"></div>
                             </div>
                         </div>
                     </div>
@@ -558,7 +571,6 @@
     <script src="{{ asset('admin/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('admin/js/plugins-init/datatables.init.js') }}"></script>
     <script>
-        // CKEditor
         var minimalToolbar = [
             ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'],
             ['NumberedList', 'BulletedList'],
@@ -755,14 +767,25 @@
                 editBook($(this).data('id'));
             });
 
+            // -------------------------------------------------------
             // Access modal
+            // -------------------------------------------------------
             let currentBookId = null;
+            let accessCurrentPage = 1;
 
-            function refreshAccessList() {
+            function refreshAccessList(page) {
+                page = page || 1;
+                accessCurrentPage = page;
+                let q = $('#accessSearchInput').val().trim();
                 let route = '{{route('library-book.accesses', ['id'=>'bookid'])}}';
                 route = route.replace('bookid', currentBookId);
+                route += '?page=' + page;
+                if (q) route += '&q=' + encodeURIComponent(q);
+
                 $.get(route, function (response) {
                     renderAccessList(response.accesses);
+                    $('#accessTotal').text('(' + response.total + ' nəfər)');
+                    renderAccessPagination(response.current, response.pages);
                 });
             }
 
@@ -783,6 +806,18 @@
                 });
                 html += '</ul>';
                 $('#accessList').html(html);
+            }
+
+            function renderAccessPagination(current, pages) {
+                if (pages <= 1) { $('#accessPagination').html(''); return; }
+                let html = '<nav><ul class="pagination pagination-sm mb-0">';
+                for (let i = 1; i <= pages; i++) {
+                    html += '<li class="page-item ' + (i == current ? 'active' : '') + '">' +
+                        '<a class="page-link accessPageBtn" href="javascript:void(0)" data-page="' + i + '">' + i + '</a>' +
+                        '</li>';
+                }
+                html += '</ul></nav>';
+                $('#accessPagination').html(html);
             }
 
             function doGuestSearch() {
@@ -815,18 +850,29 @@
 
             $('.accessModal').click(function () {
                 currentBookId = $(this).data('id');
+                accessCurrentPage = 1;
                 $('#guestSearchInput').val('');
                 $('#guestSearchResults').html('');
+                $('#accessSearchInput').val('');
                 let route = '{{route('library-book.accesses', ['id'=>'bookid'])}}';
                 route = route.replace('bookid', currentBookId);
                 $.get(route, function (response) {
                     $('#accessBookTitle').text(response.book.title);
                     renderAccessList(response.accesses);
+                    $('#accessTotal').text('(' + response.total + ' nəfər)');
+                    renderAccessPagination(response.current, response.pages);
                 });
             });
 
             $('#guestSearchBtn').click(function () { doGuestSearch(); });
             $('#guestSearchInput').keypress(function (e) { if (e.which == 13) doGuestSearch(); });
+
+            $('#accessSearchBtn').click(function () { refreshAccessList(1); });
+            $('#accessSearchInput').keypress(function (e) { if (e.which == 13) refreshAccessList(1); });
+
+            $(document).on('click', '.accessPageBtn', function () {
+                refreshAccessList($(this).data('page'));
+            });
 
             $(document).on('click', '.grantBtn', function () {
                 let guestId = $(this).data('guestid');
@@ -835,7 +881,7 @@
                     method: 'POST',
                     data: {library_book_id: currentBookId, guest_id: guestId},
                     success: function () {
-                        refreshAccessList();
+                        refreshAccessList(accessCurrentPage);
                         Swal.fire({icon: 'success', text: 'Access verildi', confirmButtonColor: '#163A76', timer: 1500, showConfirmButton: false});
                     }
                 });
@@ -847,7 +893,7 @@
                     url: '{{route('library-book.revokeAccess')}}',
                     method: 'POST',
                     data: {library_book_id: currentBookId, guest_id: guestId},
-                    success: function () { refreshAccessList(); }
+                    success: function () { refreshAccessList(accessCurrentPage); }
                 });
             });
 
