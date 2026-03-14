@@ -218,17 +218,30 @@ class LibraryBookController extends Controller
         return response()->json(['message' => 'Access silindi']);
     }
 
-    public function bookAccesses(string $id)
+    public function bookAccesses(Request $request, string $id)
     {
-        $book = LibraryBook::with(['accesses.guest'])->findOrFail($id);
-        $guests = Guest::where('status', 1)->orderBy('name')->get(['id', 'name', 'phone']);
-
+        $book = LibraryBook::findOrFail($id);
+    
+        $accesses = LibraryBookAccess::with('guest')
+            ->where('library_book_id', $id)
+            ->when($request->q, function ($query) use ($request) {
+                $query->whereHas('guest', function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->q}%")
+                      ->orWhere('phone', 'like', "%{$request->q}%");
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(20);
+    
         return response()->json([
-            'book'    => $book,
-            'accesses'=> $book->accesses,
-            'guests'  => $guests,
+            'book'     => $book,
+            'accesses' => $accesses->items(),
+            'total'    => $accesses->total(),
+            'pages'    => $accesses->lastPage(),
+            'current'  => $accesses->currentPage(),
         ]);
     }
+    
     public function guestSearch(Request $request)
     {
         $q = $request->q;
