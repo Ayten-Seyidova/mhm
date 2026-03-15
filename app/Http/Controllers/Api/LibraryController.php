@@ -28,7 +28,6 @@ class LibraryController extends Controller
         }
 
         $books    = LibraryBook::where('status', 1)
-            ->orderByDesc('is_featured')
             ->orderByDesc('id')
             ->get();
         $featured = $books->where('is_featured', 1)->values();
