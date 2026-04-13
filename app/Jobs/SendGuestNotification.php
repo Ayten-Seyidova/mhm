@@ -41,7 +41,7 @@ class SendGuestNotification implements ShouldQueue
         ]);
 
         Guest::whereIn('sub_direction_id', $this->subdirectionIds)
-            ->with('parameters:id,guest_id,token')
+            ->with('parameters')
             ->select('id', 'sub_direction_id')
             ->chunkById(200, function ($guests) {
                 $tokens = [];
