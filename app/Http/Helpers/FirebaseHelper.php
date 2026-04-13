@@ -35,16 +35,16 @@ class FirebaseHelper
     public static function sendFirebaseRequest($data, $accessToken = null)
     {
         $accessToken = $accessToken ?: self::getAccessToken();
-
+    
         if (!$accessToken) {
             throw new \Exception('Firebase access token alınmadı.');
         }
-
+    
         $headers = [
             'Content-Type: application/json',
             'Authorization: Bearer ' . $accessToken
         ];
-
+    
         $ch = curl_init("https://fcm.googleapis.com/v1/projects/mhmv-47019/messages:send");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -52,22 +52,35 @@ class FirebaseHelper
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-
+    
         $response = curl_exec($ch);
         $error = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+    
         curl_close($ch);
-
+    
         if ($error) {
             throw new \Exception('FCM cURL error: ' . $error);
         }
-
+    
+        $decoded = json_decode($response, true);
+    
         if ($httpCode >= 400) {
-            throw new \Exception('FCM HTTP error: ' . $httpCode . ' | Response: ' . $response);
+            $fcmErrorCode = $decoded['error']['details'][0]['errorCode'] ?? null;
+    
+            return [
+                'ok' => false,
+                'http_code' => $httpCode,
+                'error_code' => $fcmErrorCode,
+                'response' => $decoded,
+            ];
         }
-
-        return $response;
+    
+        return [
+            'ok' => true,
+            'http_code' => $httpCode,
+            'response' => $decoded,
+        ];
     }
 
     public static function generate($type, $details)
@@ -222,35 +235,95 @@ class FirebaseHelper
 
     public static function sendTokens($title, $desc, array $tokens = [])
     {
+        $tokens = array_values(array_unique(array_filter($tokens)));
+    
         if (empty($tokens)) {
-            return [];
+            return [
+                'success' => 0,
+                'failed' => 0,
+                'unregistered' => 0,
+            ];
         }
-
+    
         $accessToken = self::getAccessToken();
-
+    
         if (!$accessToken) {
             throw new \Exception('Firebase access token alınmadı.');
         }
-
-        $responses = [];
-
+    
+        $success = 0;
+        $failed = 0;
+        $unregistered = 0;
+    
         foreach ($tokens as $token) {
-            $data = [
-                "message" => [
-                    "token" => $token,
-                    "notification" => [
-                        "title" => $title,
-                        "body" => $desc
+            try {
+                $data = [
+                    "message" => [
+                        "token" => $token,
+                        "notification" => [
+                            "title" => $title,
+                            "body" => $desc
+                        ]
                     ]
-                ]
-            ];
-
-            $responses[] = self::sendFirebaseRequest($data, $accessToken);
+                ];
+    
+                $result = self::sendFirebaseRequest($data, $accessToken);
+    
+                if (($result['ok'] ?? false) === true) {
+                    $success++;
+                    continue;
+                }
+    
+                $errorCode = $result['error_code'] ?? null;
+    
+                if ($errorCode === 'UNREGISTERED') {
+                    $unregistered++;
+    
+                    // model adı səndə fərqlidirsə ona uyğun dəyiş
+                    \App\Models\NotificationParametersGuest::where('token', $token)
+                        ->update(['token' => null]);
+    
+                    \Log::warning('FCM unregistered token removed', [
+                        'token' => $token,
+                    ]);
+    
+                    continue;
+                }
+    
+                $failed++;
+    
+                \Log::error('FCM token send failed', [
+                    'token' => $token,
+                    'title' => $title,
+                    'result' => $result,
+                ]);
+            } catch (\Throwable $e) {
+                $failed++;
+    
+                \Log::error('FCM token send exception', [
+                    'token' => $token,
+                    'title' => $title,
+                    'error' => $e->getMessage(),
+                ]);
+    
+                continue;
+            }
         }
-
-        return $responses;
+    
+        \Log::info('FCM chunk result', [
+            'title' => $title,
+            'success' => $success,
+            'failed' => $failed,
+            'unregistered' => $unregistered,
+            'total' => count($tokens),
+        ]);
+    
+        return [
+            'success' => $success,
+            'failed' => $failed,
+            'unregistered' => $unregistered,
+        ];
     }
-
     public static function sendAll($title, $desc, $subdirectionIds = [])
     {
         if (empty($subdirectionIds)) {
