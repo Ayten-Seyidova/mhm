@@ -14,8 +14,7 @@ class SendGuestNotificationChunk implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 120;
-    public $tries = 3;
-    public $backoff = [30, 120, 300];
+    public $tries = 1;
 
     public $title;
     public $desc;
