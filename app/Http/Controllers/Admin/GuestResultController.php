@@ -9,7 +9,11 @@ use App\Models\GuestResult;
 use App\Models\TeacherSubDirection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class GuestResultController extends Controller
 {
@@ -53,16 +57,10 @@ class GuestResultController extends Controller
         return $query;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        // İmtahanlar adətən az olur, normal load oluna bilər
         $exams = GuestExam::where('status', 1)->where('is_deleted', 0)->get();
 
-        // Qonaqlar 10k+ ola bilər - hamısını yükləmirik!
-        // Sadəcə seçilmiş qonaqı yükləyirik ki, dropdown-da göstərə bilək.
         $selectedGuest = null;
         if ($request->customer_id) {
             $selectedGuest = Guest::where('is_deleted', 0)
@@ -87,7 +85,6 @@ class GuestResultController extends Controller
 
     /**
      * AJAX endpoint - Select2 üçün qonaq axtarışı
-     * Response: { results: [{id, text}], pagination: { more: bool } }
      */
     public function searchGuests(Request $request)
     {
@@ -97,7 +94,6 @@ class GuestResultController extends Controller
 
         $query = Guest::where('is_deleted', 0);
 
-        // Müəllim üçün məhdudiyyət
         if (Auth::guard('teacher')->check()) {
             $user = Auth::guard('teacher')->user();
             $teacherDirectionIds = TeacherSubDirection::where('user_id', $user->id)
@@ -146,66 +142,176 @@ class GuestResultController extends Controller
     public function destroy(string $id) {}
 
     /**
-     * Download results as CSV/Excel.
+     * Download results as styled XLSX (Excel) file.
      */
     public function download(Request $request)
     {
+        // Yaddaşı və vaxtı artırırıq, böyük export-lar üçün
+        ini_set('memory_limit', '512M');
+        set_time_limit(600);
+
         $query = $this->buildQuery($request)->orderBy('id', 'desc');
 
-        $filename = 'guest-result-' . date('Y-m-d_H-i-s') . '.csv';
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Nəticələr');
 
-        $response = new StreamedResponse(function () use ($query) {
-            $handle = fopen('php://output', 'w');
-            // BOM for UTF-8 (Excel-də Azərbaycan hərfləri düzgün görünsün deyə)
-            fwrite($handle, "\xEF\xBB\xBF");
+        // ---------- Başlıqlar ----------
+        $headers = [
+            '#',
+            'İmtahan',
+            'Qonaq',
+            'Telefon',
+            'E-poçt',
+            'Bal',
+            'Düzgün cavab',
+            'Səhv cavab',
+            'Vaxt',
+            'Yaranma tarixi',
+        ];
 
-            // Başlıqlar
-            fputcsv($handle, [
-                '#',
-                'İmtahan',
-                'Qonaq',
-                'Telefon',
-                'E-poçt',
-                'Bal',
-                'Düzgün cavab sayı',
-                'Səhv cavab sayı',
-                'Vaxt',
-                'Yaranma tarixi',
-            ]);
+        $sheet->fromArray($headers, null, 'A1');
 
-            $counter = 1;
-            $query->chunk(500, function ($items) use ($handle, &$counter) {
-                foreach ($items as $parentModel) {
-                    $createdAt = $parentModel->created_at
-                        ? $parentModel->created_at->format('d.m.Y H:i')
-                        : '';
+        // ---------- Başlıq stili ----------
+        $headerRange = 'A1:' . $sheet->getHighestColumn() . '1';
+        $sheet->getStyle($headerRange)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 11,
+                'name' => 'Calibri',
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4D6CFA'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'E6E6E6'],
+                ],
+            ],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(28);
 
-                    $data = [
-                        $counter++,
-                        optional($parentModel->guestExam)->name,
-                        optional($parentModel->guest)->name,
-                        optional($parentModel->guest)->phone,
-                        optional($parentModel->guest)->email,
-                        $parentModel->point,
-                        $parentModel->correct_count,
-                        $parentModel->incorrect_count,
-                        $parentModel->time,
-                        $createdAt,
-                    ];
+        // ---------- Datanı sətr-sətr yazırıq (memory friendly) ----------
+        $row = 2;
+        $counter = 1;
 
-                    array_walk($data, function (&$item) {
-                        $item = mb_convert_encoding((string) $item, 'UTF-8', 'UTF-8');
-                    });
+        $query->chunk(500, function ($items) use ($sheet, &$row, &$counter) {
+            foreach ($items as $item) {
+                $createdAt = $item->created_at
+                    ? $item->created_at->format('d.m.Y H:i')
+                    : '';
 
-                    fputcsv($handle, $data);
-                }
-            });
+                $sheet->setCellValue('A' . $row, $counter++);
+                $sheet->setCellValue('B' . $row, optional($item->guestExam)->name);
+                $sheet->setCellValue('C' . $row, optional($item->guest)->name);
 
-            fclose($handle);
+                // Telefonu mətn kimi yazırıq ki Excel başdakı 0-ı silməsin
+                $phone = optional($item->guest)->phone;
+                $sheet->setCellValueExplicit(
+                    'D' . $row,
+                    $phone ?? '',
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                );
+
+                $sheet->setCellValue('E' . $row, optional($item->guest)->email);
+                $sheet->setCellValue('F' . $row, $item->point);
+                $sheet->setCellValue('G' . $row, $item->correct_count);
+                $sheet->setCellValue('H' . $row, $item->incorrect_count);
+                $sheet->setCellValue('I' . $row, $item->time);
+                $sheet->setCellValue('J' . $row, $createdAt);
+
+                $row++;
+            }
         });
 
-        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $lastRow = $row - 1;
+
+        // ---------- Data sətirləri stili ----------
+        if ($lastRow >= 2) {
+            $dataRange = 'A2:J' . $lastRow;
+
+            $sheet->getStyle($dataRange)->applyFromArray([
+                'font' => [
+                    'size' => 10,
+                    'name' => 'Calibri',
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'EEEEEE'],
+                    ],
+                ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Mərkəzdə olan sütunlar (#, Bal, Düzgün, Səhv, Vaxt)
+            $sheet->getStyle('A2:A' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F2:I' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('J2:J' . $lastRow)->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Zebra striping (cüt sətirlər - boz fon)
+            for ($r = 2; $r <= $lastRow; $r++) {
+                if ($r % 2 == 0) {
+                    $sheet->getStyle('A' . $r . ':J' . $r)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'F8F9FC'],
+                        ],
+                    ]);
+                }
+            }
+        }
+
+        // ---------- Sütun genişlikləri ----------
+        $sheet->getColumnDimension('A')->setWidth(6);   // #
+        $sheet->getColumnDimension('B')->setWidth(35);  // İmtahan
+        $sheet->getColumnDimension('C')->setWidth(28);  // Qonaq
+        $sheet->getColumnDimension('D')->setWidth(18);  // Telefon
+        $sheet->getColumnDimension('E')->setWidth(28);  // E-poçt
+        $sheet->getColumnDimension('F')->setWidth(10);  // Bal
+        $sheet->getColumnDimension('G')->setWidth(14);  // Düzgün
+        $sheet->getColumnDimension('H')->setWidth(14);  // Səhv
+        $sheet->getColumnDimension('I')->setWidth(12);  // Vaxt
+        $sheet->getColumnDimension('J')->setWidth(20);  // Tarix
+
+        // ---------- Freeze pane (başlıq sabitlənsin) ----------
+        $sheet->freezePane('A2');
+
+        // ---------- AutoFilter (Excel-də filter düymələri) ----------
+        if ($lastRow >= 2) {
+            $sheet->setAutoFilter('A1:J' . $lastRow);
+        }
+
+        // ---------- Cavabı qaytaraq ----------
+        $filename = 'neticeler-' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+
+        $response->headers->set(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        $response->headers->set(
+            'Content-Disposition',
+            'attachment; filename="' . $filename . '"'
+        );
+        $response->headers->set('Cache-Control', 'max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
 
         return $response;
     }
