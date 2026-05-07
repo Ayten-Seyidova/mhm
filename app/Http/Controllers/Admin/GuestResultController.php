@@ -27,7 +27,8 @@ class GuestResultController extends Controller
                         ->orWhere('point', 'like', "%{$request->search}%")
                         ->orWhereHas('guest', function ($g) use ($request) {
                             $g->where('name', 'like', "%{$request->search}%")
-                                ->orWhere('phone', 'like', "%{$request->search}%");
+                                ->orWhere('phone', 'like', "%{$request->search}%")
+                                ->orWhere('email', 'like', "%{$request->search}%");
                         })
                         ->orWhereHas('guestExam', function ($e) use ($request) {
                             $e->where('name', 'like', "%{$request->search}%");
@@ -105,6 +106,7 @@ class GuestResultController extends Controller
                 'İmtahan',
                 'Qonaq',
                 'Telefon',
+                'E-poçt',
                 'Bal',
                 'Düzgün cavab sayı',
                 'Səhv cavab sayı',
@@ -124,6 +126,7 @@ class GuestResultController extends Controller
                         optional($parentModel->guestExam)->name,
                         optional($parentModel->guest)->name,
                         optional($parentModel->guest)->phone,
+                        optional($parentModel->guest)->email,
                         $parentModel->point,
                         $parentModel->correct_count,
                         $parentModel->incorrect_count,
