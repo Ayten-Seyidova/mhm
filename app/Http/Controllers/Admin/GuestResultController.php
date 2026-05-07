@@ -58,8 +58,17 @@ class GuestResultController extends Controller
      */
     public function index(Request $request)
     {
+        // İmtahanlar adətən az olur, normal load oluna bilər
         $exams = GuestExam::where('status', 1)->where('is_deleted', 0)->get();
-        $guests = Guest::where('is_deleted', 0)->get();
+
+        // Qonaqlar 10k+ ola bilər - hamısını yükləmirik!
+        // Sadəcə seçilmiş qonaqı yükləyirik ki, dropdown-da göstərə bilək.
+        $selectedGuest = null;
+        if ($request->customer_id) {
+            $selectedGuest = Guest::where('is_deleted', 0)
+                ->where('id', $request->customer_id)
+                ->first();
+        }
 
         if (Auth::guard('teacher')->check()) {
             $user = Auth::guard('teacher')->user();
@@ -67,16 +76,66 @@ class GuestResultController extends Controller
                 ->where('is_deleted', 0)
                 ->where('user_id', $user->id)
                 ->get();
-
-            $teaherDirectionIds = TeacherSubDirection::where('user_id', $user->id)->pluck('sub_direction_id');
-            $guests = Guest::where('is_deleted', 0)->whereIn('id', $teaherDirectionIds)->get();
         }
 
         $posts = $this->buildQuery($request)
             ->orderBy('id', 'desc')
             ->paginate(20);
 
-        return view('admin.pages.guest-result', compact('posts', 'exams', 'guests'));
+        return view('admin.pages.guest-result', compact('posts', 'exams', 'selectedGuest'));
+    }
+
+    /**
+     * AJAX endpoint - Select2 üçün qonaq axtarışı
+     * Response: { results: [{id, text}], pagination: { more: bool } }
+     */
+    public function searchGuests(Request $request)
+    {
+        $search = trim($request->get('q', ''));
+        $page = (int) $request->get('page', 1);
+        $perPage = 30;
+
+        $query = Guest::where('is_deleted', 0);
+
+        // Müəllim üçün məhdudiyyət
+        if (Auth::guard('teacher')->check()) {
+            $user = Auth::guard('teacher')->user();
+            $teacherDirectionIds = TeacherSubDirection::where('user_id', $user->id)
+                ->pluck('sub_direction_id');
+            $query->whereIn('id', $teacherDirectionIds);
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $total = $query->count();
+        $guests = $query->orderBy('name')
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get(['id', 'name', 'phone']);
+
+        $results = $guests->map(function ($guest) {
+            $text = $guest->name;
+            if (!empty($guest->phone)) {
+                $text .= ' — ' . $guest->phone;
+            }
+            return [
+                'id' => $guest->id,
+                'text' => $text,
+            ];
+        });
+
+        return response()->json([
+            'results' => $results,
+            'pagination' => [
+                'more' => ($page * $perPage) < $total,
+            ],
+        ]);
     }
 
     public function create() {}
