@@ -26,6 +26,9 @@
             border-color: #4d6cfa !important;
             box-shadow: 0 0 0 3px rgba(77, 108, 250, 0.1) !important;
         }
+        .select2-results__option--highlighted {
+            background-color: #4d6cfa !important;
+        }
 
         /* Filter card */
         .filter-card {
@@ -186,6 +189,17 @@
         .results-card .card-body {
             padding: 24px;
         }
+
+        /* Select2 search box */
+        .select2-search--dropdown .select2-search__field {
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
+            border: 1px solid #e6e6e6 !important;
+        }
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #4d6cfa !important;
+            outline: none !important;
+        }
     </style>
 @endsection
 @section('content')
@@ -217,7 +231,7 @@
                                     <div class="row g-3">
                                         <div class="col-md-3">
                                             <label class="form-label-sm">İmtahan</label>
-                                            <select class="form-control search-select" onchange="form.submit()" name="exam_id">
+                                            <select class="form-control exam-select" onchange="form.submit()" name="exam_id">
                                                 <option value="">Hamısı</option>
                                                 @if(!empty($exams[0]))
                                                     @foreach($exams as $exam)
@@ -230,14 +244,12 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label-sm">Qonaq</label>
-                                            <select class="form-control search-select" onchange="form.submit()" name="customer_id">
+                                            <select class="form-control guest-select" name="customer_id">
                                                 <option value="">Hamısı</option>
-                                                @if(!empty($guests[0]))
-                                                    @foreach($guests as $guest)
-                                                        <option value="{{$guest->id}}" {{isset($_GET['customer_id']) && $_GET['customer_id'] == $guest->id ? 'selected' : ''}}>
-                                                            {{$guest->name}}{{ !empty($guest->phone) ? ' — '.$guest->phone : '' }}
-                                                        </option>
-                                                    @endforeach
+                                                @if(!empty($selectedGuest))
+                                                    <option value="{{ $selectedGuest->id }}" selected>
+                                                        {{ $selectedGuest->name }}{{ !empty($selectedGuest->phone) ? ' — '.$selectedGuest->phone : '' }}
+                                                    </option>
                                                 @endif
                                             </select>
                                         </div>
@@ -372,8 +384,62 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
-            $(".search-select").select2({
-                width: '100%'
+            // Exam select - normal (az saydadır)
+            $(".exam-select").select2({
+                width: '100%',
+                placeholder: 'İmtahan seç',
+                allowClear: true
+            });
+
+            // Guest select - AJAX (10k+ qonaq olduğu üçün serverdən axtarış)
+            $(".guest-select").select2({
+                width: '100%',
+                placeholder: 'Qonaq seç (ad və ya telefon)',
+                allowClear: true,
+                minimumInputLength: 0,
+                ajax: {
+                    url: "{{ route('guests.search') }}",
+                    dataType: 'json',
+                    delay: 300,
+                    cache: true,
+                    data: function (params) {
+                        return {
+                            q: params.term || '',
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    }
+                },
+                language: {
+                    inputTooShort: function () {
+                        return "Axtarmaq üçün yazın...";
+                    },
+                    searching: function () {
+                        return "Axtarılır...";
+                    },
+                    noResults: function () {
+                        return "Nəticə tapılmadı";
+                    },
+                    errorLoading: function () {
+                        return "Nəticələr yüklənə bilmədi";
+                    },
+                    loadingMore: function () {
+                        return "Daha çox yüklənir...";
+                    }
+                }
+            });
+
+            // Guest seçildikdə formu submit et
+            $(".guest-select").on('select2:select select2:clear', function () {
+                $('#searchForm').submit();
             });
 
             // Check all
