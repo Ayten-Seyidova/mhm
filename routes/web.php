@@ -139,6 +139,8 @@ Route::prefix('administrator/mhm')->middleware('is_admin_or_teacher')->group(fun
     Route::post('guest-question/changeStatus', [GuestQuestionController::class, 'changeStatus'])->name('guest-question.changeStatus');
     Route::post('guest-question/checked', [GuestQuestionController::class, 'checked'])->name('guest-question.checked');
     Route::resource('/guest-result', GuestResultController::class);
+    Route::get('admin/guests/search', [GuestResultController::class, 'searchGuests'])
+    ->name('guests.search');
     Route::get('download-guest-result', [GuestResultController::class, 'download'])->name('downloadGuestResult');
 });
 
